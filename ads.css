@@ -1,0 +1,93 @@
+/* Make It Ring — shared styles for the v2 ad landing pages
+   (moving-ads, cleaning-ads, restoration-ads) */
+
+:root { --accent: #FF5A1F; }
+
+html { -webkit-text-size-adjust: 100%; }
+html, body { overflow-x: hidden; }
+body { margin: 0; background: #e9e9e7; font-family: 'Archivo', Helvetica, Arial, sans-serif; color: #111; -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; }
+a { color: #111; text-decoration: none; }
+a:hover { color: #000; opacity: .75; }
+img { max-width: 100%; }
+input, button, select { font-family: inherit; }
+details > summary { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+details[open] .plus { transform: rotate(45deg); }
+details[open] .openhint { display: none; }
+.plus { transition: transform 160ms ease; display: inline-block; }
+.selectwrap { position: relative; flex: 1 1 190px; min-width: 0; display: block; }
+.selectwrap select { width: 100%; height: 48px; border: 1.5px solid #d8d8d4; border-radius: 999px; background: #fff; font-size:17.5px; font-weight: 600; color: #111; outline: none; appearance: none; -webkit-appearance: none; padding: 0 44px 0 18px; cursor: pointer; }
+.selectwrap select:focus { border-color: #111; }
+.selectwrap .caret { position: absolute; right: 18px; top: 50%; width: 9px; height: 9px; margin-top: -6px; border-right: 2.5px solid #111; border-bottom: 2.5px solid #111; transform: rotate(45deg); pointer-events: none; }
+.selectwrap.dark select { background: #2e2e2e; border-color: #4a4a4a; color: #fff; }
+.selectwrap.dark select:focus { border-color: #fff; }
+.selectwrap.dark .caret { border-right-color: #fff; border-bottom-color: #fff; }
+@media (max-width: 520px) { .selectwrap { flex: 1 1 100%; } }
+
+.shell { padding: 10px 10px 84px; }
+@media (min-width: 700px) { .shell { padding: 12px 12px 96px; } }
+.card { border-radius: 28px; padding: 26px 20px; }
+@media (min-width: 700px) { .card { padding: 48px 40px; } }
+@media (min-width: 1000px) { .card { padding: 68px 60px; } }
+.pad { border-radius: 20px; padding: 22px 20px; }
+@media (min-width: 700px) { .pad { padding: 30px 26px; } }
+
+.h2 { font-size: clamp(30px, 6.6vw, 50px); letter-spacing: -0.05em; font-weight: 900; line-height: 1.02; margin: 0 0 10px; }
+.lede { font-size: clamp(17.5px, 4vw, 19.5px); color: #555; line-height: 1.55; margin: 0 0 26px; }
+@media (min-width: 700px) { .lede { margin-bottom: 42px; } }
+.badge { display: inline-block; border-radius: 8px; padding: 7px 13px; font-size:13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 18px; }
+.mono { font-family: 'Archivo', Helvetica, Arial, sans-serif; font-weight: 600; }
+
+.g2 { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 700px) { .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.g3 { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 620px) { .g3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 940px) { .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.g4 { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 1000px) { .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.split { display: grid; gap: 26px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 900px) { .split { gap: 44px; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); } }
+.wide { display: grid; gap: 26px; grid-template-columns: minmax(0, 1fr); align-items: center; }
+@media (min-width: 900px) { .wide { gap: 48px; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ba { display: none; }
+@media (min-width: 760px) { .ba { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.bamobile { display: block; }
+@media (min-width: 760px) { .bamobile { display: none; } }
+.stats3 { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 560px) and (max-width: 899px) { .stats3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1120px) { .stats3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.stats3 > .pad p:first-child { font-size: clamp(21.5px, 3.4vw, 35.5px); }
+
+.hero { display: grid; gap: 30px; grid-template-columns: minmax(0, 1fr); align-items: center; }
+@media (min-width: 900px) { .hero { gap: 52px; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); } }
+.herostack { position: relative; height: 330px; min-width: 0; }
+@media (min-width: 560px) { .herostack { height: 440px; } }
+@media (min-width: 900px) { .herostack { height: 500px; } }
+
+.inputrow { display: flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 8px 8px 10px; max-width: 540px; flex-wrap: wrap; }
+.gobtn { border: 0; border-radius: 999px; padding: 0 24px; height: 48px; font-size:16.5px; font-weight: 700; cursor: pointer; white-space: nowrap; flex: 0 0 auto; background: var(--accent); color: #fff; }
+.gobtn:hover { opacity: .85; }
+@media (max-width: 520px) { .inputrow { border-radius: 20px; padding: 10px; } .gobtn { flex: 1 1 100%; } }
+
+.assurances { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 20px; }
+@media (min-width: 620px) { .assurances { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.navlinks { display: none; }
+@media (min-width: 940px) { .navlinks { display: flex; align-items: center; gap: 24px; font-size:15.5px; font-weight: 500; } }
+.navphone { display: none; }
+@media (min-width: 620px) { .navphone { display: inline-flex; } }
+.moretoggle { display: none; }
+@media (max-width: 699px) { .moretoggle { display: flex; } }
+@media (max-width: 560px) { button, select { min-height: 44px; } }
+
+.callbar {
+  position: fixed; left: 10px; right: 10px; bottom: 10px; height: 54px; z-index: 60;
+  background: var(--accent); color: #fff; text-decoration: none; border-radius: 999px;
+  font-size: 16px; font-weight: 700; letter-spacing: -0.01em;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2);
+  transition: transform 200ms ease;
+  transform: translateY(160%);
+  pointer-events: none;
+}
+.callbar.is-visible { transform: translateY(0); pointer-events: auto; }
