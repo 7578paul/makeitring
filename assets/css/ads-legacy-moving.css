@@ -1,0 +1,40 @@
+/* Make It Ring — legacy ad landing design (used by moving-ads-legacy, restoration-ads-legacy) */
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: #FFFFFF; color: #101214; font-family: "Hanken Grotesk", system-ui, sans-serif; }
+a { color: #FF3D00; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: #C72F00; }
+input, select, button { font-family: inherit; }
+::selection { background: #FF3D00; color: #fff; }
+.g2, .g3, .g4 { display: grid; gap: 0; grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 699px) { .heroimg { order: -1; margin: 0 calc(-1 * clamp(20px, 4vw, 40px)); } }
+@media (min-width: 700px) { .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1040px) { .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.split { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 860px) { .split { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); } }
+@media (min-width: 700px) { .stats4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1000px) { .stats4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .vids { grid-template-columns: repeat(2, minmax(0, 1fr)); } .vidrow > div { max-width: 360px !important; } }
+@media (min-width: 560px) and (max-width: 899px) { .vidrow { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); } }
+@media (max-width: 859px) { .attrib { border-left: 0 !important; padding-left: 0 !important; border-top: 1px solid #2A2D30; padding-top: 22px; } }
+html, body { overflow-x: hidden; }
+img, video, iframe, svg, figure { max-width: 100%; }
+@media (max-width: 560px) {
+  h1 { letter-spacing: -0.03em !important; }
+  blockquote { font-size: 23px !important; line-height: 1.28 !important; }
+  button, select, input { min-height: 44px; }
+  .vidrow { grid-template-columns: minmax(0, 1fr) !important; }
+  .stats4 > div, .g4 > div { min-width: 0; }
+  table { display: block; overflow-x: auto; }
+}
+
+.callbar {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 56px; z-index: 30;
+  background: #FF3D00; color: #fff; text-decoration: none;
+  font-family: 'IBM Plex Mono', monospace; font-size: 16px; letter-spacing: 0.03em;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 180ms ease;
+  transform: translateY(120%);
+  pointer-events: none;
+}
+.callbar.is-visible { transform: translateY(0); pointer-events: auto; }
