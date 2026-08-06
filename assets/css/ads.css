@@ -25,8 +25,16 @@ details[open] .openhint { display: none; }
 .selectwrap.dark .caret { border-right-color: #fff; border-bottom-color: #fff; }
 @media (max-width: 520px) { .selectwrap { flex: 1 1 100%; } }
 
-.shell { padding: 10px 10px 84px; }
-@media (min-width: 700px) { .shell { padding: 12px 12px 96px; } }
+.shell {
+  padding: calc(10px + env(safe-area-inset-top, 0px)) calc(10px + env(safe-area-inset-right, 0px))
+           calc(84px + env(safe-area-inset-bottom, 0px)) calc(10px + env(safe-area-inset-left, 0px));
+}
+@media (min-width: 700px) {
+  .shell {
+    padding: calc(12px + env(safe-area-inset-top, 0px)) calc(12px + env(safe-area-inset-right, 0px))
+             calc(96px + env(safe-area-inset-bottom, 0px)) calc(12px + env(safe-area-inset-left, 0px));
+  }
+}
 .card { border-radius: 28px; padding: 26px 20px; }
 @media (min-width: 700px) { .card { padding: 48px 40px; } }
 @media (min-width: 1000px) { .card { padding: 68px 60px; } }
@@ -81,7 +89,8 @@ details[open] .openhint { display: none; }
 @media (max-width: 560px) { button, select { min-height: 44px; } }
 
 .callbar {
-  position: fixed; left: 10px; right: 10px; bottom: 10px; height: 54px; z-index: 60;
+  position: fixed; left: 10px; right: 10px; height: 54px; z-index: 60;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   background: var(--accent); color: #fff; text-decoration: none; border-radius: 999px;
   font-size: 16px; font-weight: 700; letter-spacing: -0.01em;
   display: flex; align-items: center; justify-content: center;

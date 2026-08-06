@@ -30,14 +30,108 @@
     });
   }
 
-  // Lead forms: submit via FormSubmit, then send the visitor to the thank-you page.
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+
+  // Field-level rules. Anything else that is `required` just has to be non-empty.
+  function fieldProblem(input) {
+    var value = (input.value || "").trim();
+    var label = (input.getAttribute("data-label") || input.name || "This field");
+
+    if (!value) return "Enter your " + label + ".";
+
+    if (input.name === "email" || input.type === "email") {
+      if (!EMAIL_RE.test(value)) return "That email doesn't look right — check for a typo.";
+    }
+    if (input.name === "phone" || input.type === "tel") {
+      var digits = value.replace(/\D/g, "");
+      if (digits.length < 10) return "Enter a full phone number, including the area code.";
+      if (digits.length > 15) return "That phone number has too many digits.";
+    }
+    if (input.name === "name" && value.length < 2) {
+      return "Enter your full name.";
+    }
+    return null;
+  }
+
+  function clearError(input) {
+    input.classList.remove("is-invalid");
+    input.removeAttribute("aria-invalid");
+    var msg = input.parentNode.querySelector(".field-error");
+    if (msg) msg.parentNode.removeChild(msg);
+  }
+
+  function showError(input, message) {
+    input.classList.add("is-invalid");
+    input.setAttribute("aria-invalid", "true");
+    var msg = input.parentNode.querySelector(".field-error");
+    if (!msg) {
+      msg = document.createElement("p");
+      msg.className = "field-error";
+      input.parentNode.appendChild(msg);
+    }
+    msg.textContent = message;
+  }
+
+  function setFormAlert(form, message) {
+    var alert = form.querySelector(".form-alert");
+    if (!message) {
+      if (alert) alert.parentNode.removeChild(alert);
+      return;
+    }
+    if (!alert) {
+      alert = document.createElement("p");
+      alert.className = "form-alert";
+      alert.setAttribute("role", "alert");
+      form.insertBefore(alert, form.firstChild);
+    }
+    alert.textContent = message;
+  }
+
+  function validate(form) {
+    var inputs = form.querySelectorAll("input[required], select[required]");
+    var firstBad = null;
+    inputs.forEach(function (input) {
+      var problem = fieldProblem(input);
+      if (problem) {
+        showError(input, problem);
+        if (!firstBad) firstBad = input;
+      } else {
+        clearError(input);
+      }
+    });
+    return firstBad;
+  }
+
+  // Lead forms: validate, submit via FormSubmit, then send the visitor to the thank-you page.
   function initLeadForms() {
     var forms = document.querySelectorAll("[data-lead-form]");
     forms.forEach(function (form) {
       var submitBtn = form.querySelector("button[type=submit]");
 
+      // Use our own messages rather than the browser's bubbles.
+      form.setAttribute("novalidate", "novalidate");
+
+      // Clear a field's error as soon as it becomes valid again.
+      form.addEventListener("input", function (e) {
+        var input = e.target;
+        if (input.classList && input.classList.contains("is-invalid") && !fieldProblem(input)) {
+          clearError(input);
+          if (!form.querySelector(".is-invalid")) setFormAlert(form, null);
+        }
+      });
+
       form.addEventListener("submit", function (e) {
         e.preventDefault();
+
+        var firstBad = validate(form);
+        if (firstBad) {
+          setFormAlert(form, "Please check the fields marked below.");
+          firstBad.focus();
+          if (firstBad.scrollIntoView) firstBad.scrollIntoView({ block: "center", behavior: "smooth" });
+          return;
+        }
+        setFormAlert(form, null);
+
         if (submitBtn) { submitBtn.disabled = true; submitBtn.dataset.label = submitBtn.textContent; submitBtn.textContent = "Sending…"; }
 
         var data = {};
@@ -55,7 +149,7 @@
           })
           .catch(function () {
             if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.dataset.label; }
-            alert("That didn't send — please call us instead, the number is in the header.");
+            setFormAlert(form, "That didn't send. Please call (647) 475-2404 instead.");
           });
       });
     });

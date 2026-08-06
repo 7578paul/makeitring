@@ -21,8 +21,16 @@ details > summary::-webkit-details-marker { display: none; }
 details[open] .plus { transform: rotate(45deg); }
 .plus { transition: transform 160ms ease; display: inline-block; }
 
-.shell { padding: 10px 10px 84px; }
-@media (min-width: 700px) { .shell { padding: 12px 12px 96px; } }
+.shell {
+  padding: calc(10px + env(safe-area-inset-top, 0px)) calc(10px + env(safe-area-inset-right, 0px))
+           calc(84px + env(safe-area-inset-bottom, 0px)) calc(10px + env(safe-area-inset-left, 0px));
+}
+@media (min-width: 700px) {
+  .shell {
+    padding: calc(12px + env(safe-area-inset-top, 0px)) calc(12px + env(safe-area-inset-right, 0px))
+             calc(96px + env(safe-area-inset-bottom, 0px)) calc(12px + env(safe-area-inset-left, 0px));
+  }
+}
 .card { border-radius: 28px; padding: 26px 20px; }
 @media (min-width: 700px) { .card { padding: var(--card-pad-tablet); } }
 @media (min-width: 1000px) { .card { padding: var(--card-pad-desktop); } }
@@ -96,7 +104,8 @@ details[open] .plus { transform: rotate(45deg); }
 
 /* Sticky bottom call bar */
 .callbar {
-  position: fixed; left: 10px; right: 10px; bottom: 10px; height: 54px; z-index: 60;
+  position: fixed; left: 10px; right: 10px; height: 54px; z-index: 60;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   background: var(--accent); color: #fff; text-decoration: none; border-radius: 999px;
   font-size: 16px; font-weight: 700; letter-spacing: -0.01em;
   display: flex; align-items: center; justify-content: center;
@@ -106,3 +115,46 @@ details[open] .plus { transform: rotate(45deg); }
   pointer-events: none;
 }
 .callbar.is-visible { transform: translateY(0); pointer-events: auto; }
+
+/* Lead form validation */
+[data-lead-form] input.is-invalid,
+[data-lead-form] select.is-invalid {
+  border-color: #D92C07 !important;
+  background: #FFF7F5 !important;
+}
+[data-lead-form] .field-error {
+  margin: 0;
+  color: #C42506;
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+[data-lead-form] .form-alert {
+  margin: 0;
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  background: #FDECE8;
+  border: 1.5px solid #F3B5A6;
+  border-radius: 16px;
+  padding: 13px 15px;
+  color: #A81F04;
+  font-size: 15.5px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+[data-lead-form] .form-alert::before {
+  content: "!";
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #D92C07;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
