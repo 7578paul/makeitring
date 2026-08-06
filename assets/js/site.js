@@ -71,6 +71,22 @@
     "(647) 475-2404 | we@makeitring.co | makeitring.co"
   ].join("\n");
 
+  // Carry the landing page's spend answer onto the booking form. Without this
+  // the visitor is asked the same question twice, or — as was the case — the
+  // answer is stored and then silently dropped, since the booking form had no
+  // spend field at all.
+  function initSpendFill() {
+    var fields = document.querySelectorAll("[data-spend-fill]");
+    if (!fields.length) return;
+    var stored = "";
+    try { stored = sessionStorage.getItem("mir_spend") || ""; } catch (e) {}
+    if (!stored) return;
+    fields.forEach(function (field) {
+      var match = field.querySelector('option[value="' + stored.replace(/"/g, '\\"') + '"]');
+      if (match) field.value = stored;
+    });
+  }
+
   // Hero "what are you spending" selector: remembers the choice and sends the visitor to Book a call.
   function initHeroSpend() {
     var select = document.querySelector("[data-spend-select]");
@@ -225,6 +241,13 @@
           body: JSON.stringify(data)
         })
           .then(function () {
+            try {
+              sessionStorage.setItem("mir_pending_lead", JSON.stringify({
+                service: currentPlaybook(),
+                spend_band: spendBand(data.spend || ""),
+                form_id: form.id === "lead-form" ? "booking" : "home"
+              }));
+            } catch (e) {}
             window.location.href = "thank-you.html";
           })
           .catch(function () {
@@ -235,8 +258,44 @@
     });
   }
 
+  // The conversion is the visitor landing on the thank-you page, not the submit
+  // itself — it survives ad blockers better and is what Google Ads imports.
+  // Fires once per submission: the flag is cleared as soon as it is read, so a
+  // refresh or a back-button return does not double-count.
+  function initConversion() {
+    var file = String(location.pathname).split("/").pop().toLowerCase();
+    if (file.indexOf("thank-you") !== 0) return;
+
+    var pending = "";
+    try { pending = sessionStorage.getItem("mir_pending_lead") || ""; } catch (e) {}
+    if (!pending) return;
+    try { sessionStorage.removeItem("mir_pending_lead"); } catch (e) {}
+
+    var data = {};
+    try { data = JSON.parse(pending); } catch (e) { data = {}; }
+
+    // No personal data here — see analytics/TAXONOMY.md.
+    gtag("event", "generate_lead", {
+      service: data.service || "local",
+      spend_band: data.spend_band || "unset",
+      form_id: data.form_id || "booking",
+      page_type: "thank_you"
+    });
+  }
+
+  // Spend values are normalised so the display wording can change without
+  // splitting the reporting history.
+  function spendBand(value) {
+    if (value === "0-5k") return "0_5k";
+    if (value === "5-10k") return "5_10k";
+    if (value === "10k+") return "10k_plus";
+    return "unset";
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
+    initConversion();
     rememberPlaybook();
+    initSpendFill();
     initHeroSpend();
     initLeadForms();
   });
