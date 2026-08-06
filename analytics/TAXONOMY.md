@@ -1,6 +1,6 @@
 # Analytics taxonomy — Make It Ring
 
-GA4 property `G-TFKSVVE0RZ`. Site deploys from Cloudflare Workers.
+GA4 property `G-7NRTMS7Y1R`. Site deploys from Cloudflare Workers.
 
 **Status:** `page_view` and `generate_lead` are live. Everything under
 "Not yet wired" is agreed but not built.

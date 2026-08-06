@@ -21,7 +21,7 @@
 var SHARED_SECRET = 'qmWwqpKYKenxJcfNK1p7AVZSIRuY2yIx';
 
 var SITE      = 'https://makeitring.co';
-var FROM_NAME = 'Paulo Kihara — Make It Ring';
+var FROM_NAME = 'Paulo Kihara, Make It Ring';
 var REPLY_TO  = 'we@makeitring.co';
 var SENDER    = 'Paulo Kihara';
 var PHONE     = '(647) 475-2404';

@@ -16,7 +16,7 @@
      While it is blank nothing loads and no requests are made, but gtag() stays
      safe to call — events queue on dataLayer instead of throwing. -->
 <script>
-  window.GA_ID = "G-TFKSVVE0RZ";
+  window.GA_ID = "G-7NRTMS7Y1R";
   window.dataLayer = window.dataLayer || [];
   window.gtag = function () { window.dataLayer.push(arguments); };
   if (window.GA_ID) {
@@ -55,7 +55,7 @@
       <label class="field"><span style="font-size:15.5px;font-weight:600;color:#666">Company</span><input name="company" data-label="company" required autocomplete="organization"></label>
       <label class="field"><span style="font-size:15.5px;font-weight:600;color:#666">Phone</span><input name="phone" type="tel" data-label="phone number" required autocomplete="tel"></label>
       <label class="field"><span style="font-size:15.5px;font-weight:600;color:#666">Email</span><input name="email" type="email" data-label="email address" required autocomplete="email"></label>
-      <label class="field"><span style="font-size:15.5px;font-weight:600;color:#666">Monthly ad spend</span><select name="spend" data-label="monthly ad spend" data-spend-fill required style="height:52px;font-size:18px;padding:0 16px;border:1.5px solid #d8d8d4;border-radius:999px;background:#fff;color:#111;outline:none;appearance:none;-webkit-appearance:none"><option value="">Choose your monthly spend</option><option value="0-5k">$0 to $5k a month</option><option value="5-10k">$5k to $10k a month</option><option value="10k+">$10k+ a month</option></select></label>
+      <input type="hidden" name="spend" data-spend-fill>
       <button type="submit" style="width:100%;height:56px;margin-top:6px;background:var(--accent);color:#fff;border:0;border-radius:999px;font-weight:700;font-size:18.5px;cursor:pointer">Book</button>
     </form>
   </div>

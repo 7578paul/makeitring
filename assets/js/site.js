@@ -59,15 +59,15 @@
   // delivers this to the address in the form's `email` field. Plain text, and it
   // cannot carry an attachment — that is what the Apps Script relay is for.
   var AUTO_REPLY = [
-    "Thanks — we have your details.",
+    "Thanks, we have your details.",
     "",
     "A real person rings you back within the hour between 7am and 7pm. Outside those hours you are the first call of the next working day. Calls come from (647) 475-2404, worth saving it.",
     "",
-    "Worth having handy for the call: roughly what you spend a month on ads, and who runs them now — you, an agency, or nobody.",
+    "Worth having handy for the call: roughly what you spend a month on ads, and who runs them now: you, an agency, or nobody.",
     "",
     "Nothing is invoiced until after that call.",
     "",
-    "— Make It Ring",
+    "Make It Ring",
     "(647) 475-2404 | we@makeitring.co | makeitring.co"
   ].join("\n");
 
@@ -82,8 +82,14 @@
     try { stored = sessionStorage.getItem("mir_spend") || ""; } catch (e) {}
     if (!stored) return;
     fields.forEach(function (field) {
-      var match = field.querySelector('option[value="' + stored.replace(/"/g, '\\"') + '"]');
-      if (match) field.value = stored;
+      // A dropdown only takes a value it actually offers; a hidden field just
+      // carries whatever the landing page recorded.
+      if (field.tagName === "SELECT") {
+        var match = field.querySelector('option[value="' + stored.replace(/"/g, '\\"') + '"]');
+        if (match) field.value = stored;
+      } else {
+        field.value = stored;
+      }
     });
   }
 
@@ -110,7 +116,7 @@
     if (!value) return "Enter your " + label + ".";
 
     if (input.name === "email" || input.type === "email") {
-      if (!EMAIL_RE.test(value)) return "That email doesn't look right — check for a typo.";
+      if (!EMAIL_RE.test(value)) return "That email doesn't look right. Check for a typo.";
     }
     if (input.name === "phone" || input.type === "tel") {
       var digits = value.replace(/\D/g, "");
@@ -229,7 +235,7 @@
 
         var data = {};
         new FormData(form).forEach(function (v, k) { data[k] = v; });
-        data._subject = "New enquiry — Make It Ring website";
+        data._subject = "New enquiry from the Make It Ring website";
         data._captcha = "false";
         if (!AUTOREPLY_ENDPOINT) data._autoresponse = AUTO_REPLY;
 
