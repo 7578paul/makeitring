@@ -9,7 +9,7 @@
   // autoreply/SETUP.md. While this is blank the site falls back to FormSubmit's
   // own plain-text auto-reply below, so a reply always goes out.
   var AUTOREPLY_ENDPOINT = "";
-  var AUTOREPLY_SECRET = "CHANGE_ME";
+  var AUTOREPLY_SECRET = "qmWwqpKYKenxJcfNK1p7AVZSIRuY2yIx";
 
   // Which playbook a visitor gets is decided by the page they came through.
   // The ads and service pages have no form of their own — they all send people
