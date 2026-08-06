@@ -107,6 +107,22 @@ details[open] .openhint { display: none; }
 .vetted { display:flex; align-items:center; flex-wrap:wrap; gap:4px 9px; margin:0 0 14px; font-size:15px; font-weight:600; line-height:1.3; letter-spacing:-0.01em; color:#666; }
 .vetted-stars { color: var(--accent, #FF5A1F); font-size:15px; letter-spacing:1.5px; line-height:1; white-space:nowrap; }
 </style>
+<!-- Google Analytics 4. Set GA_ID to the G-XXXXXXXXXX measurement id to switch on.
+     While it is blank nothing loads and no requests are made, but gtag() stays
+     safe to call — events queue on dataLayer instead of throwing. -->
+<script>
+  window.GA_ID = "";
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { window.dataLayer.push(arguments); };
+  if (window.GA_ID) {
+    var ga = document.createElement('script');
+    ga.async = true;
+    ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + window.GA_ID;
+    document.head.appendChild(ga);
+    gtag('js', new Date());
+    gtag('config', window.GA_ID);
+  }
+</script>
 <script type='text/javascript'>
   window.smartlook||(function(d) {
     var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
