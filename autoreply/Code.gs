@@ -1,25 +1,17 @@
 /**
- * Make It Ring — auto-reply with attachment.
+ * Make It Ring — auto-reply with the playbook that matches the page the
+ * enquiry came from.
  *
- * Deployed as a Google Apps Script web app. The website posts the lead's
- * details here, and this sends them a reply from the Google account that owns
- * the script, with the attachment included.
+ * Deployed as a Google Apps Script web app. The website posts the lead's name,
+ * email and playbook here, and this replies from the Google account that owns
+ * the script, with the right PDF attached.
  *
  * Setup lives in autoreply/SETUP.md.
  */
 
 // ---------------------------------------------------------------------------
-// Settings — edit these four, then redeploy.
+// Settings
 // ---------------------------------------------------------------------------
-
-/** Public URL of the file to attach. Leave blank to send with no attachment. */
-var ATTACHMENT_URL = 'https://makeitring.co/downloads/make-it-ring.pdf';
-
-/** Filename the recipient sees. */
-var ATTACHMENT_NAME = 'Make It Ring.pdf';
-
-/** Subject line of the auto-reply. */
-var SUBJECT = 'Thanks — we have your details';
 
 /**
  * Must match AUTOREPLY_SECRET in assets/js/site.js. This is visible in the
@@ -28,9 +20,41 @@ var SUBJECT = 'Thanks — we have your details';
  */
 var SHARED_SECRET = 'CHANGE_ME';
 
-var FROM_NAME = 'Make It Ring';
+var SITE      = 'https://makeitring.co';
+var FROM_NAME = 'Paulo Kihara — Make It Ring';
 var REPLY_TO  = 'we@makeitring.co';
+var SENDER    = 'Paulo Kihara';
 var PHONE     = '(647) 475-2404';
+var LOGO_URL  = SITE + '/images/logo-make-it-ring-email.png';
+
+/**
+ * Which playbook goes with which key. The website decides the key from the page
+ * the visitor came through; anything unrecognised falls back to 'local'.
+ */
+var PLAYBOOKS = {
+  local: {
+    url:   SITE + '/downloads/make-it-ring-local-checks.pdf',
+    file:  'Make It Ring - Local Services Playbook.pdf',
+    label: 'local services playbook'
+  },
+  moving: {
+    url:   SITE + '/downloads/make-it-ring-moving-checks.pdf',
+    file:  'Make It Ring - Moving Playbook.pdf',
+    label: 'moving playbook'
+  },
+  cleaning: {
+    url:   SITE + '/downloads/make-it-ring-cleaning-checks.pdf',
+    file:  'Make It Ring - Cleaning Playbook.pdf',
+    label: 'cleaning playbook'
+  },
+  restoration: {
+    url:   SITE + '/downloads/make-it-ring-restoration-checks.pdf',
+    file:  'Make It Ring - Restoration Playbook.pdf',
+    label: 'restoration playbook'
+  }
+};
+
+var DEFAULT_PLAYBOOK = 'local';
 
 // ---------------------------------------------------------------------------
 
@@ -53,19 +77,20 @@ function doPost(e) {
       return reply({ ok: false, error: 'already sent recently' });
     }
 
+    var book  = PLAYBOOKS[String(data.playbook || '')] || PLAYBOOKS[DEFAULT_PLAYBOOK];
     var first = String(data.name || '').trim().split(/\s+/)[0] || 'there';
 
     var options = {
       name: FROM_NAME,
       replyTo: REPLY_TO,
-      htmlBody: htmlBody(first)
+      htmlBody: htmlBody(first, book)
     };
 
-    var file = attachment();
-    if (file) options.attachments = [file];
+    var pdf = attachment(book);
+    if (pdf) options.attachments = [pdf];
 
-    GmailApp.sendEmail(to, SUBJECT, textBody(first), options);
-    return reply({ ok: true });
+    GmailApp.sendEmail(to, 'Thanks ' + first + ', got your details', textBody(first, book), options);
+    return reply({ ok: true, playbook: book.label });
 
   } catch (err) {
     console.error(err);
@@ -78,11 +103,14 @@ function doGet() {
   return reply({ ok: true, service: 'Make It Ring auto-reply' });
 }
 
-function attachment() {
-  if (!ATTACHMENT_URL) return null;
+function attachment(book) {
   try {
-    var blob = UrlFetchApp.fetch(ATTACHMENT_URL, { muteHttpExceptions: true }).getBlob();
-    return blob.setName(ATTACHMENT_NAME);
+    var res = UrlFetchApp.fetch(book.url, { muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) {
+      console.error('attachment ' + book.url + ' returned ' + res.getResponseCode());
+      return null;
+    }
+    return res.getBlob().setName(book.file);
   } catch (err) {
     // Never lose the reply just because the file could not be fetched.
     console.error('attachment fetch failed: ' + err);
@@ -104,48 +132,33 @@ function reply(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-function textBody(first) {
+function textBody(first, book) {
   return [
-    'Hi ' + first + ',',
+    'Thanks ' + first + ', got your details.',
     '',
-    'Thanks — we have your details.',
+    "I'll call you today. If I miss you, I'll text so you know who it was.",
     '',
-    'A real person rings you back within the hour between 7am and 7pm. Outside those hours you are the first call of the next working day. Calls come from ' + PHONE + ', worth saving it.',
+    "In the meantime I've attached the " + book.label + '. Seven things worth checking in your account whether or not we end up working together.',
     '',
-    'Attached is something to read in the meantime.',
-    '',
-    'Worth having handy for the call: roughly what you spend a month on ads, and who runs them now — you, an agency, or nobody.',
-    '',
-    'Nothing is invoiced until after that call.',
-    '',
-    '— Make It Ring',
-    PHONE + ' | ' + REPLY_TO + ' | makeitring.co'
+    SENDER,
+    PHONE
   ].join('\n');
 }
 
-function htmlBody(first) {
-  var accent = '#FF3D00';
+function htmlBody(first, book) {
   var p = 'margin:0 0 16px;font-size:16px;line-height:1.55;color:#333;';
   return '' +
     '<div style="margin:0;padding:24px;background:#e9e9e7;font-family:Helvetica,Arial,sans-serif;">' +
       '<div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:20px;padding:32px 28px;">' +
-        '<p style="margin:0 0 22px;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#111;">' +
-          'make it <span style="color:' + accent + ';">ring</span>' +
-        '</p>' +
-        '<p style="' + p + '">Hi ' + escapeHtml(first) + ',</p>' +
-        '<p style="' + p + '">Thanks — we have your details.</p>' +
-        '<p style="' + p + '">A real person rings you back <strong>within the hour between 7am and 7pm</strong>. ' +
-          'Outside those hours you are the first call of the next working day. Calls come from ' +
-          '<a href="tel:+16474752404" style="color:#111;font-weight:600;">' + PHONE + '</a>, worth saving it.</p>' +
-        '<p style="' + p + '">Attached is something to read in the meantime.</p>' +
-        '<p style="' + p + '">Worth having handy for the call: roughly what you spend a month on ads, ' +
-          'and who runs them now — you, an agency, or nobody.</p>' +
-        '<p style="' + p + 'color:#777;">Nothing is invoiced until after that call.</p>' +
-        '<p style="margin:26px 0 0;padding-top:18px;border-top:1px solid #ececeb;font-size:14px;line-height:1.6;color:#999;">' +
-          'Make It Ring<br>' +
-          '<a href="tel:+16474752404" style="color:#777;">' + PHONE + '</a> &middot; ' +
-          '<a href="mailto:' + REPLY_TO + '" style="color:#777;">' + REPLY_TO + '</a> &middot; ' +
-          '<a href="https://makeitring.co" style="color:#777;">makeitring.co</a>' +
+        '<img src="' + LOGO_URL + '" alt="Make It Ring" width="150" ' +
+             'style="width:150px;max-width:150px;height:auto;display:block;border:0;margin:0 0 26px;">' +
+        '<p style="' + p + '">Thanks ' + escapeHtml(first) + ', got your details.</p>' +
+        '<p style="' + p + '">I&rsquo;ll call you today. If I miss you, I&rsquo;ll text so you know who it was.</p>' +
+        '<p style="' + p + '">In the meantime I&rsquo;ve attached the <strong>' + escapeHtml(book.label) + '</strong>. ' +
+          'Seven things worth checking in your account whether or not we end up working together.</p>' +
+        '<p style="margin:26px 0 0;padding-top:18px;border-top:1px solid #ececeb;font-size:16px;line-height:1.6;color:#333;">' +
+          '<strong>' + SENDER + '</strong><br>' +
+          '<a href="tel:+16474752404" style="color:#111;text-decoration:none;">' + PHONE + '</a>' +
         '</p>' +
       '</div>' +
     '</div>';
