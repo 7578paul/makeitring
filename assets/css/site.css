@@ -147,3 +147,24 @@ details[open] .plus { transform: rotate(45deg); }
   justify-content: center;
   line-height: 1;
 }
+
+/* Vetted signal in the hero */
+.vetted {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 9px;
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: #666;
+}
+.vetted-stars {
+  color: var(--accent, #FF5A1F);
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  line-height: 1;
+  white-space: nowrap;
+}
