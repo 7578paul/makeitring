@@ -12,6 +12,22 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/site.css">
+<!-- Google Analytics 4. Set GA_ID to the G-XXXXXXXXXX measurement id to switch on.
+     While it is blank nothing loads and no requests are made, but gtag() stays
+     safe to call — events queue on dataLayer instead of throwing. -->
+<script>
+  window.GA_ID = "";
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { window.dataLayer.push(arguments); };
+  if (window.GA_ID) {
+    var ga = document.createElement('script');
+    ga.async = true;
+    ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + window.GA_ID;
+    document.head.appendChild(ga);
+    gtag('js', new Date());
+    gtag('config', window.GA_ID);
+  }
+</script>
 <script type='text/javascript'>
   window.smartlook||(function(d) {
     var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
