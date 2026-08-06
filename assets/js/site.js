@@ -30,12 +30,10 @@
     });
   }
 
-  // Lead forms: submit via FormSubmit, swap to an inline confirmation panel.
+  // Lead forms: submit via FormSubmit, then send the visitor to the thank-you page.
   function initLeadForms() {
     var forms = document.querySelectorAll("[data-lead-form]");
     forms.forEach(function (form) {
-      var successId = form.getAttribute("data-lead-form");
-      var success = successId ? document.getElementById(successId) : null;
       var submitBtn = form.querySelector("button[type=submit]");
 
       form.addEventListener("submit", function (e) {
@@ -53,8 +51,7 @@
           body: JSON.stringify(data)
         })
           .then(function () {
-            form.hidden = true;
-            if (success) success.hidden = false;
+            window.location.href = "thank-you.html";
           })
           .catch(function () {
             if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.dataset.label; }
