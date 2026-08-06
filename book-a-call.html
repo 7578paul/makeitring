@@ -4,7 +4,11 @@
 <meta charset="utf-8">
 <title>Where should we send the findings? | Make It Ring</title>
 <meta name="description" content="Four fields and we'll be in touch within the hour.">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e9e9e7">
+<link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="images/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="images/favicon-180.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/site.css">
@@ -12,7 +16,7 @@
 <body>
 <div class="stage">
   <div class="sheet">
-    <img src="images/logo-make-it-ring.png" alt="Make It Ring" style="height:20px;width:auto;display:block;margin:0 0 26px">
+    <img src="images/logo-make-it-ring.svg" alt="Make It Ring" style="height:20px;width:auto;display:block;margin:0 0 26px">
 
     <div id="lead-success" hidden>
       <h1 style="font-size:clamp(28px, 6.4vw, 40px);line-height:1.05;letter-spacing:-0.045em;font-weight:900;margin:0 0 16px">Got it. <span style="color:var(--accent)">We'll be in touch</span> within the hour.</h1>
@@ -22,10 +26,10 @@
 
     <h1 id="lead-form-title" style="font-size:clamp(28px, 6.4vw, 40px);line-height:1.05;letter-spacing:-0.045em;font-weight:900;margin:0 0 26px">Where should we send <span style="color:var(--accent)">the findings</span>?</h1>
     <form data-lead-form="lead-success" id="lead-form" style="display:grid;gap:14px">
-      <label class="field"><span style="font-size:15.5px;font-weight:600;color:#666">Name</span><input name="name" required autocomplete="name"></label>
-      <label class="field"><span style="font-size:15.5px;font-weight:600;color:#666">Company</span><input name="company" required autocomplete="organization"></label>
-      <label class="field"><span style="font-size:15.5px;font-weight:600;color:#666">Phone</span><input name="phone" type="tel" required autocomplete="tel"></label>
-      <label class="field"><span style="font-size:15.5px;font-weight:600;color:#666">Email</span><input name="email" type="email" required autocomplete="email"></label>
+      <label class="field"><span style="font-size:15.5px;font-weight:600;color:#666">Name</span><input name="name" data-label="name" required autocomplete="name"></label>
+      <label class="field"><span style="font-size:15.5px;font-weight:600;color:#666">Company</span><input name="company" data-label="company" required autocomplete="organization"></label>
+      <label class="field"><span style="font-size:15.5px;font-weight:600;color:#666">Phone</span><input name="phone" type="tel" data-label="phone number" required autocomplete="tel"></label>
+      <label class="field"><span style="font-size:15.5px;font-weight:600;color:#666">Email</span><input name="email" type="email" data-label="email address" required autocomplete="email"></label>
       <button type="submit" style="width:100%;height:56px;margin-top:6px;background:var(--accent);color:#fff;border:0;border-radius:999px;font-weight:700;font-size:18.5px;cursor:pointer">Book</button>
     </form>
   </div>
