@@ -11,6 +11,50 @@
   var AUTOREPLY_ENDPOINT = "";
   var AUTOREPLY_SECRET = "CHANGE_ME";
 
+  // Which playbook a visitor gets is decided by the page they came through.
+  // The ads and service pages have no form of their own — they all send people
+  // to book-a-call.html — so each page records itself on load and the form
+  // reads it back. Keys must match PLAYBOOKS in autoreply/Code.gs.
+  var PLAYBOOK_KEY = "mir_playbook";
+
+  function playbookForPath(path) {
+    var file = String(path || "").split("/").pop().toLowerCase();
+    if (file.indexOf("cleaning") === 0) return "cleaning";
+    if (file.indexOf("moving") === 0) return "moving";
+    if (file.indexOf("restoration") === 0) return "restoration";
+    return "local";
+  }
+
+  function isFormPage(file) {
+    return file.indexOf("book-a-call") === 0 || file.indexOf("thank-you") === 0;
+  }
+
+  // Record this page, unless it is the form itself — that must not overwrite
+  // wherever the visitor came from.
+  function rememberPlaybook() {
+    var file = String(location.pathname).split("/").pop().toLowerCase();
+    if (isFormPage(file)) return;
+    try { sessionStorage.setItem(PLAYBOOK_KEY, playbookForPath(location.pathname)); } catch (e) {}
+  }
+
+  function currentPlaybook() {
+    var file = String(location.pathname).split("/").pop().toLowerCase();
+    if (!isFormPage(file)) return playbookForPath(location.pathname);
+    try {
+      var stored = sessionStorage.getItem(PLAYBOOK_KEY);
+      if (stored) return stored;
+    } catch (e) {}
+    // Session storage blocked or the visitor arrived straight at the form:
+    // fall back to whichever page linked here.
+    if (document.referrer) {
+      try {
+        var ref = new URL(document.referrer);
+        if (ref.host === location.host) return playbookForPath(ref.pathname);
+      } catch (e) {}
+    }
+    return "local";
+  }
+
   // Fallback auto-reply, used only while AUTOREPLY_ENDPOINT is unset. FormSubmit
   // delivers this to the address in the form's `email` field. Plain text, and it
   // cannot carry an attachment — that is what the Apps Script relay is for.
@@ -128,7 +172,8 @@
         body: JSON.stringify({
           secret: AUTOREPLY_SECRET,
           name: data.name || "",
-          email: data.email || ""
+          email: data.email || "",
+          playbook: currentPlaybook()
         })
       }).catch(function () {});
     } catch (e) {}
@@ -191,6 +236,7 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
+    rememberPlaybook();
     initHeroSpend();
     initLeadForms();
   });

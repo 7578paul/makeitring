@@ -11,22 +11,32 @@ no API key or DNS record to set up.
 While this is not yet configured the site keeps sending FormSubmit's plain-text
 auto-reply instead, so leads always get a reply either way.
 
-## 1. Put the attachment on the site
+## 1. The playbooks are already on the site
 
-Add the file to the repo at `downloads/` (e.g. `downloads/make-it-ring.pdf`) so
-it is reachable at `https://makeitring.co/downloads/make-it-ring.pdf`. Keeping it
-in the repo means it is version-controlled and you can also link to it anywhere.
+Four PDFs live in `downloads/` and are served from makeitring.co:
+
+| Playbook | Sent to anyone who came through | File |
+| --- | --- | --- |
+| `local` | the home page, or anything not below | `make-it-ring-local-checks.pdf` |
+| `moving` | `moving-ads`, `moving`, `moving-ads-legacy`, `moving-ads-standalone` | `make-it-ring-moving-checks.pdf` |
+| `cleaning` | `cleaning-ads`, `cleaning`, `cleaning-ads-legacy` | `make-it-ring-cleaning-checks.pdf` |
+| `restoration` | `restoration-ads`, `restoration`, `restoration-ads-legacy` | `make-it-ring-restoration-checks.pdf` |
+
+The ads pages have no form of their own — they send people to
+`book-a-call.html` — so each page records which playbook it maps to as the
+visitor passes through, and the form reads it back on submit.
+
+To swap a PDF, replace the file in `downloads/` keeping the same name. To change
+a filename or the wording of a playbook's name in the email, edit `PLAYBOOKS` at
+the top of `Code.gs` and redeploy.
 
 ## 2. Create the script
 
 1. Go to <https://script.google.com>, signed in as **we@makeitring.co**.
 2. **New project**, then name it "Make It Ring auto-reply".
 3. Delete the sample code and paste in everything from `autoreply/Code.gs`.
-4. Edit the settings at the top:
-   - `ATTACHMENT_URL` — the file's URL from step 1.
-   - `ATTACHMENT_NAME` — the filename the recipient sees.
-   - `SUBJECT` — the auto-reply's subject line.
-   - `SHARED_SECRET` — any random string, e.g. a password generator's output.
+4. Set `SHARED_SECRET` near the top to any random string, e.g. a password
+   generator's output. Everything else is already filled in.
 5. Save.
 
 ## 3. Deploy it
@@ -54,6 +64,13 @@ FormSubmit for its plain-text reply and uses this instead.
 Submit the form on the live site with your own email address. You should get the
 reply with the file attached, and the lead notification still lands in
 we@makeitring.co as before.
+
+Worth testing more than one route, since the whole point is that the attachment
+changes: go to `/cleaning-ads.html`, click through to the booking form and
+submit, and check the cleaning playbook is what arrives. The reply names the
+playbook in the body, so it is obvious if the wrong one goes out. Note the
+script only sends one reply per email address per hour, so use a different
+address (or a `you+test2@gmail.com` style alias) for each test.
 
 If nothing arrives, open the `/exec` URL in a browser — it should return
 `{"ok":true,...}`. Then check **Executions** in the Apps Script editor for the
