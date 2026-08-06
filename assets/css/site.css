@@ -78,7 +78,7 @@ details[open] .plus { transform: rotate(45deg); }
 @media (max-width: 520px) { .inputrow { border-radius: 20px; } .selectwrap { flex: 1 1 100%; } .gobtn { flex: 1 1 100%; } }
 
 .assurances { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 20px; }
-@media (min-width: 620px) { .assurances { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 620px) { .assurances { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); } }
 .navlinks { display: none; }
 @media (min-width: 1000px) { .navlinks { display: flex; align-items: center; gap: 22px; font-size:16.5px; font-weight: 500; } }
 .navphone { display: none; }
@@ -201,3 +201,31 @@ details[open] .plus { transform: rotate(45deg); }
 .vid-play:hover { transform: translate(-50%, -50%) scale(1.06); background: #fff; }
 .vid-play:focus-visible { outline: 3px solid var(--accent, #FF5A1F); outline-offset: 3px; }
 .vid.is-playing .vid-play { display: none; }
+
+/* The four consultation cards sat two-up on phones, which squeezed each one to
+   about 170px and made the headings wrap to four lines. One column, with the
+   number as a marker beside the text, reads as a list instead of a grid. */
+@media (max-width: 619px) {
+  #consult .g4 { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  #consult .g4 > .pad {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 15px;
+    align-items: start;
+    padding: 18px 18px 20px;
+  }
+  #consult .g4 > .pad > .mono {
+    grid-row: 1 / span 2;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+    /* the markup sets colour, size and margin inline, so these have to win */
+    margin: 0 !important;
+    color: #fff !important;
+    font-size: 13.5px !important;
+  }
+  #consult .g4 > .pad > h3 { margin: 4px 0 7px; font-size: 18.5px; }
+  #consult .g4 > .pad > p { margin: 0; font-size: 16px; }
+}

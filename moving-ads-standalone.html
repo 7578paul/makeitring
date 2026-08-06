@@ -113,12 +113,13 @@ details[open] .openhint { display: none; }
 .vid-play:hover { transform:translate(-50%,-50%) scale(1.06); background:#fff; }
 .vid.is-playing .vid-play { display:none; }
  /* The comparison panels have no separate mobile markup, unlike the case-study  .ba block which pairs with .bamobile. Hiding them left the section empty on  phones, so stack them instead. */ @media (max-width: 759px) { #compare .ba { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; } } 
+@media (max-width:619px){#consult .g4{grid-template-columns:minmax(0,1fr);gap:10px}#consult .g4 > .pad{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:15px;align-items:start;padding:18px 18px 20px}#consult .g4 > .pad > .mono{grid-row:1/span 2;width:30px;height:30px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;line-height:1;margin:0 !important;color:#fff !important;font-size:13.5px !important}#consult .g4 > .pad > h3{margin:4px 0 7px;font-size:18.5px}#consult .g4 > .pad > p{margin:0;font-size:16px}}
 </style>
 <!-- Google Analytics 4. Set GA_ID to the G-XXXXXXXXXX measurement id to switch on.
      While it is blank nothing loads and no requests are made, but gtag() stays
      safe to call — events queue on dataLayer instead of throwing. -->
 <script>
-  window.GA_ID = "G-TFKSVVE0RZ";
+  window.GA_ID = "G-7NRTMS7Y1R";
   window.dataLayer = window.dataLayer || [];
   window.gtag = function () { window.dataLayer.push(arguments); };
   if (window.GA_ID) {
@@ -189,7 +190,7 @@ details[open] .openhint { display: none; }
   </section>
 
   <section class="card" style="max-width:1240px;margin:0 auto 12px;background:#fff">
-    <div class="badge" style="background:#111;color:#fff;transform:rotate(-1.5deg)">WITH LOVE, FROM OUR CLIENTS</div>
+    <div class="badge" style="background:var(--accent);color:#fff;transform:rotate(-1.5deg)">WITH LOVE, FROM OUR CLIENTS</div>
     <h2 class="h2" style="max-width:18em">Hear from a client</h2>
     <p class="lede" style="max-width:600px">Before you take our word for it, two of the people whose accounts we run. Unscripted.</p>
     <div class="g2"><figure style="margin:0;background:#f7f7f5;border-radius:20px;padding:12px;display:flex;flex-direction:column"><div class="vid" data-vid><video data-vid-el playsinline preload="none" poster="https://customer-7izwzu1sojf48gna.cloudflarestream.com/36df7c14fcd08acb8b6ca205bca356af/thumbnails/thumbnail.jpg?time=2s&height=1280" style="width:100%;height:100%;object-fit:cover;display:block;background:#111"><source data-vid-src="https://customer-7izwzu1sojf48gna.cloudflarestream.com/36df7c14fcd08acb8b6ca205bca356af/manifest/video.m3u8" type="application/x-mpegURL"></video><button type="button" class="vid-play" data-vid-play aria-label="Play video"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M8 5.14v13.72L19 12z"/></svg></button></div></figure><figure style="margin:0;background:#f7f7f5;border-radius:20px;padding:12px;display:flex;flex-direction:column"><div class="vid" data-vid><video data-vid-el playsinline preload="none" poster="https://customer-7izwzu1sojf48gna.cloudflarestream.com/70346f91bf07d8f214b9ced15a078bb2/thumbnails/thumbnail.jpg?time=2s&height=1280" style="width:100%;height:100%;object-fit:cover;display:block;background:#111"><source data-vid-src="https://customer-7izwzu1sojf48gna.cloudflarestream.com/70346f91bf07d8f214b9ced15a078bb2/manifest/video.m3u8" type="application/x-mpegURL"></video><button type="button" class="vid-play" data-vid-play aria-label="Play video"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M8 5.14v13.72L19 12z"/></svg></button></div></figure></div>
@@ -216,7 +217,7 @@ details[open] .openhint { display: none; }
     </div>
   </section>
 
-  <section class="card" style="max-width:1240px;margin:0 auto 12px;background:#fff">
+  <section id="consult" class="card" style="max-width:1240px;margin:0 auto 12px;background:#fff">
     <div class="badge" style="background:var(--accent);color:#fff;transform:rotate(1.5deg)">YOUR CONSULTATION</div>
     <h2 class="h2" style="max-width:19em">Find out <span style="color:var(--accent)">where your ad money is going</span></h2>
     <p class="lede" style="max-width:620px">One call, three working days, and you walk away with four things in writing. Whether you hire us or not.</p>

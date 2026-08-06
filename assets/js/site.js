@@ -82,8 +82,14 @@
     try { stored = sessionStorage.getItem("mir_spend") || ""; } catch (e) {}
     if (!stored) return;
     fields.forEach(function (field) {
-      var match = field.querySelector('option[value="' + stored.replace(/"/g, '\\"') + '"]');
-      if (match) field.value = stored;
+      // A dropdown only takes a value it actually offers; a hidden field just
+      // carries whatever the landing page recorded.
+      if (field.tagName === "SELECT") {
+        var match = field.querySelector('option[value="' + stored.replace(/"/g, '\\"') + '"]');
+        if (match) field.value = stored;
+      } else {
+        field.value = stored;
+      }
     });
   }
 
