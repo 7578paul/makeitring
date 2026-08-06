@@ -18,7 +18,7 @@
  * site's source, so it only deters casual abuse; the real protection is the
  * per-address rate limit in sendAllowed() below.
  */
-var SHARED_SECRET = 'CHANGE_ME';
+var SHARED_SECRET = 'qmWwqpKYKenxJcfNK1p7AVZSIRuY2yIx';
 
 var SITE      = 'https://makeitring.co';
 var FROM_NAME = 'Paulo Kihara — Make It Ring';

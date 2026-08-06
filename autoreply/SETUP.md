@@ -35,8 +35,7 @@ the top of `Code.gs` and redeploy.
 1. Go to <https://script.google.com>, signed in as **we@makeitring.co**.
 2. **New project**, then name it "Make It Ring auto-reply".
 3. Delete the sample code and paste in everything from `autoreply/Code.gs`.
-4. Set `SHARED_SECRET` near the top to any random string, e.g. a password
-   generator's output. Everything else is already filled in.
+4. Nothing to edit — `SHARED_SECRET` is already set and matches the site.
 5. Save.
 
 ## 3. Deploy it
