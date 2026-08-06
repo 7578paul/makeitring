@@ -32,8 +32,70 @@
     try { sessionStorage.setItem("mir_playbook", key); } catch (e) {}
   }
 
+  // Testimonial videos: HLS from Cloudflare Stream, click to play. Nothing is
+  // fetched until the visitor asks for it — preload="none" plus a lazily loaded
+  // player library, so the videos cost nothing on page load.
+  var HLS_LIB = "assets/js/vendor/hls.light.min.js";
+  var hlsLoading = null;
+
+  function loadHls() {
+    if (window.Hls) return Promise.resolve(window.Hls);
+    if (hlsLoading) return hlsLoading;
+    hlsLoading = new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = HLS_LIB;
+      s.onload = function () { resolve(window.Hls); };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+    return hlsLoading;
+  }
+
+  function initVideos() {
+    var wraps = document.querySelectorAll("[data-vid]");
+    wraps.forEach(function (wrap) {
+      var video = wrap.querySelector("[data-vid-el]");
+      var button = wrap.querySelector("[data-vid-play]");
+      var source = wrap.querySelector("[data-vid-src]");
+      if (!video || !button || !source) return;
+      var url = source.getAttribute("data-vid-src");
+      var started = false;
+
+      function start() {
+        if (started) return;
+        started = true;
+        wrap.classList.add("is-playing");
+        video.controls = true;
+
+        // Safari and iOS play HLS natively; everyone else needs the library.
+        if (video.canPlayType("application/vnd.apple.mpegurl")) {
+          video.src = url;
+          video.play();
+          return;
+        }
+        loadHls().then(function (Hls) {
+          if (Hls && Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource(url);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function () { video.play(); });
+          } else {
+            video.src = url;
+            video.play();
+          }
+        }).catch(function () {
+          wrap.classList.remove("is-playing");
+          started = false;
+        });
+      }
+
+      button.addEventListener("click", start);
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     rememberPlaybook();
+    initVideos();
     initSpendPickers();
   });
 })();

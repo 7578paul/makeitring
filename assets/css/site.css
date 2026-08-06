@@ -168,3 +168,37 @@ details[open] .plus { transform: rotate(45deg); }
   line-height: 1;
   white-space: nowrap;
 }
+
+/* Testimonial video */
+.vid {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #111;
+  aspect-ratio: 9 / 16;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+}
+.vid video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vid-play {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 66px; height: 66px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .94);
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .3);
+  transition: transform 140ms ease, background 140ms ease;
+}
+.vid-play svg { margin-left: 3px; }
+.vid-play:hover { transform: translate(-50%, -50%) scale(1.06); background: #fff; }
+.vid-play:focus-visible { outline: 3px solid var(--accent, #FF5A1F); outline-offset: 3px; }
+.vid.is-playing .vid-play { display: none; }
