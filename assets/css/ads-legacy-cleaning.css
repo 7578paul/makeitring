@@ -68,7 +68,6 @@ details[open] .plus { transform: rotate(45deg); }
   color: #666;
 }
 .vetted-stars {
-  color: var(--accent, #FF5A1F);
   font-size: 15px;
   letter-spacing: 1.5px;
   line-height: 1;
