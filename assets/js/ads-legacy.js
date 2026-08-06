@@ -2,15 +2,6 @@
 (function () {
   "use strict";
 
-  function initCallBar() {
-    var bar = document.querySelector("[data-callbar]");
-    if (!bar) return;
-    function onScroll() {
-      bar.classList.toggle("is-visible", window.scrollY > 560);
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-  }
 
   function initSpendGo() {
     var select = document.querySelector("[data-spend-select]");
@@ -46,7 +37,6 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    initCallBar();
     initSpendGo();
     initProblemsToggle();
   });

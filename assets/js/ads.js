@@ -2,17 +2,6 @@
 (function () {
   "use strict";
 
-  function initCallBar() {
-    var bar = document.querySelector("[data-callbar]");
-    if (!bar) return;
-    function onScroll() {
-      var show = window.scrollY > 620 && window.innerWidth < 700;
-      bar.classList.toggle("is-visible", show);
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    onScroll();
-  }
 
   // There are two "what are you spending" pickers on these pages (hero + final CTA).
   function initSpendPickers() {
@@ -31,7 +20,6 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    initCallBar();
     initSpendPickers();
   });
 })();
