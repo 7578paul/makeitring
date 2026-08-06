@@ -4,6 +4,23 @@
 
   var FORM_ENDPOINT = "https://formsubmit.co/ajax/we@makeitring.co";
 
+  // Auto-reply sent to whoever filled in the form. FormSubmit delivers this to
+  // the address in the form's `email` field. Plain text only — FormSubmit has no
+  // way to attach a file to an auto-reply, so anything to hand over goes in as a
+  // link to a file hosted on this site.
+  var AUTO_REPLY = [
+    "Thanks — we have your details.",
+    "",
+    "A real person rings you back within the hour between 7am and 7pm. Outside those hours you are the first call of the next working day. Calls come from (647) 475-2404, worth saving it.",
+    "",
+    "Worth having handy for the call: roughly what you spend a month on ads, and who runs them now — you, an agency, or nobody.",
+    "",
+    "Nothing is invoiced until after that call.",
+    "",
+    "— Make It Ring",
+    "(647) 475-2404 | we@makeitring.co | makeitring.co"
+  ].join("\n");
+
   // Hero "what are you spending" selector: remembers the choice and sends the visitor to Book a call.
   function initHeroSpend() {
     var select = document.querySelector("[data-spend-select]");
@@ -125,6 +142,7 @@
         new FormData(form).forEach(function (v, k) { data[k] = v; });
         data._subject = "New enquiry — Make It Ring website";
         data._captcha = "false";
+        data._autoresponse = AUTO_REPLY;
 
         fetch(FORM_ENDPOINT, {
           method: "POST",
