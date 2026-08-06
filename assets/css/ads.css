@@ -105,7 +105,6 @@ details[open] .openhint { display: none; }
   color: #666;
 }
 .vetted-stars {
-  color: var(--accent, #FF5A1F);
   font-size: 15px;
   letter-spacing: 1.5px;
   line-height: 1;
@@ -145,3 +144,10 @@ details[open] .openhint { display: none; }
 .vid-play:hover { transform: translate(-50%, -50%) scale(1.06); background: #fff; }
 .vid-play:focus-visible { outline: 3px solid var(--accent, #FF5A1F); outline-offset: 3px; }
 .vid.is-playing .vid-play { display: none; }
+
+/* The comparison panels have no separate mobile markup, unlike the case-study
+   .ba block which pairs with .bamobile. Hiding them left the section empty on
+   phones, so stack them instead. */
+@media (max-width: 759px) {
+  #compare .ba { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+}
