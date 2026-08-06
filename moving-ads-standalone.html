@@ -19,6 +19,7 @@
 
 html { -webkit-text-size-adjust: 100%; }
 html, body { overflow-x: hidden; }
+@supports (overflow-x: clip) { html, body { overflow-x: clip; } }
 body { margin: 0; background: #e9e9e7; font-family: 'Archivo', Helvetica, Arial, sans-serif; color: #111; -webkit-font-smoothing: antialiased; }
 * { box-sizing: border-box; }
 a { color: #111; text-decoration: none; }
@@ -41,12 +42,12 @@ details[open] .openhint { display: none; }
 
 .shell {
   padding: calc(10px + env(safe-area-inset-top, 0px)) calc(10px + env(safe-area-inset-right, 0px))
-           calc(84px + env(safe-area-inset-bottom, 0px)) calc(10px + env(safe-area-inset-left, 0px));
+           calc(16px + env(safe-area-inset-bottom, 0px)) calc(10px + env(safe-area-inset-left, 0px));
 }
 @media (min-width: 700px) {
   .shell {
     padding: calc(12px + env(safe-area-inset-top, 0px)) calc(12px + env(safe-area-inset-right, 0px))
-             calc(96px + env(safe-area-inset-bottom, 0px)) calc(12px + env(safe-area-inset-left, 0px));
+             calc(20px + env(safe-area-inset-bottom, 0px)) calc(12px + env(safe-area-inset-left, 0px));
   }
 }
 .card { border-radius: 28px; padding: 26px 20px; }
@@ -102,25 +103,13 @@ details[open] .openhint { display: none; }
 @media (max-width: 699px) { .moretoggle { display: flex; } }
 @media (max-width: 560px) { button, select { min-height: 44px; } }
 
-.callbar {
-  position: fixed; left: 10px; right: 10px; height: 54px; z-index: 60;
-  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-  background: var(--accent); color: #fff; text-decoration: none; border-radius: 999px;
-  font-size: 16px; font-weight: 700; letter-spacing: -0.01em;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,.2);
-  transition: transform 200ms ease;
-  transform: translateY(160%);
-  pointer-events: none;
-}
-.callbar.is-visible { transform: translateY(0); pointer-events: auto; }
 
 </style>
 </head>
 <body>
 <div class="shell" style="min-height:100vh">
 
-  <nav style="position:sticky;top:10px;z-index:50;max-width:1240px;margin:0 auto 12px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-radius:18px;padding:10px 12px 10px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 6px 24px rgba(0,0,0,.10),0 1px 0 rgba(0,0,0,.04)">
+  <nav style="position:sticky;top:calc(10px + env(safe-area-inset-top, 0px));z-index:50;max-width:1240px;margin:0 auto 12px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-radius:18px;padding:10px 12px 10px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 6px 24px rgba(0,0,0,.10),0 1px 0 rgba(0,0,0,.04)">
     <a href="#top" style="display:flex;align-items:center;gap:8px"><img src="data:image/png;base64,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" alt="Make It Ring" style="height:20px;width:auto;display:block"><span style="width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block"></span></a>
     <div style="display:flex;align-items:center;gap:8px">
       <a href="tel:+16474752404" class="navphone mono" style="align-items:center;height:44px;padding:0 14px;border-radius:999px;background:#f1f1ef;font-size:15px;font-weight:700;white-space:nowrap">(647) 475-2404</a>
@@ -533,24 +522,12 @@ details[open] .openhint { display: none; }
 
 </div>
 
-<a href="tel:+16474752404" data-callbar class="callbar">Call (647) 475-2404</a>
 
 <script>
 // Make It Ring — shared behaviour for the v2 ad landing pages
 (function () {
   "use strict";
 
-  function initCallBar() {
-    var bar = document.querySelector("[data-callbar]");
-    if (!bar) return;
-    function onScroll() {
-      var show = window.scrollY > 620 && window.innerWidth < 700;
-      bar.classList.toggle("is-visible", show);
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    onScroll();
-  }
 
   // There are two "what are you spending" pickers on these pages (hero + final CTA).
   function initSpendPickers() {
@@ -569,7 +546,6 @@ details[open] .openhint { display: none; }
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    initCallBar();
     initSpendPickers();
   });
 })();

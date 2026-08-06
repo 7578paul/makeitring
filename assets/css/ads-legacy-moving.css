@@ -17,7 +17,9 @@ input, select, button { font-family: inherit; }
 @media (min-width: 900px) { .vids { grid-template-columns: repeat(2, minmax(0, 1fr)); } .vidrow > div { max-width: 360px !important; } }
 @media (min-width: 560px) and (max-width: 899px) { .vidrow { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); } }
 @media (max-width: 859px) { .attrib { border-left: 0 !important; padding-left: 0 !important; border-top: 1px solid #2A2D30; padding-top: 22px; } }
+/* clip (not hidden) — `hidden` makes the page a scroll container and breaks position:sticky */
 html, body { overflow-x: hidden; }
+@supports (overflow-x: clip) { html, body { overflow-x: clip; } }
 img, video, iframe, svg, figure { max-width: 100%; }
 @media (max-width: 560px) {
   h1 { letter-spacing: -0.03em !important; }

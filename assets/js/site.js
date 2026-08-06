@@ -4,19 +4,6 @@
 
   var FORM_ENDPOINT = "https://formsubmit.co/ajax/we@makeitring.co";
 
-  // Sticky bottom call bar: shows on mobile once the user scrolls past the hero.
-  function initCallBar() {
-    var bar = document.querySelector("[data-callbar]");
-    if (!bar) return;
-    function onScroll() {
-      var show = window.scrollY > 620 && window.innerWidth < 700;
-      bar.classList.toggle("is-visible", show);
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    onScroll();
-  }
-
   // Hero "what are you spending" selector: remembers the choice and sends the visitor to Book a call.
   function initHeroSpend() {
     var select = document.querySelector("[data-spend-select]");
@@ -156,7 +143,6 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    initCallBar();
     initHeroSpend();
     initLeadForms();
   });
