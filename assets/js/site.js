@@ -4,10 +4,16 @@
 
   var FORM_ENDPOINT = "https://formsubmit.co/ajax/we@makeitring.co";
 
-  // Auto-reply sent to whoever filled in the form. FormSubmit delivers this to
-  // the address in the form's `email` field. Plain text only — FormSubmit has no
-  // way to attach a file to an auto-reply, so anything to hand over goes in as a
-  // link to a file hosted on this site.
+  // Google Apps Script web app that sends the auto-reply with the attachment.
+  // Paste the /exec URL here after deploying autoreply/Code.gs — see
+  // autoreply/SETUP.md. While this is blank the site falls back to FormSubmit's
+  // own plain-text auto-reply below, so a reply always goes out.
+  var AUTOREPLY_ENDPOINT = "";
+  var AUTOREPLY_SECRET = "CHANGE_ME";
+
+  // Fallback auto-reply, used only while AUTOREPLY_ENDPOINT is unset. FormSubmit
+  // delivers this to the address in the form's `email` field. Plain text, and it
+  // cannot carry an attachment — that is what the Apps Script relay is for.
   var AUTO_REPLY = [
     "Thanks — we have your details.",
     "",
@@ -106,6 +112,28 @@
     return firstBad;
   }
 
+  // Ask the Apps Script relay to send the auto-reply with its attachment.
+  // Deliberately fire-and-forget: the lead notification goes through FormSubmit
+  // regardless, so a problem here must never cost us the enquiry. text/plain
+  // keeps it a simple request, so the browser skips the CORS preflight that
+  // Apps Script does not answer; keepalive lets it finish after we navigate.
+  function sendAutoReply(data) {
+    if (!AUTOREPLY_ENDPOINT) return;
+    try {
+      fetch(AUTOREPLY_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        keepalive: true,
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          secret: AUTOREPLY_SECRET,
+          name: data.name || "",
+          email: data.email || ""
+        })
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
   // Lead forms: validate, submit via FormSubmit, then send the visitor to the thank-you page.
   function initLeadForms() {
     var forms = document.querySelectorAll("[data-lead-form]");
@@ -142,7 +170,9 @@
         new FormData(form).forEach(function (v, k) { data[k] = v; });
         data._subject = "New enquiry — Make It Ring website";
         data._captcha = "false";
-        data._autoresponse = AUTO_REPLY;
+        if (!AUTOREPLY_ENDPOINT) data._autoresponse = AUTO_REPLY;
+
+        sendAutoReply(data);
 
         fetch(FORM_ENDPOINT, {
           method: "POST",
