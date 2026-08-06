@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Auto-reply diagnostic | Make It Ring</title>
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e9e9e7">
+<link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/site.css">
+<style>
+  .box { max-width:760px; margin:0 auto 12px; background:#fff; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:0 0 16px; }
+  input[type=email] { flex:1 1 260px; height:52px; font-size:17px; padding:0 16px; border:1.5px solid #d8d8d4; border-radius:999px; outline:none; }
+  button { height:52px; padding:0 26px; border:0; border-radius:999px; background:var(--accent); color:#fff; font-weight:700; font-size:17px; cursor:pointer; }
+  button[disabled] { opacity:.5; cursor:default; }
+  pre { background:#f7f7f5; border-radius:14px; padding:16px; font-size:13.5px; line-height:1.5; white-space:pre-wrap; word-break:break-word; margin:0 0 14px; }
+  .v { font-weight:700; }
+  .pass { color:#0a7c3f; } .fail { color:#C42506; } .warn { color:#9a6400; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <section class="card box">
+    <div class="badge" style="background:#111;color:#fff">Diagnostic</div>
+    <h1 style="font-size:clamp(26px,5.5vw,38px);line-height:1.05;letter-spacing:-0.04em;font-weight:900;margin:0 0 14px">Auto-reply diagnostic</h1>
+    <p style="font-size:17px;line-height:1.55;color:#555;margin:0 0 22px">Checks the same relay the real form uses, but shows the result instead of hiding it. Delete this page once the auto-reply works.</p>
+
+    <div class="row">
+      <input type="email" id="addr" placeholder="your email address" autocomplete="email">
+      <button id="go">Run the checks</button>
+    </div>
+    <pre id="out">Enter an email address and press the button.</pre>
+    <p style="font-size:15px;line-height:1.6;color:#777;margin:0">Use an address you have not tested in the last hour — the script deliberately sends only one reply per address per hour, and a blocked repeat looks identical to a failure.</p>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  var out = document.getElementById("out");
+  var lines = [];
+  function log(s) { lines.push(s); out.textContent = lines.join("\n"); }
+
+  document.getElementById("go").addEventListener("click", function () {
+    var btn = this;
+    var addr = document.getElementById("addr").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(addr)) { alert("Enter a valid email address first."); return; }
+    btn.disabled = true;
+    lines = [];
+    run(addr).then(function () { btn.disabled = false; });
+  });
+
+  function run(addr) {
+    var endpoint, secret;
+
+    log("1. Reading the live site's configuration…");
+    return fetch("assets/js/site.js?cb=" + Date.now())
+      .then(function (r) { return r.text(); })
+      .then(function (js) {
+        var e = js.match(/AUTOREPLY_ENDPOINT\s*=\s*"([^"]*)"/);
+        var s = js.match(/AUTOREPLY_SECRET\s*=\s*"([^"]*)"/);
+        endpoint = e ? e[1] : "";
+        secret = s ? s[1] : "";
+
+        if (!endpoint) {
+          log("   FAIL — the live site has no relay URL set.");
+          log("   The site currently deployed does not include the change. Wait for");
+          log("   GitHub Pages to finish publishing, then hard-refresh and retry.");
+          throw new Error("stop");
+        }
+        log("   OK — relay URL: " + endpoint);
+        log("");
+        log("2. Is the deployment public and live? (GET)");
+        return fetch(endpoint, { method: "GET" });
+      })
+      .then(function (r) { return r.text().then(function (t) { return { status: r.status, body: t }; }); })
+      .then(function (res) {
+        log("   HTTP " + res.status);
+        var body = res.body.slice(0, 300);
+        if (body.indexOf('"ok":true') !== -1) {
+          log("   OK — the script answered. It is deployed and reachable.");
+        } else if (/accounts\.google\.com|sign in|Moved Temporarily/i.test(body)) {
+          log("   FAIL — Google is asking for a login instead of running the script.");
+          log("   In Apps Script: Deploy > Manage deployments > edit (pencil) and set");
+          log('   "Who has access" to Anyone. Then Deploy again as a New version.');
+          throw new Error("stop");
+        } else {
+          log("   UNEXPECTED response:");
+          log("   " + body);
+        }
+        log("");
+        log("3. Sending a real auto-reply request (POST)…");
+        return fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ secret: secret, name: "Diagnostic Test", email: addr, playbook: "cleaning" })
+        });
+      })
+      .then(function (r) { return r.text().then(function (t) { return { status: r.status, body: t }; }); })
+      .then(function (res) {
+        log("   HTTP " + res.status);
+        log("   " + res.body.slice(0, 400));
+        if (res.body.indexOf('"ok":true') !== -1) {
+          log("");
+          log("   PASS — the script accepted it and sent the email.");
+          log("   If nothing arrives, it is a delivery problem, not a code one:");
+          log("   check Spam and the Promotions tab.");
+        } else if (res.body.indexOf("unauthorised") !== -1) {
+          log("");
+          log("   FAIL — the secret in Code.gs does not match the site's.");
+          log("   Site expects: " + secret);
+          log("   Set SHARED_SECRET in Code.gs to exactly that, then redeploy");
+          log("   as a New version.");
+        } else if (res.body.indexOf("already sent recently") !== -1) {
+          log("");
+          log("   The script refused only because this address was used in the last");
+          log("   hour. That means it IS working. Retry with a different address.");
+        }
+      })
+      .catch(function (err) {
+        if (err && err.message === "stop") return;
+        log("");
+        log("   The browser could not complete the request: " + err);
+        log("");
+        log("   A CORS or network error here usually still means the script RAN —");
+        log("   the browser just refused to show its answer. So check two things:");
+        log("   - Apps Script > Executions: is there a run logged just now?");
+        log("     If yes, open it for the real error. If no, the request never");
+        log('     arrived — almost always "Who has access" is not set to Anyone.');
+        log("   - Your Spam and Promotions folders.");
+      });
+  }
+})();
+</script>
+</body>
+</html>
