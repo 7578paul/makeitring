@@ -1,0 +1,7 @@
+# Kept out of the published site — repo housekeeping, not web content.
+wrangler.toml
+.assetsignore
+.nojekyll
+CNAME
+autoreply/
+analytics/

@@ -1,0 +1,12 @@
+# Cloudflare Workers static-assets config.
+#
+# The site is plain HTML at the repo root, so there is no build step: Cloudflare
+# just uploads the files and serves them. Files listed in .assetsignore are kept
+# out of the upload.
+
+name = "makeitring"
+compatibility_date = "2026-08-06"
+
+[assets]
+directory = "./"
+not_found_handling = "404-page"
