@@ -13,12 +13,21 @@ campaign count" are not exceptions to the process — they are inputs to it.
 ## Architecture
 
 ```
-brief.yaml  ──┐
-              ├──►  compiler  ──►  Plan (IR)  ──┬──►  Editor CSV   ──► Google Ads Editor ──► account
-blueprint.yaml┘         │                       ├──►  build sheet  ──► human approval
-                        │                       └──►  Ads API      ──► account   (phase 3)
-                    validators
+                        the expert's live account
+                                  │
+                          Editor export (CSV)
+                                  │
+                            extract.py            ← blueprint is DERIVED, not invented
+                                  ▼
+web form ─► brief ──┐      blueprint.yaml
+                    ├──► compiler ──► Plan (IR) ──┬──► Editor CSV  ──► Editor ──► account
+   brief.yaml ──────┘        │                    ├──► build sheet ──► human approval
+                        validators                └──► Ads API     ──► account  (phase 3)
 ```
+
+The loop at the top is the important part. The blueprint is not someone's
+opinion about how a moving account should look — it is a proven account, run
+through `extract.py`, with the client-specific strings swapped for placeholders.
 
 The **Plan** in the middle is the reason phase 3 is cheap. Exporters read the
 Plan and nothing else, so adding the API backend touches no blueprint, no brief
@@ -81,6 +90,35 @@ category and it is also where the lock-in lives. What is actually needed:
 | Session recording (Hotjar/Clarity/Smartlook) | **Optional** | Useful for landing pages. Not part of attribution. |
 | Meta pixel | **Optional** | Only if they run Meta. |
 
+### What is actually on movingpapa.com
+
+Confirmed from the page source:
+
+| Tool | ID | Read |
+| --- | --- | --- |
+| Google Tag Manager | `GTM-KHD5RLMK` | The container. Almost everything else is inside it. |
+| Meta Pixel | `1561438818562563` | Present. Only earns its place if Meta ads are running. |
+| ClickCease | — | Click-fraud blocking. See below. |
+| Google Maps embed | — | Not tracking. |
+
+Stack is Next.js on Vercel. Every CTA points at **`/finalstep/residential`** — that
+is the conversion endpoint, so ads should land in the funnel rather than on the
+homepage. Secondary CTA is `tel:8333511791`.
+
+**What is conspicuously absent from the markup:** no GA4 measurement ID, no
+Google Ads conversion ID, no call-tracking snippet. Those are either inside the
+GTM container or genuinely missing — and which one it is matters enormously.
+**Getting into that GTM container is the highest-value next step on tracking.**
+Enumerate its tags and you learn in ten minutes whether conversion tracking was
+ever set up properly, and whose accounts everything points at.
+
+**On ClickCease specifically:** it is the classic "critical tool" upsell. It is
+not worthless — moving is a high-CPC vertical where competitor clicking is real
+— but Google already credits invalid clicks automatically, and ClickCease's IP
+blocking can and does exclude genuine customers. Ask for the number: how much
+spend did it actually block last quarter, and what did it cost? If that question
+has no answer, it was a line item, not a tool.
+
 **Two rules, non-negotiable:**
 
 1. **Every account is in the client's name and on the client's card** — including
@@ -91,9 +129,9 @@ category and it is also where the lock-in lives. What is actually needed:
    agency and appear on trucks, Google Business Profile or door hangers, they
    must be ported out or the client loses call history at switchover.
 
-> **Blocked:** movingpapa.com is unreachable from this environment (network
-> egress policy). Paste the page source and this table gets replaced with what
-> is actually installed there, plus a port/migration list.
+3. **Ads land in the funnel.** `/finalstep/residential` converts; the homepage
+   asks the visitor to go find it. Campaign final URLs are set per campaign in
+   the brief for exactly this reason.
 
 ---
 
@@ -111,9 +149,12 @@ category and it is also where the lock-in lives. What is actually needed:
 
 | Phase | Work | Status |
 | --- | --- | --- |
-| 0 | Brief schema, blueprint format, compiler, validators, CSV + build sheet | **done (v0)** |
-| 0b | Replace the straw-man moving blueprint with the real account's structure | **blocked — needs the Editor export** |
-| 0c | Verify Editor CSV column headers against a real export | **blocked — same export** |
+| 0 | Brief schema, blueprint format, compiler, validators, CSV + build sheet | **done** |
+| 0a | `extract.py` — turn an Editor export into a blueprint automatically | **done** |
+| 0b | Local web UI (`app.py`) so a build is a form, not a YAML file | **done** |
+| 0c | Run the real account through `extract.py`, replace the straw man | **blocked — needs the Editor export** |
+| 0d | Verify Editor CSV column headers against that same export | **blocked — same export** |
+| 0e | Enumerate the `GTM-KHD5RLMK` container's tags | **blocked — needs GTM access** |
 | 1 | Backtest: rebuild a client we launched by hand, diff against what shipped | next |
 | 2 | Pre-launch QA checklist + measurement runbook | after 1 |
 | 3 | Ads API exporter, developer token, idempotent upsert | parallel |

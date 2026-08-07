@@ -122,7 +122,7 @@ campaigns:
             - "Licensed & Insured"
             - "Get Your Free Quote"
           descriptions:
-            - "The official site for {business}. {offer}. Call {phone} for a same-day answer."
+            - "The official site for {business}. Call {phone} for a same-day answer."
             - "Licensed, insured and local. Speak to the crew that does the work, not a call centre."
             - "{min_job_value}. No hidden fees, no surprise charges on moving day."
     negative_themes: [aggregators]
@@ -155,7 +155,7 @@ campaigns:
             - "Book Your Move Today"
             - "{min_job_value}"
           descriptions:
-            - "Local moves across {city}, done by our own crew. {offer}. Call {phone}."
+            - "Local moves across {city}, done by our own crew. Call {phone}."
             - "Flat, honest pricing. {min_job_value}. Nothing added on moving day."
             - "Licensed and insured {city} movers. Book in minutes, move this week."
             - "Ask for a written quote before you book. No deposit, no obligation."

@@ -59,8 +59,21 @@ def render(template: str, context: dict[str, str]) -> str:
 
 
 def compile_plan(brief_path: Path, blueprint_dir: Path) -> Plan:
-    brief = load_yaml(brief_path)
+    """Compile from a brief on disk. Thin wrapper — the UI calls compile_brief
+    directly with a dict, so both paths run identical logic."""
+    return compile_brief(load_yaml(brief_path), blueprint_dir)
+
+
+def available_trades(blueprint_dir: Path) -> list[str]:
+    return sorted(p.stem for p in blueprint_dir.glob("*.yaml"))
+
+
+def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
     trade = require(brief, "trade")
+    if not (blueprint_dir / f"{trade}.yaml").exists():
+        raise BriefError(
+            f"no blueprint for trade {trade!r} — have: {', '.join(available_trades(blueprint_dir))}"
+        )
     blueprint = load_yaml(blueprint_dir / f"{trade}.yaml")
 
     defaults = blueprint.get("defaults", {})
@@ -106,7 +119,11 @@ def compile_plan(brief_path: Path, blueprint_dir: Path) -> Plan:
     for spec in specs:
         campaign = Campaign(
             key=spec["key"],
-            name=_campaign_name(trade, spec["label"]),
+            name=_campaign_name(
+                trade,
+                spec["label"],
+                defaults.get("campaign_name_format", "{code} | Search | {label} | EN"),
+            ),
             campaign_type=defaults.get("campaign_type", "Search"),
             daily_budget=budgets[spec["key"]],
             bid_strategy=spec.get("bid_strategy", defaults.get("bid_strategy")),
@@ -119,7 +136,8 @@ def compile_plan(brief_path: Path, blueprint_dir: Path) -> Plan:
             location_target_type=defaults.get("location_target_type", "presence"),
             schedule=_build_schedule(spec.get("schedule"), schedules, brief),
             negatives=list(account_negatives)
-            + _theme_negatives(spec.get("negative_themes", []), themes),
+            + _theme_negatives(spec.get("negative_themes", []), themes)
+            + _literal_negatives(spec.get("negative_keywords", []), base_context),
         )
 
         final_url = _final_url(brief, spec["key"])
@@ -151,10 +169,13 @@ def compile_plan(brief_path: Path, blueprint_dir: Path) -> Plan:
     return plan
 
 
-def _campaign_name(trade: str, label: str) -> str:
+def _campaign_name(trade: str, label: str, fmt: str) -> str:
     """Names are the join key between the plan, the account and every report we
-    ever run against it. Keep the shape rigid: CODE | Type | Label | Language."""
-    return f"{TRADE_CODES.get(trade, trade[:3].upper())} | Search | {label} | EN"
+    ever run against it, so the shape is fixed by the blueprint rather than by
+    each campaign. Extracted blueprints set `{label}` to keep the source
+    account's own naming untouched."""
+    code = TRADE_CODES.get(trade, trade[:3].upper())
+    return render(fmt, {"code": code, "label": label, "trade": trade})
 
 
 def _allocate_budget(plan: Plan, specs: list[dict], brief: dict, blueprint: dict) -> dict[str, float]:
@@ -201,6 +222,18 @@ def _account_negatives(blueprint: dict, blueprint_dir: Path) -> list[NegativeKey
     return negatives
 
 
+def _literal_negatives(entries: list[dict], context: dict) -> list[NegativeKeyword]:
+    """Negatives lifted verbatim from an extracted account."""
+    return [
+        NegativeKeyword(
+            render(entry["text"], dict(context, term="")),
+            entry.get("match_type", "phrase"),
+            source="extracted",
+        )
+        for entry in entries
+    ]
+
+
 def _theme_negatives(theme_names: list[str], themes: dict[str, list[str]]) -> list[NegativeKeyword]:
     """Cross-campaign exclusion. Every campaign blocks the vocabularies that
     belong to its siblings, so the account never bids against itself."""
@@ -229,12 +262,20 @@ def _build_ad_group(
     label = render(group_spec["label"], context)
     name = f"{label} | {city}" if per_city else label
 
-    terms = _group_terms(group_spec, brief, themes)
-    if not terms:
+    # Two ways to specify keywords. `keywords` is a literal, already-parameterised
+    # list — what extract.py emits, because a proven account's keywords should be
+    # carried over as-is rather than re-derived. `keyword_themes` + `patterns` is
+    # the generative form, used by hand-written blueprints.
+    if literal := group_spec.get("keywords"):
+        terms, patterns = [""], literal
+    else:
+        terms = _group_terms(group_spec, brief, themes)
+        patterns = group_spec.get("patterns", ["{term}"])
+
+    if not terms or not patterns:
         plan.warn(f"{name}: no keyword terms resolved — ad group skipped")
         return None
 
-    patterns = group_spec.get("patterns", ["{term}"])
     matches = group_spec.get("match_types", default_matches)
 
     seen: set[tuple[str, str]] = set()
@@ -284,18 +325,25 @@ def _build_rsa(
 
     # Render first, measure second. A template that fits for "Vaughan" can
     # overflow for "Mississauga", so length is only knowable per city.
-    headlines = _fit(rsa_spec.get("headlines", []), context, MAX_HEADLINE)
-    descriptions = _fit(rsa_spec.get("descriptions", []), context, MAX_DESCRIPTION)
+    headlines, long_h, empty_h = _fit(rsa_spec.get("headlines", []), context, MAX_HEADLINE)
+    descriptions, long_d, empty_d = _fit(rsa_spec.get("descriptions", []), context, MAX_DESCRIPTION)
 
-    for label, kept, spec_key in (
-        ("headline", headlines, "headlines"),
-        ("description", descriptions, "descriptions"),
+    # Distinguish the two causes: one is a copywriting problem, the other means
+    # the brief left a field blank. Reporting both as "too long" sends whoever
+    # reads this to the wrong file.
+    for label, too_long, empty in (
+        ("headline", long_h, empty_h),
+        ("description", long_d, empty_d),
     ):
-        dropped = len(rsa_spec.get(spec_key, [])) - len(kept)
-        if dropped:
+        if too_long:
             plan.warn(
-                f"{where}: {dropped} {label}(s) dropped — too long once "
+                f"{where}: {too_long} {label}(s) dropped — over the limit once "
                 f"'{context['city']}' was substituted in"
+            )
+        if empty:
+            plan.warn(
+                f"{where}: {empty} {label}(s) dropped — a placeholder rendered "
+                f"empty, so a brief field is blank"
             )
 
     if len(headlines) < RSA_MIN_HEADLINES:
@@ -311,13 +359,22 @@ def _build_rsa(
     )
 
 
-def _fit(templates: list[str], context: dict, limit: int) -> list[str]:
-    out: list[str] = []
+def _fit(templates: list[str], context: dict, limit: int) -> tuple[list[str], int, int]:
+    """Render templates and keep the ones that fit. Returns the survivors plus
+    how many fell out for each reason, so the two can be reported apart."""
+    kept: list[str] = []
+    too_long = empty = 0
+
     for template in templates:
         text = render(template, context).strip()
-        if text and len(text) <= limit and text not in out:
-            out.append(text)
-    return out
+        if not text:
+            empty += 1
+        elif len(text) > limit:
+            too_long += 1
+        elif text not in kept:
+            kept.append(text)
+
+    return kept, too_long, empty
 
 
 def _final_url(brief: dict, campaign_key: str) -> str:

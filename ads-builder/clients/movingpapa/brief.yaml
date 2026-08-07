@@ -1,0 +1,84 @@
+# Moving Papa — built from the public site, not yet from the Ads account.
+#
+# Cities, service lines, funnel URL and phone are taken from movingpapa.com's
+# own navigation and CTAs. Budget, weights and positioning are PLACEHOLDERS and
+# must be confirmed before this is built for real.
+
+client:
+  slug: movingpapa
+  business_name: "Moving Papa"
+  website: "https://www.movingpapa.com"
+  phone: "833-351-1791"
+  currency: CAD
+  timezone: America/Toronto
+  customer_id: null              # needed — MCC invite first
+
+trade: moving
+
+# The site sells eight service lines plus commercial:
+#   residential, packing, storage, warehouse, office, specialEquipment, art, lastmile
+# Only the four below exist in the v0 blueprint. The rest arrive when the real
+# account is extracted — that is the whole point of not inventing them here.
+services:
+  - brand
+  - local_moving
+  - long_distance
+  - commercial
+
+service_area:
+  # Five city pages exist on the site: /toronto /vancouver /ottawa /calgary /edmonton
+  cities:
+    - Toronto
+    - Vancouver
+    - Ottawa
+    - Calgary
+    - Edmonton
+  targets:
+    - "Toronto, Ontario, Canada"
+    - "Vancouver, British Columbia, Canada"
+    - "Ottawa, Ontario, Canada"
+    - "Calgary, Alberta, Canada"
+    - "Edmonton, Alberta, Canada"
+  exclude: []
+
+budget:
+  monthly_total: 15000           # PLACEHOLDER — confirm
+  weights: {}
+
+hours:
+  always: false
+  open:
+    mon_fri: ["07:00", "19:00"]  # PLACEHOLDER — confirm
+    sat: ["08:00", "17:00"]
+    sun: null
+
+positioning:
+  min_job_value: ""              # blank on purpose: the build warns until it is answered
+  offer: "Free moving quote"
+  usps:
+    - "Licensed and insured"
+    - "Local and long distance"
+  brand_terms:
+    - "moving papa"
+    - "movingpapa"
+    - "moving papa movers"
+
+landing_pages:
+  # Every CTA on the site points at the quote funnel. Ads should land there
+  # rather than on the homepage, or the funnel step is wasted.
+  default: "https://www.movingpapa.com/finalstep/residential"
+  local_moving: "https://www.movingpapa.com/service/residential"
+  commercial: "https://www.movingpapa.com/commercial"
+  long_distance: "https://www.movingpapa.com/service/residential"
+
+tracking:
+  # Confirmed from the page source. See PLAN.md § measurement.
+  gtm_container: "GTM-KHD5RLMK"
+  meta_pixel: "1561438818562563"
+  clickcease: true
+  # Not visible in the markup — these live inside the GTM container and need
+  # container access to enumerate.
+  ga4_measurement_id: unknown
+  google_ads_conversion_id: unknown
+  call_tracking: unknown
+  gclid_capture: unknown
