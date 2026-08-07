@@ -10,6 +10,7 @@ impossible to ship past it by accident.
 """
 
 from .model import (
+    MAX_KEYWORDS_PER_GROUP,
     MAX_DESCRIPTION,
     MAX_HEADLINE,
     MAX_KEYWORD_CHARS,
@@ -68,6 +69,18 @@ def validate(plan: Plan) -> list[Finding]:
                 err(gwhere, "ad group has no keywords")
             if not group.ads:
                 err(gwhere, "ad group has no ads")
+
+            # The account this is modelled on runs 5-15 phrase keywords per ad
+            # group and lets phrase match plus smart bidding find the long tail.
+            # A big list is not thoroughness — it splits one query's data across
+            # near-duplicates and starves all of them. See SPEC.md.
+            if len(group.keywords) > MAX_KEYWORDS_PER_GROUP:
+                warn(
+                    gwhere,
+                    f"{len(group.keywords)} keywords — the target is "
+                    f"5-{MAX_KEYWORDS_PER_GROUP}. This blueprint is generating "
+                    f"combinations rather than themes",
+                )
 
             for keyword in group.keywords:
                 if len(keyword.text) > MAX_KEYWORD_CHARS:

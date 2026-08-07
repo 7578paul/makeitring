@@ -65,17 +65,25 @@ Copy `blueprints/moving.yaml`. The compiler is trade-agnostic; everything
 specific to a trade lives in the blueprint. Add the trade code to `TRADE_CODES`
 in `src/compiler.py` so campaign names get the right prefix.
 
-## Status
+## Status — do not build a real account with this yet
 
-v0. Two things are known-provisional and both are fixed by one input — a Google
-Ads Editor export from the live account:
+**Read [SPEC.md](SPEC.md) first.** The v0 blueprint was written before the
+playbook was available and is wrong in ways that cost money — most importantly
+it generates hundreds of keywords per ad group where the proven account runs
+5–15. The tool now warns about this itself, but the blueprint needs replacing,
+not patching.
 
-1. **`blueprints/moving.yaml` is a straw man.** It has the right *shape* and
-   encodes the documented strategy, but the keywords and copy are placeholders.
-2. **Editor CSV column headers are unverified.** They are defined once in
-   `COLUMNS` in `src/exporters.py`. Editor matches headers on exact text and
-   they vary by version and account language, so expect the first import to
-   need a mapping pass.
+What the pipeline gets right is its shape: brief + blueprint → plan → checked
+files, with nothing able to go live on its own. What it cannot yet express is
+in SPEC.md § *what the tool has to become* — markets as the top-level axis,
+shared negative lists, tCPA, tracking templates, DKI, negative geo.
+
+Also still unverified: **Editor CSV column headers**, defined once in `COLUMNS`
+in `src/exporters.py`. Editor matches headers on exact text and they vary by
+version and account language.
+
+Every one of these is settled by the same input — an Editor export of the live
+account.
 
 ## Moving this to its own repo
 

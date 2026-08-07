@@ -20,6 +20,10 @@ RSA_MAX_HEADLINES = 15
 RSA_MIN_DESCRIPTIONS = 2
 RSA_MAX_DESCRIPTIONS = 4
 
+# Not a Google limit — a strategy limit, taken from the account this tool is
+# modelled on. See SPEC.md § what v0 got wrong, row 1.
+MAX_KEYWORDS_PER_GROUP = 15
+
 
 @dataclass
 class Keyword:
