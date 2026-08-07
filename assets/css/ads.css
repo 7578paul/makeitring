@@ -180,10 +180,14 @@ details[open] .openhint { display: none; }
   #consult .g4 > .pad > p { margin: 0; font-size: 16px; }
 }
 
-/* Three chips in a two-column grid left an orphan on the last row, and the
-   labels were being cut off with an ellipsis at that width. One per row on
-   phones: full text, even rows. */
+/* On a phone, forcing two equal columns left each chip about 170px, which is
+   narrower than the labels; they wrapped to two lines and sat unevenly. Let
+   the chips size to their own text and flow instead: two on the first row,
+   one on the second, every label on a single line. */
 @media (max-width: 619px) {
-  .assurances { grid-template-columns: minmax(0, 1fr); }
-  .assurances > span { height: auto; min-height: 44px; padding-top: 10px; padding-bottom: 10px; }
+  .assurances { display: flex; flex-wrap: wrap; gap: 8px; }
+  /* the chip sets padding, gap and label size inline, so these must win */
+  .assurances > span { flex: 0 1 auto; min-width: 0; padding: 0 11px !important; gap: 6px !important; }
+  .assurances > span > span { white-space: nowrap; font-size: 15px !important; }
+  .assurances > span > img { width: 16px !important; height: 16px !important; }
 }
