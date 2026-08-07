@@ -1,0 +1,57 @@
+# Negatives that apply to every trade, every account, always.
+# One term per line, `#` comments ignored. Match type is set in the blueprint.
+
+# --- employment ---
+job
+jobs
+hiring
+careers
+career
+salary
+salaries
+wage
+employment
+apply
+resume
+vacancy
+
+# --- research / non-buyers ---
+how to
+how do
+diy
+tutorial
+guide
+tips
+youtube
+video
+wikipedia
+reddit
+forum
+meaning
+definition
+what is
+
+# --- free / bargain hunters ---
+free
+freebie
+cheapest
+volunteer
+charity
+donation
+grant
+
+# --- education ---
+course
+courses
+training
+certification
+school
+class
+
+# --- wrong intent ---
+complaints
+lawsuit
+scam
+reviews of
+sue
+license lookup

@@ -1,0 +1,273 @@
+# Moving blueprint v0.1
+#
+# THIS IS A STRAW MAN. It encodes the strategy described on makeitring.co
+# (service-per-campaign, long distance split off local, small jobs capped,
+# schedule by capacity) so the pipeline has something real to compile.
+#
+# Phase 0 replaces it with the structure exported from the live account. Until
+# that export lands, treat every keyword and headline below as a placeholder
+# with the right *shape*, not as the finished template.
+
+trade: moving
+version: "0.1"
+
+defaults:
+  campaign_type: Search
+  networks: "Google search"
+  language: "English"
+  bid_strategy: "Maximize conversions"
+  # Presence only. Presence-or-interest is the single most expensive default
+  # in Google Ads for a local service business.
+  location_target_type: presence
+  # Everything is created paused. Going live is a human decision, never a
+  # side effect of running the builder.
+  status: Paused
+  match_types: [phrase, exact]
+
+budget:
+  min_daily: 8.0
+  days_per_month: 30.4
+
+# Vocabularies referenced by campaigns. Defined once, reused as both keyword
+# sources and cross-campaign negatives.
+themes:
+  local:
+    - movers
+    - moving company
+    - moving companies
+    - local movers
+    - house movers
+    - apartment movers
+    - residential movers
+    - home movers
+  long_distance:
+    - long distance movers
+    - long distance moving company
+    - interstate movers
+    - cross country movers
+    - out of province movers
+    - long distance moving quote
+  commercial:
+    - office movers
+    - commercial movers
+    - business movers
+    - office moving company
+  small_job:
+    - man with a van
+    - single item movers
+    - furniture movers
+    - piano movers
+    - same day movers
+    - hourly movers
+  # Not services — negative vocabularies.
+  rental:
+    - truck rental
+    - van rental
+    - u haul
+    - uhaul
+    - penske
+    - budget truck
+    - rent a truck
+  supplies:
+    - moving boxes
+    - packing supplies
+    - boxes for sale
+    - bubble wrap
+    - moving blankets
+  storage:
+    - storage units
+    - self storage
+    - storage facility
+    - pods
+    - portable storage
+  aggregators:
+    - thumbtack
+    - angi
+    - homeadvisor
+    - unpakt
+    - hireahelper
+    - movebuddha
+    - moving.com
+    - bark
+
+negatives:
+  # Applied as shared campaign negatives on every campaign in the account.
+  account_level:
+    from_file: _shared/negatives-universal.txt
+    match_type: phrase
+    themes: [rental, supplies, aggregators]
+
+campaigns:
+  # ---------------------------------------------------------------- brand ---
+  - key: brand
+    label: "Brand"
+    budget_weight: 5
+    bid_strategy: "Manual CPC"       # brand is cheap; don't let smart bidding inflate it
+    max_cpc: 2.00
+    schedule: always
+    ad_groups:
+      - key: brand_exact
+        label: "Brand | Exact"
+        per_city: false
+        keyword_source: brand_terms   # pulled from the client brief
+        match_types: [exact, phrase]
+        rsa:
+          headlines:
+            - "{business}"
+            - "{business} | Official"
+            - "Official Site"
+            - "Book {business} Today"
+            - "Call {phone}"
+            - "{offer}"
+            - "Licensed & Insured"
+            - "Get Your Free Quote"
+          descriptions:
+            - "The official site for {business}. {offer}. Call {phone} for a same-day answer."
+            - "Licensed, insured and local. Speak to the crew that does the work, not a call centre."
+            - "{min_job_value}. No hidden fees, no surprise charges on moving day."
+    negative_themes: [aggregators]
+
+  # --------------------------------------------------------- local moving ---
+  - key: local_moving
+    label: "Local Moving"
+    budget_weight: 30
+    schedule: business_hours
+    ad_groups:
+      - key: movers
+        label: "Movers"
+        per_city: true                # one ad group per city in the brief
+        keyword_themes: [local]
+        patterns:
+          - "{term} {city}"
+          - "{term} in {city}"
+          - "{term} near me"
+          - "{term} cost {city}"
+        rsa:
+          headlines:
+            - "Movers in {city}"
+            - "{city} Moving Company"
+            - "Local Movers, {city}"
+            - "{offer}"
+            - "Licensed & Insured"
+            - "No Hidden Fees"
+            - "Same Crew, Start to End"
+            - "Call {phone}"
+            - "Book Your Move Today"
+            - "{min_job_value}"
+          descriptions:
+            - "Local moves across {city}, done by our own crew. {offer}. Call {phone}."
+            - "Flat, honest pricing. {min_job_value}. Nothing added on moving day."
+            - "Licensed and insured {city} movers. Book in minutes, move this week."
+            - "Ask for a written quote before you book. No deposit, no obligation."
+          path1: "movers"
+          path2: "{city}"
+    # Local must never eat the long-distance or small-job traffic.
+    negative_themes: [long_distance, small_job, storage, rental, supplies]
+
+  # -------------------------------------------------------- long distance ---
+  - key: long_distance
+    label: "Long Distance"
+    budget_weight: 45                # the high-ticket work gets the money
+    schedule: business_hours_extended
+    ad_groups:
+      - key: long_distance
+        label: "Long Distance"
+        per_city: true
+        keyword_themes: [long_distance]
+        patterns:
+          - "{term}"
+          - "{term} {city}"
+          - "{term} from {city}"
+        rsa:
+          headlines:
+            - "Long Distance Movers"
+            - "Moving Out of {city}?"
+            - "Cross Country Movers"
+            - "Free In-Home Estimate"
+            - "Written Quote, No Deposit"
+            - "Licensed & Insured"
+            - "One Crew, Door to Door"
+            - "Call {phone}"
+            - "Plan Your Move Early"
+          descriptions:
+            - "Moving far from {city}? Get a written, all-in quote before you commit."
+            - "One crew loads and unloads. Your things are never transferred between trucks."
+            - "Licensed, insured and tracked door to door. Call {phone} to book a survey."
+            - "{offer}. Book weeks ahead and lock your date and your price."
+          path1: "long-distance"
+          path2: "movers"
+    # Kill the cheap same-day work before it drags the average job size down.
+    negative_themes: [small_job, storage, rental, supplies]
+
+  # ------------------------------------------------------------ commercial ---
+  - key: commercial
+    label: "Commercial"
+    budget_weight: 15
+    schedule: business_hours
+    ad_groups:
+      - key: office_movers
+        label: "Office Movers"
+        per_city: true
+        keyword_themes: [commercial]
+        patterns:
+          - "{term} {city}"
+          - "{term} near me"
+        rsa:
+          headlines:
+            - "Office Movers, {city}"
+            - "Commercial Moving Co."
+            - "Move After Hours"
+            - "Zero Downtime Moves"
+            - "Licensed & Insured"
+            - "Get a Site Survey"
+            - "Call {phone}"
+            - "Written Fixed Quote"
+          descriptions:
+            - "Office and commercial moves across {city}, run outside your working hours."
+            - "Site survey first, fixed written quote second. No day-of surprises."
+            - "Licensed and insured, with certificates of insurance for your building."
+            - "Call {phone} to book a survey and get your move planned this week."
+          path1: "commercial"
+          path2: "movers"
+    negative_themes: [local, small_job, storage, rental, supplies]
+
+  # ------------------------------------------------- small jobs (capacity) ---
+  # Deliberately last and deliberately capped: this work fills gaps, it does
+  # not set the pace. Off by default; switch on via the brief.
+  - key: small_jobs
+    label: "Small Jobs"
+    budget_weight: 5
+    schedule: business_hours
+    ad_groups:
+      - key: small_jobs
+        label: "Single Item & Van"
+        per_city: true
+        keyword_themes: [small_job]
+        patterns:
+          - "{term} {city}"
+          - "{term} near me"
+        rsa:
+          headlines:
+            - "Single Item Movers"
+            - "Man With a Van, {city}"
+            - "Furniture Moved Today"
+            - "{min_job_value}"
+            - "Call {phone}"
+            - "Licensed & Insured"
+          descriptions:
+            - "One item or one room, moved by insured crew. {min_job_value}."
+            - "Book a two-hour slot in {city}. Call {phone} for today's availability."
+          path1: "small-moves"
+    negative_themes: [long_distance, commercial, storage, rental, supplies]
+
+# Ad schedules referenced by campaigns. Rendered from the brief's opening hours
+# where the schedule is hours-derived.
+schedules:
+  always:
+    kind: all_week
+  business_hours:
+    kind: from_brief
+  business_hours_extended:
+    kind: from_brief
+    # Long-distance buyers research in the evening; stay on past closing.
+    extend_evening_hours: 3
