@@ -1,0 +1,849 @@
+<title>Campaign Builder</title>
+<style>
+:root{
+  --ground:#f4f3f0; --surface:#fff; --raised:#fbfaf8;
+  --ink:#17140f; --muted:#6d6459; --faint:#948b7e;
+  --rule:#e2ded6; --rule-strong:#cfc9be;
+  --accent:#ff5a1f; --accent-ink:#fff; --accent-soft:#fff1ea;
+  --ok:#0f7a43; --ok-soft:#e8f4ec;
+  --warn:#8a5a00; --warn-soft:#faf1dd;
+  --err:#a51b12; --err-soft:#fbeae8;
+  --shadow:0 1px 2px rgba(23,20,15,.05), 0 8px 24px rgba(23,20,15,.05);
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#14130f; --surface:#1c1a16; --raised:#232019;
+    --ink:#f2efe8; --muted:#a49a8b; --faint:#7d7466;
+    --rule:#332f27; --rule-strong:#453f34;
+    --accent:#ff7a45; --accent-ink:#1a0d06; --accent-soft:#2e1a10;
+    --ok:#5cc98d; --ok-soft:#14261c;
+    --warn:#e0aa4a; --warn-soft:#2a2114;
+    --err:#f0776a; --err-soft:#2c1613;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#14130f; --surface:#1c1a16; --raised:#232019;
+  --ink:#f2efe8; --muted:#a49a8b; --faint:#7d7466;
+  --rule:#332f27; --rule-strong:#453f34;
+  --accent:#ff7a45; --accent-ink:#1a0d06; --accent-soft:#2e1a10;
+  --ok:#5cc98d; --ok-soft:#14261c;
+  --warn:#e0aa4a; --warn-soft:#2a2114;
+  --err:#f0776a; --err-soft:#2c1613;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--sans); font-size:16px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.sheet{max-width:1060px; margin:0 auto; padding:40px 22px 96px}
+
+/* ---------- masthead ---------- */
+.masthead{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:20px; flex-wrap:wrap;
+  border-bottom:2px solid var(--ink); padding-bottom:14px; margin-bottom:8px;
+}
+.masthead h1{
+  font-family:var(--serif); font-weight:400; font-size:clamp(30px,5vw,42px);
+  letter-spacing:-.02em; margin:0; text-wrap:balance;
+}
+.stamp{
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted); border:1px solid var(--rule-strong); border-radius:3px;
+  padding:5px 9px; white-space:nowrap;
+}
+.standfirst{color:var(--muted); margin:14px 0 34px; max-width:62ch; font-size:16.5px}
+
+/* ---------- job sheet form ---------- */
+.group{border-top:1px solid var(--rule); padding:26px 0 4px}
+.group:first-of-type{border-top:0; padding-top:8px}
+.eyebrow{
+  font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--accent); margin:0 0 4px;
+}
+.grouphint{color:var(--faint); font-size:14px; margin:0 0 18px; max-width:58ch}
+.fields{display:grid; gap:18px 22px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.fields.wide{grid-template-columns:1fr}
+.f label{display:block; font-size:13px; font-weight:650; letter-spacing:.01em; margin:0 0 6px}
+.f label em{font-style:normal; font-weight:400; color:var(--faint)}
+input[type=text],input[type=number],select,textarea{
+  width:100%; padding:10px 12px; font:inherit; font-size:15px;
+  color:var(--ink); background:var(--surface);
+  border:1px solid var(--rule-strong); border-radius:6px;
+}
+textarea{font-family:var(--mono); font-size:13.5px; min-height:132px; resize:vertical; line-height:1.6}
+input:focus-visible,select:focus-visible,textarea:focus-visible,
+button:focus-visible,summary:focus-visible,.opt:focus-within{
+  outline:2.5px solid var(--accent); outline-offset:2px;
+}
+::placeholder{color:var(--faint)}
+
+.opts{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.opt{
+  display:flex; gap:11px; align-items:flex-start; cursor:pointer;
+  background:var(--surface); border:1px solid var(--rule-strong);
+  border-radius:7px; padding:13px 14px; transition:border-color .12s, background .12s;
+}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin:3px 0 0; accent-color:var(--accent); width:16px; height:16px}
+.opt b{display:block; font-family:var(--sans); font-size:14.5px; font-weight:650}
+.opt span{display:block; font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-top:2px}
+
+.actions{display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-top:34px}
+button{
+  font:inherit; font-weight:700; font-size:16px; cursor:pointer;
+  background:var(--accent); color:var(--accent-ink);
+  border:0; border-radius:999px; padding:14px 30px;
+}
+button.quiet{
+  background:transparent; color:var(--ink);
+  border:1.5px solid var(--rule-strong); font-size:14.5px; padding:10px 20px;
+}
+button:hover{opacity:.9}
+
+/* ---------- manifest ---------- */
+#results{display:none; margin-top:12px}
+#results.on{display:block}
+.rule{border:0; border-top:2px solid var(--ink); margin:44px 0 0}
+h2{
+  font-family:var(--serif); font-weight:400; font-size:25px; letter-spacing:-.015em;
+  margin:34px 0 14px;
+}
+.figures{
+  display:grid; gap:0; grid-template-columns:repeat(auto-fit,minmax(128px,1fr));
+  border:1px solid var(--rule-strong); border-radius:8px; overflow:hidden;
+  background:var(--surface); margin:18px 0 0;
+}
+.fig{padding:16px 18px; border-right:1px solid var(--rule)}
+.fig:last-child{border-right:0}
+.fig b{
+  display:block; font-family:var(--mono); font-size:27px; font-weight:600;
+  letter-spacing:-.03em; font-variant-numeric:tabular-nums;
+}
+.fig span{
+  display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--muted); margin-top:3px;
+}
+.fig.bad b{color:var(--err)}
+
+.check{
+  display:flex; gap:12px; align-items:baseline;
+  background:var(--surface); border:1px solid var(--rule);
+  border-left:3px solid var(--rule-strong); border-radius:0 7px 7px 0;
+  padding:11px 15px; margin-bottom:7px; font-size:14.5px;
+}
+.check.error{border-left-color:var(--err); background:var(--err-soft)}
+.check.warning{border-left-color:var(--warn); background:var(--warn-soft)}
+.check.ok{border-left-color:var(--ok); background:var(--ok-soft)}
+.chip{
+  font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  font-weight:700; padding:3px 7px; border-radius:3px; white-space:nowrap; flex:none;
+}
+.check.error .chip{background:var(--err); color:var(--surface)}
+.check.warning .chip{background:var(--warn); color:var(--surface)}
+.check.ok .chip{background:var(--ok); color:var(--surface)}
+.check code{font-family:var(--mono); font-size:13px; color:var(--muted)}
+
+.tablewrap{overflow-x:auto; border:1px solid var(--rule-strong); border-radius:8px; background:var(--surface)}
+table{width:100%; border-collapse:collapse; font-size:14.5px}
+th,td{padding:11px 16px; text-align:left; border-bottom:1px solid var(--rule); white-space:nowrap}
+tr:last-child td{border-bottom:0}
+th{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--muted); font-weight:600;
+}
+td.n,th.n{text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums}
+td.name{font-family:var(--mono); font-size:13px}
+tfoot td{font-weight:700; border-top:2px solid var(--rule-strong)}
+
+.camp{margin:26px 0 0}
+.camp h3{
+  font-family:var(--mono); font-size:14.5px; font-weight:650; margin:0 0 5px;
+  letter-spacing:-.01em;
+}
+.campmeta{
+  font-family:var(--mono); font-size:11.5px; color:var(--muted);
+  letter-spacing:.03em; margin:0 0 11px;
+}
+.campmeta b{color:var(--ok); font-weight:600}
+details{
+  background:var(--surface); border:1px solid var(--rule);
+  border-radius:7px; padding:0; margin-bottom:7px; overflow:hidden;
+}
+summary{
+  cursor:pointer; padding:12px 16px; font-size:14.5px; font-weight:600;
+  display:flex; justify-content:space-between; gap:14px; align-items:baseline;
+}
+summary::-webkit-details-marker{display:none}
+summary em{
+  font-style:normal; font-family:var(--mono); font-size:11.5px;
+  color:var(--muted); font-weight:400; white-space:nowrap;
+}
+.body{padding:2px 16px 16px; border-top:1px solid var(--rule)}
+.kws{
+  font-family:var(--mono); font-size:12.5px; color:var(--muted);
+  columns:260px 3; column-gap:26px; margin:12px 0 0;
+}
+.kws div{break-inside:avoid}
+.adurl{font-family:var(--mono); font-size:11.5px; color:var(--faint); margin:16px 0 8px; word-break:break-all}
+.asset{display:flex; gap:10px; align-items:baseline; padding:2.5px 0; font-size:14.5px}
+.count{
+  font-family:var(--mono); font-size:10.5px; font-variant-numeric:tabular-nums;
+  min-width:26px; text-align:right; color:var(--faint); flex:none;
+}
+.asset.tight .count{color:var(--warn); font-weight:700}
+.divider{height:1px; background:var(--rule); margin:11px 0}
+
+.files{display:grid; gap:8px; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); margin-top:18px}
+.file{
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  background:var(--surface); border:1px solid var(--rule-strong); border-radius:7px;
+  padding:12px 15px; font-family:var(--mono); font-size:13px; cursor:pointer;
+  color:var(--ink); text-align:left; font-weight:500;
+}
+.file:hover{border-color:var(--accent)}
+.file span{color:var(--muted); font-size:11px; white-space:nowrap}
+.blocked{
+  background:var(--err-soft); border:1px solid var(--err); border-radius:8px;
+  padding:16px 18px; font-size:14.5px; color:var(--err);
+}
+.note{color:var(--faint); font-size:13.5px; margin-top:16px; max-width:64ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+</style>
+
+<div class="sheet">
+
+  <header class="masthead">
+    <h1>Campaign Builder</h1>
+    <div class="stamp">Nothing goes live &middot; all output paused</div>
+  </header>
+  <p class="standfirst">
+    Fill this in once per client. You get a plan you can read, check by check, and the
+    files Google Ads Editor imports. Everything arrives paused, so posting it is still
+    your decision.
+  </p>
+
+  <form id="brief">
+
+    <section class="group">
+      <p class="eyebrow">The business</p>
+      <div class="fields">
+        <div class="f"><label for="business">Business name</label>
+          <input type="text" id="business" placeholder="Moving Papa" value="Moving Papa"></div>
+        <div class="f"><label for="phone">Phone <em>as it should appear in ads</em></label>
+          <input type="text" id="phone" placeholder="833-351-1791" value="833-351-1791"></div>
+        <div class="f"><label for="currency">Currency</label>
+          <input type="text" id="currency" value="CAD"></div>
+      </div>
+    </section>
+
+    <section class="group">
+      <p class="eyebrow">Trade</p>
+      <p class="grouphint">Picks the template. Each trade has its own campaign structure,
+        keywords and negative lists.</p>
+      <div class="fields">
+        <div class="f"><label for="trade">Template</label><select id="trade"></select></div>
+      </div>
+    </section>
+
+    <section class="group">
+      <p class="eyebrow">Campaigns to build</p>
+      <p class="grouphint">Turn off anything they don't sell. Budget redistributes across
+        whatever stays on.</p>
+      <div class="opts" id="services"></div>
+    </section>
+
+    <section class="group">
+      <p class="eyebrow">Where they work</p>
+      <div class="fields">
+        <div class="f"><label for="cities">Cities <em>one per line, first is home</em></label>
+          <textarea id="cities">Toronto
+Vancouver
+Ottawa
+Calgary
+Edmonton</textarea></div>
+        <div class="f"><label for="region">Region <em>added to each city for targeting</em></label>
+          <input type="text" id="region" value="Canada"></div>
+      </div>
+    </section>
+
+    <section class="group">
+      <p class="eyebrow">Money</p>
+      <div class="fields">
+        <div class="f"><label for="budget">Monthly budget</label>
+          <input type="number" id="budget" value="15000" min="0" step="100"></div>
+        <div class="f"><label for="weights">Shift the split <em>optional &mdash; long_distance = 45</em></label>
+          <textarea id="weights" style="min-height:52px"></textarea></div>
+      </div>
+    </section>
+
+    <section class="group">
+      <p class="eyebrow">What makes them worth calling</p>
+      <p class="grouphint">These go straight into the ad copy. Leave one blank and the
+        build tells you which headlines it had to drop.</p>
+      <div class="fields">
+        <div class="f"><label for="offer">The offer</label>
+          <input type="text" id="offer" placeholder="Free in-home estimate" value="Free moving quote"></div>
+        <div class="f"><label for="minjob">Minimum job</label>
+          <input type="text" id="minjob" placeholder="$450 minimum"></div>
+      </div>
+      <div class="fields wide" style="margin-top:18px">
+        <div class="f"><label for="brand">Their own name <em>one per line &mdash; for the brand campaign</em></label>
+          <textarea id="brand" style="min-height:70px">moving papa
+movingpapa</textarea></div>
+      </div>
+    </section>
+
+    <section class="group">
+      <p class="eyebrow">Where the clicks land</p>
+      <p class="grouphint">Send ads to the page that takes the enquiry, not the homepage.
+        A homepage makes the visitor go and find the form.</p>
+      <div class="fields wide">
+        <div class="f"><label for="url">Default page</label>
+          <input type="text" id="url" value="https://www.movingpapa.com/finalstep/residential"></div>
+        <div class="f"><label for="pagemap">Different page per campaign <em>optional &mdash; commercial = https://&hellip;</em></label>
+          <textarea id="pagemap" style="min-height:66px"></textarea></div>
+      </div>
+    </section>
+
+    <section class="group">
+      <p class="eyebrow">When they answer the phone</p>
+      <p class="grouphint">Ads run inside these hours. There is no point paying for a
+        lead at 11pm if nobody rings back until Monday.</p>
+      <div class="opts" style="margin-bottom:18px">
+        <label class="opt"><input type="checkbox" id="always">
+          <span><b>Open around the clock</b><span>run ads 24/7</span></span></label>
+      </div>
+      <div class="fields" id="hours">
+        <div class="f"><label for="monfri">Monday to Friday</label>
+          <input type="text" id="monfri" value="07:00-19:00"></div>
+        <div class="f"><label for="sat">Saturday</label>
+          <input type="text" id="sat" value="08:00-17:00"></div>
+        <div class="f"><label for="sun">Sunday <em>blank if closed</em></label>
+          <input type="text" id="sun" value=""></div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button type="submit">Build the campaigns</button>
+      <button type="button" class="quiet" id="reset">Clear the form</button>
+    </div>
+  </form>
+
+  <div id="results"></div>
+</div>
+
+<script>
+const BLUEPRINTS = {"moving": {"trade": "moving", "version": "0.1", "defaults": {"campaign_type": "Search", "networks": "Google search", "language": "English", "bid_strategy": "Maximize conversions", "location_target_type": "presence", "status": "Paused", "match_types": ["phrase", "exact"]}, "budget": {"min_daily": 8.0, "days_per_month": 30.4}, "themes": {"local": ["movers", "moving company", "moving companies", "local movers", "house movers", "apartment movers", "residential movers", "home movers"], "long_distance": ["long distance movers", "long distance moving company", "interstate movers", "cross country movers", "out of province movers", "long distance moving quote"], "commercial": ["office movers", "commercial movers", "business movers", "office moving company"], "small_job": ["man with a van", "single item movers", "furniture movers", "piano movers", "same day movers", "hourly movers"], "rental": ["truck rental", "van rental", "u haul", "uhaul", "penske", "budget truck", "rent a truck"], "supplies": ["moving boxes", "packing supplies", "boxes for sale", "bubble wrap", "moving blankets"], "storage": ["storage units", "self storage", "storage facility", "pods", "portable storage"], "aggregators": ["thumbtack", "angi", "homeadvisor", "unpakt", "hireahelper", "movebuddha", "moving.com", "bark"]}, "negatives": {"account_level": {"from_file": "_shared/negatives-universal.txt", "match_type": "phrase", "themes": ["rental", "supplies", "aggregators"]}}, "campaigns": [{"key": "brand", "label": "Brand", "budget_weight": 5, "bid_strategy": "Manual CPC", "max_cpc": 2.0, "schedule": "always", "ad_groups": [{"key": "brand_exact", "label": "Brand | Exact", "per_city": false, "keyword_source": "brand_terms", "match_types": ["exact", "phrase"], "rsa": {"headlines": ["{business}", "{business} | Official", "Official Site", "Book {business} Today", "Call {phone}", "{offer}", "Licensed & Insured", "Get Your Free Quote"], "descriptions": ["The official site for {business}. Call {phone} for a same-day answer.", "Licensed, insured and local. Speak to the crew that does the work, not a call centre.", "{min_job_value}. No hidden fees, no surprise charges on moving day."]}}], "negative_themes": ["aggregators"]}, {"key": "local_moving", "label": "Local Moving", "budget_weight": 30, "schedule": "business_hours", "ad_groups": [{"key": "movers", "label": "Movers", "per_city": true, "keyword_themes": ["local"], "patterns": ["{term} {city}", "{term} in {city}", "{term} near me", "{term} cost {city}"], "rsa": {"headlines": ["Movers in {city}", "{city} Moving Company", "Local Movers, {city}", "{offer}", "Licensed & Insured", "No Hidden Fees", "Same Crew, Start to End", "Call {phone}", "Book Your Move Today", "{min_job_value}"], "descriptions": ["Local moves across {city}, done by our own crew. Call {phone}.", "Flat, honest pricing. {min_job_value}. Nothing added on moving day.", "Licensed and insured {city} movers. Book in minutes, move this week.", "Ask for a written quote before you book. No deposit, no obligation."], "path1": "movers", "path2": "{city}"}}], "negative_themes": ["long_distance", "small_job", "storage", "rental", "supplies"]}, {"key": "long_distance", "label": "Long Distance", "budget_weight": 45, "schedule": "business_hours_extended", "ad_groups": [{"key": "long_distance", "label": "Long Distance", "per_city": true, "keyword_themes": ["long_distance"], "patterns": ["{term}", "{term} {city}", "{term} from {city}"], "rsa": {"headlines": ["Long Distance Movers", "Moving Out of {city}?", "Cross Country Movers", "Free In-Home Estimate", "Written Quote, No Deposit", "Licensed & Insured", "One Crew, Door to Door", "Call {phone}", "Plan Your Move Early"], "descriptions": ["Moving far from {city}? Get a written, all-in quote before you commit.", "One crew loads and unloads. Your things are never transferred between trucks.", "Licensed, insured and tracked door to door. Call {phone} to book a survey.", "{offer}. Book weeks ahead and lock your date and your price."], "path1": "long-distance", "path2": "movers"}}], "negative_themes": ["small_job", "storage", "rental", "supplies"]}, {"key": "commercial", "label": "Commercial", "budget_weight": 15, "schedule": "business_hours", "ad_groups": [{"key": "office_movers", "label": "Office Movers", "per_city": true, "keyword_themes": ["commercial"], "patterns": ["{term} {city}", "{term} near me"], "rsa": {"headlines": ["Office Movers, {city}", "Commercial Moving Co.", "Move After Hours", "Zero Downtime Moves", "Licensed & Insured", "Get a Site Survey", "Call {phone}", "Written Fixed Quote"], "descriptions": ["Office and commercial moves across {city}, run outside your working hours.", "Site survey first, fixed written quote second. No day-of surprises.", "Licensed and insured, with certificates of insurance for your building.", "Call {phone} to book a survey and get your move planned this week."], "path1": "commercial", "path2": "movers"}}], "negative_themes": ["local", "small_job", "storage", "rental", "supplies"]}, {"key": "small_jobs", "label": "Small Jobs", "budget_weight": 5, "schedule": "business_hours", "ad_groups": [{"key": "small_jobs", "label": "Single Item & Van", "per_city": true, "keyword_themes": ["small_job"], "patterns": ["{term} {city}", "{term} near me"], "rsa": {"headlines": ["Single Item Movers", "Man With a Van, {city}", "Furniture Moved Today", "{min_job_value}", "Call {phone}", "Licensed & Insured"], "descriptions": ["One item or one room, moved by insured crew. {min_job_value}.", "Book a two-hour slot in {city}. Call {phone} for today's availability."], "path1": "small-moves"}}], "negative_themes": ["long_distance", "commercial", "storage", "rental", "supplies"]}], "schedules": {"always": {"kind": "all_week"}, "business_hours": {"kind": "from_brief"}, "business_hours_extended": {"kind": "from_brief", "extend_evening_hours": 3}}}};
+const UNIVERSAL_NEGATIVES = ["job", "jobs", "hiring", "careers", "career", "salary", "salaries", "wage", "employment", "apply", "resume", "vacancy", "how to", "how do", "diy", "tutorial", "guide", "tips", "youtube", "video", "wikipedia", "reddit", "forum", "meaning", "definition", "what is", "free", "freebie", "cheapest", "volunteer", "charity", "donation", "grant", "course", "courses", "training", "certification", "school", "class", "complaints", "lawsuit", "scam", "reviews of", "sue", "license lookup"];
+
+const MAX_HEADLINE = 30, MAX_DESCRIPTION = 90, MAX_PATH = 15;
+const MAX_KEYWORD_CHARS = 80, MAX_KEYWORD_WORDS = 10;
+const RSA_MIN_HEADLINES = 3, RSA_MAX_HEADLINES = 15;
+const RSA_MIN_DESCRIPTIONS = 2, RSA_MAX_DESCRIPTIONS = 4;
+const DAYS = 30.4;
+const TRADE_CODES = {moving:'MOV', cleaning:'CLN', restoration:'RST', local:'LOC'};
+
+const $ = id => document.getElementById(id);
+const lines = t => (t||'').split('\n').map(s => s.trim()).filter(Boolean);
+const esc = s => String(s).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function pairs(text){
+  const out = {};
+  for (const line of (text||'').split('\n')) {
+    const m = line.match(/^\s*([\w-]+)\s*[=:]\s*(.+?)\s*$/);
+    if (m) out[m[1]] = m[2];
+  }
+  return out;
+}
+function render(tpl, ctx){
+  const filled = String(tpl||'').replace(/\{(\w+)\}/g, (_, k) => ctx[k] !== undefined ? ctx[k] : '');
+  /* Clean up after a placeholder that rendered empty: "pricing. {minjob}. Nothing"
+     with no minimum job leaves "pricing. . Nothing", which would go live as-is. */
+  return filled
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([.,!?;:])/g, '$1')
+    .replace(/([.,!?;:])(?:\s*\1)+/g, '$1')
+    .trim()
+    .replace(/^[\s,;:]+|[\s,;:]+$/g, '');
+}
+function window_(text){
+  const m = (text||'').match(/^\s*(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})\s*$/);
+  return m ? [m[1], m[2]] : null;
+}
+
+/* ---------- compile ---------- */
+function compile(brief){
+  const bp = BLUEPRINTS[brief.trade];
+  const defaults = bp.defaults || {};
+  const themes = bp.themes || {};
+  const warnings = [];
+  const specs = (bp.campaigns||[]).filter(c => brief.services.includes(c.key));
+
+  if (!specs.length) throw new Error('No campaigns selected — tick at least one.');
+  if (!brief.cities.length) throw new Error('Add at least one city.');
+  if (!brief.business) throw new Error('Add the business name.');
+
+  /* budget: blueprint weights, client overrides, normalised over what is on */
+  const minDaily = (bp.budget||{}).min_daily || 0;
+  const weights = {};
+  let totalWeight = 0;
+  for (const s of specs){
+    const w = brief.weights[s.key] !== undefined ? brief.weights[s.key] : (s.budget_weight || 1);
+    weights[s.key] = w; totalWeight += w;
+  }
+  const pool = brief.monthly / DAYS;
+  const budgets = {};
+  for (const s of specs){
+    let daily = totalWeight > 0 ? Math.round(pool * weights[s.key] / totalWeight * 100)/100 : 0;
+    if (daily < minDaily && minDaily > 0){
+      warnings.push(`${s.label}: daily budget raised to the ${minDaily.toFixed(2)} minimum — total spend will run over the monthly figure`);
+      daily = minDaily;
+    }
+    budgets[s.key] = daily;
+  }
+
+  /* negatives every campaign carries */
+  const accountNegs = [];
+  const negSpec = (bp.negatives||{}).account_level || {};
+  const negMatch = negSpec.match_type || 'phrase';
+  if (negSpec.from_file) for (const t of UNIVERSAL_NEGATIVES) accountNegs.push({text:t, match:negMatch});
+  for (const name of (negSpec.themes||[]))
+    for (const t of (themes[name]||[])) accountNegs.push({text:t, match:'phrase'});
+
+  const base = {
+    business: brief.business, phone: brief.phone,
+    offer: brief.offer, min_job_value: brief.minjob,
+    city: brief.cities[0], term: ''
+  };
+  const nameFmt = defaults.campaign_name_format || '{code} | Search | {label} | EN';
+  const campaigns = [];
+
+  for (const spec of specs){
+    const negs = accountNegs.slice();
+    for (const name of (spec.negative_themes||[]))
+      for (const t of (themes[name]||[])) negs.push({text:t, match:'phrase'});
+    for (const n of (spec.negative_keywords||[]))
+      negs.push({text:render(n.text, base), match:n.match_type||'phrase'});
+
+    const finalUrl = brief.pagemap[spec.key] || brief.url;
+    const camp = {
+      key: spec.key,
+      name: render(nameFmt, {code:TRADE_CODES[brief.trade]||brief.trade.slice(0,3).toUpperCase(),
+                             label:spec.label, trade:brief.trade}),
+      budget: budgets[spec.key],
+      bid: spec.bid_strategy || defaults.bid_strategy || 'Maximize conversions',
+      maxCpc: spec.max_cpc || null,
+      status: defaults.status || 'Paused',
+      geoType: defaults.location_target_type || 'presence',
+      locations: brief.targets,
+      schedule: buildSchedule(spec.schedule, bp.schedules||{}, brief),
+      negatives: negs,
+      groups: []
+    };
+
+    for (const gs of (spec.ad_groups||[])){
+      const targets = gs.per_city ? brief.cities : [brief.cities[0]];
+      targets.forEach((city, i) => {
+        const ctx = Object.assign({}, base, {city});
+        const g = buildGroup(gs, brief, themes, ctx, city, !!gs.per_city, i === 0,
+                             defaults.match_types || ['phrase','exact'], finalUrl,
+                             camp.status, warnings);
+        if (g) camp.groups.push(g);
+      });
+    }
+    campaigns.push(camp);
+  }
+
+  return {business:brief.business, trade:brief.trade, version:bp.version || '0',
+          currency:brief.currency, monthly:brief.monthly, campaigns, warnings};
+}
+
+function buildGroup(gs, brief, themes, ctx, city, perCity, isHome, defMatches,
+                    finalUrl, status, warnings){
+  const label = render(gs.label, ctx);
+  const name = perCity ? `${label} | ${city}` : label;
+
+  let terms, patterns;
+  if (gs.keywords && gs.keywords.length){ terms = ['']; patterns = gs.keywords; }
+  else {
+    terms = [];
+    if (gs.keyword_source === 'brand_terms') terms = brief.brandTerms.slice();
+    else for (const th of (gs.keyword_themes||[])) terms = terms.concat(themes[th]||[]);
+    patterns = gs.patterns || ['{term}'];
+  }
+  if (!terms.length || !patterns.length){
+    warnings.push(`${name}: nothing to build keywords from — skipped`);
+    return null;
+  }
+
+  const matches = gs.match_types || defMatches;
+  const seen = new Set(), keywords = [];
+  for (const term of terms){
+    for (const pat of patterns){
+      /* a pattern with no {city} is identical in every city — keep it once */
+      if (perCity && !isHome && pat.indexOf('{city}') === -1) continue;
+      const text = render(pat, Object.assign({}, ctx, {term})).toLowerCase();
+      if (!text) continue;
+      for (const m of matches){
+        const k = text + ' ' + m;
+        if (!seen.has(k)){ seen.add(k); keywords.push({text, match:m, url:finalUrl}); }
+      }
+    }
+  }
+  if (!keywords.length){ return null; }
+
+  const ad = buildAd(gs.rsa, ctx, finalUrl, name, warnings);
+  return {name, keywords, ads: ad ? [ad] : [], status};
+}
+
+function fit(templates, ctx, limit){
+  const kept = []; let long = 0, empty = 0;
+  for (const t of (templates||[])){
+    const text = render(t, ctx);
+    if (!text) empty++;
+    else if (text.length > limit) long++;
+    else if (kept.indexOf(text) === -1) kept.push(text);
+  }
+  return {kept, long, empty};
+}
+
+function buildAd(rsa, ctx, finalUrl, where, warnings){
+  if (!rsa) return null;
+  const h = fit(rsa.headlines, ctx, MAX_HEADLINE);
+  const d = fit(rsa.descriptions, ctx, MAX_DESCRIPTION);
+
+  for (const [what, r] of [['headline', h], ['description', d]]){
+    if (r.long) warnings.push(`${where}: ${r.long} ${what}(s) dropped — too long once "${ctx.city}" was substituted in`);
+    if (r.empty) warnings.push(`${where}: ${r.empty} ${what}(s) dropped — a field above was left blank`);
+  }
+  if (h.kept.length < RSA_MIN_HEADLINES){
+    warnings.push(`${where}: only ${h.kept.length} headlines survived, so no ad was built`);
+    return null;
+  }
+  return {
+    headlines: h.kept.slice(0, RSA_MAX_HEADLINES),
+    descriptions: d.kept.slice(0, RSA_MAX_DESCRIPTIONS),
+    url: finalUrl,
+    path1: render(rsa.path1, ctx).slice(0, MAX_PATH),
+    path2: render(rsa.path2, ctx).slice(0, MAX_PATH)
+  };
+}
+
+function buildSchedule(name, schedules, brief){
+  const spec = schedules[name] || {};
+  const week = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  if (spec.kind === 'all_week' || brief.always)
+    return week.concat(['Saturday','Sunday']).map(d => ({day:d, start:'00:00', end:'24:00'}));
+  if (spec.kind !== 'from_brief') return [];
+
+  const out = [], extend = spec.extend_evening_hours || 0;
+  const add = (days, win) => {
+    if (!win) return;
+    let end = win[1];
+    if (extend){
+      const hh = Math.min(23, parseInt(end.split(':')[0], 10) + extend);
+      end = String(hh).padStart(2,'0') + ':' + end.split(':')[1];
+    }
+    for (const d of days) out.push({day:d, start:win[0], end});
+  };
+  add(week, brief.hours.monfri);
+  add(['Saturday'], brief.hours.sat);
+  add(['Sunday'], brief.hours.sun);
+  return out;
+}
+
+/* ---------- checks ---------- */
+function validate(plan){
+  const out = [];
+  const err = (w,m) => out.push({severity:'error', where:w, message:m});
+  const warn = (w,m) => out.push({severity:'warning', where:w, message:m});
+  const seen = {};
+
+  if (!plan.campaigns.length) err(plan.business, 'Nothing was built.');
+
+  for (const c of plan.campaigns){
+    if (c.geoType !== 'presence')
+      err(c.name, 'Location targeting must be people physically in the area. Anything else pays for clicks from other cities.');
+    if (!c.locations.length) err(c.name, 'No locations — this would run nationwide.');
+    if (c.budget <= 0) err(c.name, 'Daily budget is zero.');
+    if (!c.groups.length) err(c.name, 'No ad groups were built.');
+    if (!c.negatives.length) warn(c.name, 'No blocked searches attached.');
+
+    for (const g of c.groups){
+      const w = `${c.name} › ${g.name}`;
+      if (!g.keywords.length) err(w, 'No keywords.');
+      if (!g.ads.length) err(w, 'No ad was built.');
+
+      for (const k of g.keywords){
+        if (k.text.length > MAX_KEYWORD_CHARS) err(w, `Keyword over ${MAX_KEYWORD_CHARS} characters: "${k.text}"`);
+        if (k.text.split(/\s+/).length > MAX_KEYWORD_WORDS) err(w, `Keyword over ${MAX_KEYWORD_WORDS} words: "${k.text}"`);
+        const fp = k.text + ' ' + k.match;
+        if (seen[fp] && seen[fp] !== w) warn(w, `"${k.text}" is also in ${seen[fp]} — they would bid against each other`);
+        else seen[fp] = w;
+      }
+      for (const a of g.ads){
+        if (a.headlines.length < RSA_MIN_HEADLINES || a.headlines.length > RSA_MAX_HEADLINES)
+          err(w, `${a.headlines.length} headlines — Google needs ${RSA_MIN_HEADLINES} to ${RSA_MAX_HEADLINES}.`);
+        if (a.descriptions.length < RSA_MIN_DESCRIPTIONS || a.descriptions.length > RSA_MAX_DESCRIPTIONS)
+          err(w, `${a.descriptions.length} descriptions — Google needs ${RSA_MIN_DESCRIPTIONS} to ${RSA_MAX_DESCRIPTIONS}.`);
+        for (const h of a.headlines) if (h.length > MAX_HEADLINE) err(w, `Headline is ${h.length} characters: "${h}"`);
+        for (const d of a.descriptions) if (d.length > MAX_DESCRIPTION) err(w, `Description is ${d.length} characters: "${d}"`);
+        if (!/^https?:\/\//.test(a.url)) err(w, `The landing page needs to start with https:// — got "${a.url}"`);
+      }
+    }
+  }
+  for (const m of plan.warnings) warn(plan.business, m);
+  return out;
+}
+
+/* ---------- files ---------- */
+const cell = v => {
+  const s = v === null || v === undefined ? '' : String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+};
+const csv = (headers, rows) =>
+  [headers.join(',')].concat(rows.map(r => headers.map(h => cell(r[h])).join(','))).join('\r\n');
+
+const MATCH = {broad:'Broad', phrase:'Phrase', exact:'Exact'};
+const NEG = {broad:'Campaign Negative Broad', phrase:'Campaign Negative Phrase',
+             exact:'Campaign Negative Exact'};
+
+function files(plan){
+  const out = [];
+  out.push(['01-campaigns.csv', csv(
+    ['Campaign','Campaign Type','Budget','Bid Strategy Type','Networks','Languages','Campaign Status'],
+    plan.campaigns.map(c => ({'Campaign':c.name, 'Campaign Type':'Search',
+      'Budget':c.budget.toFixed(2), 'Bid Strategy Type':c.bid,
+      'Networks':'Google search', 'Languages':'English', 'Campaign Status':c.status})))]);
+
+  const locs = [];
+  plan.campaigns.forEach(c => c.locations.forEach(l =>
+    locs.push({'Campaign':c.name, 'Location':l, 'Criterion Type':'Location'})));
+  out.push(['02-locations.csv', csv(['Campaign','Location','Criterion Type'], locs)]);
+
+  const sch = [];
+  plan.campaigns.forEach(c => c.schedule.forEach(s =>
+    sch.push({'Campaign':c.name, 'Ad Schedule':`${s.day}, ${s.start}, ${s.end}`})));
+  out.push(['03-schedules.csv', csv(['Campaign','Ad Schedule'], sch)]);
+
+  const negs = [];
+  plan.campaigns.forEach(c => c.negatives.forEach(n =>
+    negs.push({'Campaign':c.name, 'Keyword':n.text,
+               'Criterion Type':NEG[n.match] || NEG.phrase})));
+  out.push(['04-campaign-negatives.csv', csv(['Campaign','Keyword','Criterion Type'], negs)]);
+
+  const groups = [];
+  plan.campaigns.forEach(c => c.groups.forEach(g =>
+    groups.push({'Campaign':c.name, 'Ad Group':g.name,
+                 'Max CPC':c.maxCpc ? c.maxCpc.toFixed(2) : '', 'Ad Group Status':g.status})));
+  out.push(['05-ad-groups.csv', csv(['Campaign','Ad Group','Max CPC','Ad Group Status'], groups)]);
+
+  const kws = [];
+  plan.campaigns.forEach(c => c.groups.forEach(g => g.keywords.forEach(k =>
+    kws.push({'Campaign':c.name, 'Ad Group':g.name, 'Keyword':k.text,
+              'Criterion Type':MATCH[k.match] || 'Phrase', 'Status':g.status,
+              'Final URL':k.url}))));
+  out.push(['06-keywords.csv', csv(
+    ['Campaign','Ad Group','Keyword','Criterion Type','Status','Final URL'], kws)]);
+
+  const hCols = Array.from({length:RSA_MAX_HEADLINES}, (_,i) => `Headline ${i+1}`);
+  const dCols = Array.from({length:RSA_MAX_DESCRIPTIONS}, (_,i) => `Description ${i+1}`);
+  const ads = [];
+  plan.campaigns.forEach(c => c.groups.forEach(g => g.ads.forEach(a => {
+    const row = {'Campaign':c.name, 'Ad Group':g.name, 'Ad type':'Responsive search ad',
+                 'Path 1':a.path1, 'Path 2':a.path2, 'Final URL':a.url, 'Status':g.status};
+    a.headlines.forEach((h,i) => row[hCols[i]] = h);
+    a.descriptions.forEach((d,i) => row[dCols[i]] = d);
+    ads.push(row);
+  })));
+  out.push(['07-ads-rsa.csv', csv(
+    ['Campaign','Ad Group','Ad type'].concat(hCols, dCols, ['Path 1','Path 2','Final URL','Status']), ads)]);
+
+  return out;
+}
+
+function download(name, text){
+  const blob = new Blob([text], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+/* ---------- draw ---------- */
+function kwText(k){
+  return k.match === 'exact' ? `[${k.text}]` : k.match === 'phrase' ? `"${k.text}"` : k.text;
+}
+
+function draw(plan, findings){
+  const errors = findings.filter(f => f.severity === 'error');
+  const warns = findings.filter(f => f.severity === 'warning');
+  const groups = plan.campaigns.reduce((n,c) => n + c.groups.length, 0);
+  const kw = plan.campaigns.reduce((n,c) => n + c.groups.reduce((m,g) => m + g.keywords.length, 0), 0);
+  const daily = plan.campaigns.reduce((n,c) => n + c.budget, 0);
+  const money = n => n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  let html = `<hr class="rule">
+    <h2>${esc(plan.business)}</h2>
+    <div class="figures">
+      <div class="fig"><b>${plan.campaigns.length}</b><span>Campaigns</span></div>
+      <div class="fig"><b>${groups}</b><span>Ad groups</span></div>
+      <div class="fig"><b>${kw.toLocaleString()}</b><span>Keywords</span></div>
+      <div class="fig"><b>${money(daily)}</b><span>${esc(plan.currency)} a day</span></div>
+      <div class="fig${errors.length ? ' bad' : ''}"><b>${errors.length}</b><span>Problems</span></div>
+    </div>`;
+
+  html += `<h2>What to check</h2>`;
+  if (!findings.length){
+    html += `<div class="check ok"><span class="chip">Clear</span><span>Every check passed.</span></div>`;
+  } else {
+    for (const f of errors.concat(warns)){
+      html += `<div class="check ${f.severity}"><span class="chip">${f.severity === 'error' ? 'Problem' : 'Look'}</span>
+        <span><code>${esc(f.where)}</code> ${esc(f.message)}</span></div>`;
+    }
+  }
+
+  html += `<h2>The money</h2><div class="tablewrap"><table>
+    <thead><tr><th>Campaign</th><th class="n">A day</th><th class="n">A month</th><th class="n">Share</th></tr></thead><tbody>`;
+  for (const c of plan.campaigns){
+    html += `<tr><td class="name">${esc(c.name)}</td><td class="n">${money(c.budget)}</td>
+      <td class="n">${Math.round(c.budget*DAYS).toLocaleString()}</td>
+      <td class="n">${daily ? Math.round(c.budget/daily*100) : 0}%</td></tr>`;
+  }
+  html += `</tbody><tfoot><tr><td>Total</td><td class="n">${money(daily)}</td>
+    <td class="n">${Math.round(daily*DAYS).toLocaleString()}</td><td class="n">100%</td></tr></tfoot>
+    </table></div>`;
+
+  html += `<h2>What gets built</h2>`;
+  for (const c of plan.campaigns){
+    html += `<div class="camp"><h3>${esc(c.name)}</h3>
+      <p class="campmeta">${esc(c.bid)} &middot; ${money(c.budget)}/day &middot;
+      ${c.negatives.length} blocked searches &middot; shows to people <b>in the area</b></p>`;
+    for (const g of c.groups){
+      html += `<details><summary><span>${esc(g.name)}</span><em>${g.keywords.length} keywords</em></summary>
+        <div class="body"><div class="kws">`;
+      g.keywords.slice(0,45).forEach(k => html += `<div>${esc(kwText(k))}</div>`);
+      if (g.keywords.length > 45) html += `<div>&hellip; and ${g.keywords.length-45} more</div>`;
+      html += `</div>`;
+      for (const a of g.ads){
+        html += `<p class="adurl">${esc(a.url)}${a.path1 ? '/'+esc(a.path1) : ''}${a.path2 ? '/'+esc(a.path2) : ''}</p>`;
+        a.headlines.forEach(h => html += `<div class="asset${h.length > MAX_HEADLINE-3 ? ' tight' : ''}">
+          <span class="count">${h.length}</span><span>${esc(h)}</span></div>`);
+        html += `<div class="divider"></div>`;
+        a.descriptions.forEach(d => html += `<div class="asset${d.length > MAX_DESCRIPTION-6 ? ' tight' : ''}">
+          <span class="count">${d.length}</span><span>${esc(d)}</span></div>`);
+      }
+      html += `</div></details>`;
+    }
+    html += `</div>`;
+  }
+
+  html += `<h2>The files</h2>`;
+  if (errors.length){
+    html += `<div class="blocked"><b>Fix the ${errors.length} problem${errors.length>1?'s':''} above first.</b>
+      The files stay locked until then, so a broken build can't reach a live account.</div>`;
+  } else {
+    const made = files(plan);
+    html += `<div class="files">`;
+    made.forEach(([name, text], i) =>
+      html += `<button class="file" data-i="${i}">${esc(name)}<span>${Math.ceil(text.length/1024)} KB</span></button>`);
+    html += `</div>
+      <div class="actions"><button id="all">Download all ${made.length} files</button></div>
+      <p class="note">In Google Ads Editor: <b>Account &rsaquo; Import &rsaquo; From file</b>, one file at a
+      time in number order. Review what it shows you, then post. Everything arrives paused,
+      so nothing spends until you switch it on.</p>`;
+    window.__files = made;
+  }
+
+  const box = $('results');
+  box.innerHTML = html;
+  box.classList.add('on');
+
+  box.querySelectorAll('.file').forEach(btn => btn.addEventListener('click', () => {
+    const [name, text] = window.__files[+btn.dataset.i];
+    download(name, text);
+  }));
+  const all = $('all');
+  if (all) all.addEventListener('click', () =>
+    window.__files.forEach(([name, text], i) => setTimeout(() => download(name, text), i*350)));
+
+  box.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ---------- wiring ---------- */
+function paintServices(){
+  const bp = BLUEPRINTS[$('trade').value];
+  $('services').innerHTML = (bp.campaigns||[]).map(c => `
+    <label class="opt"><input type="checkbox" value="${esc(c.key)}" checked>
+      <span><b>${esc(c.label)}</b><span>${c.budget_weight || 0}% of budget</span></span></label>`).join('');
+}
+
+function paintTrades(){
+  $('trade').innerHTML = Object.keys(BLUEPRINTS).map(t =>
+    `<option value="${esc(t)}">${esc(t.charAt(0).toUpperCase()+t.slice(1))}</option>`).join('');
+  paintServices();
+}
+
+$('trade').addEventListener('change', paintServices);
+$('always').addEventListener('change', e => {
+  $('hours').style.opacity = e.target.checked ? .4 : 1;
+  ['monfri','sat','sun'].forEach(id => $(id).disabled = e.target.checked);
+});
+
+$('brief').addEventListener('submit', e => {
+  e.preventDefault();
+  const cities = lines($('cities').value);
+  const region = $('region').value.trim();
+  const weightsRaw = pairs($('weights').value), weights = {};
+  for (const k in weightsRaw) if (!isNaN(parseFloat(weightsRaw[k]))) weights[k] = parseFloat(weightsRaw[k]);
+
+  const brief = {
+    trade: $('trade').value,
+    business: $('business').value.trim(),
+    phone: $('phone').value.trim(),
+    currency: $('currency').value.trim() || 'CAD',
+    services: Array.from(document.querySelectorAll('#services input:checked')).map(i => i.value),
+    cities,
+    targets: cities.map(c => region ? `${c}, ${region}` : c),
+    monthly: parseFloat($('budget').value) || 0,
+    weights,
+    offer: $('offer').value.trim(),
+    minjob: $('minjob').value.trim(),
+    brandTerms: lines($('brand').value),
+    url: $('url').value.trim(),
+    pagemap: pairs($('pagemap').value),
+    always: $('always').checked,
+    hours: {monfri: window_($('monfri').value), sat: window_($('sat').value), sun: window_($('sun').value)}
+  };
+
+  try {
+    const plan = compile(brief);
+    draw(plan, validate(plan));
+  } catch (err){
+    const box = $('results');
+    box.innerHTML = `<hr class="rule"><h2>That didn't build</h2>
+      <div class="check error"><span class="chip">Problem</span><span>${esc(err.message)}</span></div>`;
+    box.classList.add('on');
+    box.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+});
+
+$('reset').addEventListener('click', () => {
+  $('brief').reset();
+  $('results').classList.remove('on');
+  paintServices();
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+paintTrades();
+</script>

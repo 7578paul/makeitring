@@ -6,6 +6,7 @@ produce the same plan, which is what makes diffing a rebuild against a live
 account meaningful.
 """
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -53,9 +54,22 @@ def render(template: str, context: dict[str, str]) -> str:
     """Fill {placeholders}. An unknown placeholder is a blueprint bug, not a
     runtime condition, so let the KeyError surface with the template attached."""
     try:
-        return template.format(**context)
+        return tidy(template.format(**context))
     except KeyError as exc:
         raise BriefError(f"unknown placeholder {exc} in template {template!r}") from exc
+
+
+def tidy(text: str) -> str:
+    """Clean up after a placeholder rendered empty.
+
+    "Flat pricing. {min_job_value}. Nothing added." with a blank minimum job
+    leaves "Flat pricing. . Nothing added." — punctuation that belonged to the
+    missing value. Without this it goes live in the ad exactly like that.
+    """
+    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"\s+([.,!?;:])", r"\1", text)          # space before punctuation
+    text = re.sub(r"([.,!?;:])(?:\s*\1)+", r"\1", text)   # ". ." -> "."
+    return text.strip(" ,;:")
 
 
 def compile_plan(brief_path: Path, blueprint_dir: Path) -> Plan:
