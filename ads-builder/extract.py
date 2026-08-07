@@ -7,7 +7,7 @@ back into a reusable template: city names become {city}, the business name
 becomes {business}, the phone becomes {phone}, and everything else is preserved
 verbatim — their keywords, their ad copy, their negatives, their budget split.
 
-    python extract.py --export-dir ./export \\
+    python extract.py --export ./export.zip \\
         --trade moving \\
         --business "Moving Papa" \\
         --phone "833-351-1791" \\
@@ -23,6 +23,7 @@ import argparse
 import csv
 import re
 import sys
+import zipfile
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Iterable
@@ -64,31 +65,61 @@ def get(row: dict[str, str], field: str) -> str:
     return ""
 
 
-def read_rows(export_dir: Path) -> list[dict[str, str]]:
+def decode(raw: bytes) -> str | None:
+    """Editor writes UTF-16 with a BOM on some platforms and UTF-8 on others."""
+    for encoding in ("utf-8-sig", "utf-16", "latin-1"):
+        try:
+            return raw.decode(encoding)
+        except (UnicodeDecodeError, UnicodeError):
+            continue
+    return None
+
+
+def parse_table(name: str, text: str, rows: list[dict[str, str]]) -> None:
+    first = text.split("\n", 1)[0]
+    delimiter = "\t" if (name.lower().endswith(".tsv") or "\t" in first) else ","
+    count = 0
+    for raw in csv.DictReader(text.splitlines(), delimiter=delimiter):
+        rows.append({(k or "").strip().lower(): (v or "") for k, v in raw.items()})
+        count += 1
+    print(f"  read {count:>7} rows from {name}")
+
+
+def read_rows(export: Path) -> list[dict[str, str]]:
+    """Accepts a directory, a single CSV, or a zip of them.
+
+    A whole-account export runs to tens of megabytes, mostly location criteria,
+    and zips to a small fraction of that — so taking the zip directly saves
+    everyone a step.
+    """
     rows: list[dict[str, str]] = []
-    files = sorted(p for p in export_dir.rglob("*") if p.suffix.lower() in (".csv", ".tsv"))
+
+    if export.is_file() and export.suffix.lower() == ".zip":
+        with zipfile.ZipFile(export) as archive:
+            members = [m for m in archive.namelist()
+                       if m.lower().endswith((".csv", ".tsv")) and not m.startswith("__MACOSX")]
+            if not members:
+                raise SystemExit(f"no CSV/TSV files inside {export.name}")
+            for member in sorted(members):
+                text = decode(archive.read(member))
+                if text is None:
+                    print(f"  ! could not decode {member}, skipped", file=sys.stderr)
+                    continue
+                parse_table(Path(member).name, text, rows)
+        return rows
+
+    files = [export] if export.is_file() else sorted(
+        p for p in export.rglob("*") if p.suffix.lower() in (".csv", ".tsv")
+    )
     if not files:
-        raise SystemExit(f"no CSV/TSV files under {export_dir}")
+        raise SystemExit(f"no CSV/TSV files under {export}")
 
     for path in files:
-        # Editor writes UTF-16 with a BOM on some platforms and UTF-8 on others.
-        for encoding in ("utf-8-sig", "utf-16", "latin-1"):
-            try:
-                text = path.read_text(encoding=encoding)
-                break
-            except (UnicodeDecodeError, UnicodeError):
-                continue
-        else:
+        text = decode(path.read_bytes())
+        if text is None:
             print(f"  ! could not decode {path.name}, skipped", file=sys.stderr)
             continue
-
-        delimiter = "\t" if (path.suffix.lower() == ".tsv" or "\t" in text.split("\n")[0]) else ","
-        reader = csv.DictReader(text.splitlines(), delimiter=delimiter)
-        count = 0
-        for raw in reader:
-            rows.append({(k or "").strip().lower(): (v or "") for k, v in raw.items()})
-            count += 1
-        print(f"  read {count:>6} rows from {path.name}")
+        parse_table(path.name, text, rows)
 
     return rows
 
@@ -357,7 +388,8 @@ def to_blueprint(campaigns: dict, trade: str, cities: list[str]) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--export-dir", type=Path, required=True)
+    parser.add_argument("--export", "--export-dir", dest="export", type=Path, required=True,
+                        help="a directory of CSVs, a single CSV, or a .zip of them")
     parser.add_argument("--trade", required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--business", default="", help="business name to replace with {business}")
@@ -365,8 +397,8 @@ def main() -> int:
     parser.add_argument("--cities", nargs="*", default=[], help="cities to replace with {city}")
     args = parser.parse_args()
 
-    print(f"reading {args.export_dir}")
-    rows = read_rows(args.export_dir)
+    print(f"reading {args.export}")
+    rows = read_rows(args.export)
 
     param = Parameteriser(args.business, args.phone, args.cities)
     campaigns, tally = extract(rows, param)
