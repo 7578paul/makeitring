@@ -73,3 +73,11 @@ details[open] .plus { transform: rotate(45deg); }
   line-height: 1;
   white-space: nowrap;
 }
+
+/* The mark is set at 30px for desktop; that is heavy on a phone, so trim it
+   there. Inline height on the img means these have to be !important. */
+@media (max-width: 619px) {
+  nav img[src*="logo-make-it-ring"],
+  header img[src*="logo-make-it-ring"] { height: 24px !important; }
+  footer img[src*="logo-make-it-ring"] { height: 20px !important; }
+}
