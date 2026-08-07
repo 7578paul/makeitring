@@ -179,3 +179,11 @@ details[open] .openhint { display: none; }
   #consult .g4 > .pad > h3 { margin: 4px 0 7px; font-size: 18.5px; }
   #consult .g4 > .pad > p { margin: 0; font-size: 16px; }
 }
+
+/* Three chips in a two-column grid left an orphan on the last row, and the
+   labels were being cut off with an ellipsis at that width. One per row on
+   phones: full text, even rows. */
+@media (max-width: 619px) {
+  .assurances { grid-template-columns: minmax(0, 1fr); }
+  .assurances > span { height: auto; min-height: 44px; padding-top: 10px; padding-bottom: 10px; }
+}
