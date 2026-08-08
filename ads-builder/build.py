@@ -19,7 +19,7 @@ from src.landing import write_site
 from src.model import NegativeKeyword
 from src.package import write_checklist, write_summary
 from src.editor_export import write_editor_file, write_shared_negatives
-from src.exporters import export_build_sheet, export_editor_csv
+from src.exporters import export_build_sheet
 from src.preflight import check as preflight_check, load_negatives, resolve as preflight_resolve
 from src.validators import has_errors, validate
 
@@ -110,8 +110,6 @@ def main() -> int:
     for line in layer2["rejected"][:6]:
         print(f"   rejected {line}", file=sys.stderr)
 
-    for path in export_editor_csv(plan, out_dir):
-        print(f"  {path}")
     print(f"  {write_editor_file(plan, out_dir, ROOT / 'data', brief)}   <- import this one")
 
     print(f"  {write_shared_negatives(plan, out_dir)}")

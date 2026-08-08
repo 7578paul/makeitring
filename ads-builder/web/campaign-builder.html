@@ -755,55 +755,6 @@ function files(plan){
   out.push(['shared_negative_list.csv',
     negRows.map(r => r.map(cell).join(',')).join('\r\n'), false]);
 
-  out.push(['01-campaigns.csv', csv(
-    ['Campaign','Campaign Type','Budget','Bid Strategy Type','Networks','Languages','Campaign Status'],
-    plan.campaigns.map(c => ({'Campaign':c.name, 'Campaign Type':'Search',
-      'Budget':c.budget.toFixed(2), 'Bid Strategy Type':c.bid,
-      'Networks':'Google search', 'Languages':'English', 'Campaign Status':c.status})))]);
-
-  const locs = [];
-  plan.campaigns.forEach(c => c.locations.forEach(l =>
-    locs.push({'Campaign':c.name, 'Location':l, 'Criterion Type':'Location'})));
-  out.push(['02-locations.csv', csv(['Campaign','Location','Criterion Type'], locs)]);
-
-  const sch = [];
-  plan.campaigns.forEach(c => c.schedule.forEach(s =>
-    sch.push({'Campaign':c.name, 'Ad Schedule':`${s.day}, ${s.start}, ${s.end}`})));
-  out.push(['03-schedules.csv', csv(['Campaign','Ad Schedule'], sch)]);
-
-  const negs = [];
-  plan.campaigns.forEach(c => c.negatives.forEach(n =>
-    negs.push({'Campaign':c.name, 'Keyword':n.text,
-               'Criterion Type':NEG[n.match] || NEG.phrase})));
-  out.push(['04-campaign-negatives.csv', csv(['Campaign','Keyword','Criterion Type'], negs)]);
-
-  const groups = [];
-  plan.campaigns.forEach(c => c.groups.forEach(g =>
-    groups.push({'Campaign':c.name, 'Ad Group':g.name,
-                 'Max CPC':c.maxCpc ? c.maxCpc.toFixed(2) : '', 'Ad Group Status':g.status})));
-  out.push(['05-ad-groups.csv', csv(['Campaign','Ad Group','Max CPC','Ad Group Status'], groups)]);
-
-  const kws = [];
-  plan.campaigns.forEach(c => c.groups.forEach(g => g.keywords.forEach(k =>
-    kws.push({'Campaign':c.name, 'Ad Group':g.name, 'Keyword':k.text,
-              'Criterion Type':MATCH[k.match] || 'Phrase', 'Status':g.status,
-              'Final URL':k.url}))));
-  out.push(['06-keywords.csv', csv(
-    ['Campaign','Ad Group','Keyword','Criterion Type','Status','Final URL'], kws)]);
-
-  const hCols = Array.from({length:RSA_MAX_HEADLINES}, (_,i) => `Headline ${i+1}`);
-  const dCols = Array.from({length:RSA_MAX_DESCRIPTIONS}, (_,i) => `Description ${i+1}`);
-  const ads = [];
-  plan.campaigns.forEach(c => c.groups.forEach(g => g.ads.forEach(a => {
-    const row = {'Campaign':c.name, 'Ad Group':g.name, 'Ad type':'Responsive search ad',
-                 'Path 1':a.path1, 'Path 2':a.path2, 'Final URL':a.url, 'Status':g.status};
-    a.headlines.forEach((h,i) => row[hCols[i]] = h);
-    a.descriptions.forEach((d,i) => row[dCols[i]] = d);
-    ads.push(row);
-  })));
-  out.push(['07-ads-rsa.csv', csv(
-    ['Campaign','Ad Group','Ad type'].concat(hCols, dCols, ['Path 1','Path 2','Final URL','Status']), ads)]);
-
   return out;
 }
 
