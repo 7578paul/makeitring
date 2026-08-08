@@ -103,6 +103,18 @@ ATTRIBUTION_JS = """
   }
   document.addEventListener('DOMContentLoaded', fill);
   fill();
+
+  /* fraud layer: log the paid click, fire-and-forget. Only clicks that carry
+     ad parameters are logged — organic visits are not interesting here. */
+  var endpoint = document.documentElement.getAttribute('data-track');
+  if (endpoint && (fresh.gclid || fresh.campaign)) {
+    try {
+      navigator.sendBeacon(endpoint, new Blob([JSON.stringify({
+        gclid: fresh.gclid || '', campaign: fresh.campaign || '',
+        keyword: fresh.keyword || ''
+      })], { type: 'application/json' }));
+    } catch (e) {}
+  }
 })();
 """
 
@@ -303,8 +315,9 @@ document.querySelector('form[data-lead]').addEventListener('submit', function (e
 </script>"""
         title = lp.get("title") or f"{name} — {city} Movers | {offer}"
 
+    track = (brief.get("lead_delivery", {}) or {}).get("click_endpoint", "")
     return f"""<!doctype html>
-<html lang="en">
+<html lang="en"{f' data-track="{escape(track)}"' if track else ""}>
 <head>
 <meta charset="utf-8">
 <title>{escape(title)}</title>

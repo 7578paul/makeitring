@@ -143,6 +143,22 @@ def write_checklist(plan: Plan, brief: dict, out_dir: Path) -> Path:
         box(False, "If their current number is on trucks or the Google Business Profile, "
                    "**port it** — do not replace it, or call history is lost"),
         "",
+        "## 1b. The tracking backbone (one deploy serves every client)",
+        "",
+        box(False, "Deploy `stack/` once: `wrangler d1 create makeitring-leads`, run "
+                   "`schema.sql`, set `CLIENT_KEYS`, `wrangler deploy`"),
+        box(False, f"Point this client's form at the worker: "
+                   f"`/lead?client={brief.get('client', {}).get('slug', 'slug')}`"),
+        box(False, "Point the CallRail post-call webhook at `/webhook/callrail?client=...` "
+                   "— caller, duration and recording then appear on the dashboard"),
+        box(False, "If `gtm-container.json` is in this package: GTM → Admin → "
+                   "**Import Container** → merge. Two clicks instead of script installs"),
+        box(False, "Weekly: download `/export/conversions.csv` from the dashboard and "
+                   "upload in Google Ads → Conversions → Upload — booked jobs with real "
+                   "values are what teach bidding to chase revenue"),
+        box(False, "Weekly: download `/export/ip-exclusions.csv` and paste into Campaign "
+                   "Settings → IP exclusions — the self-hosted click-fraud layer"),
+        "",
         "## 2. Conversions — Editor cannot do this part",
         "",
         "Conversion actions are UI or API only. Create them by hand, in Google Ads:",

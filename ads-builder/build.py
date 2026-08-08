@@ -15,6 +15,7 @@ from pathlib import Path
 
 from src.competitors import api_key_from_env, build_layer2
 from src.compiler import BriefError, compile_plan, load_yaml
+from src.gtm import write_container
 from src.landing import write_site
 from src.model import NegativeKeyword
 from src.package import write_checklist, write_summary
@@ -109,6 +110,8 @@ def main() -> int:
 
     for path in write_site(brief, out_dir / "site"):
         print(f"  {path}")
+    if gtm_path := write_container(brief, out_dir):
+        print(f"  {gtm_path}   <- GTM Admin > Import Container")
     print(f"  {write_summary(plan, out_dir, layer2=layer2, removed_negatives=removed, wall_report=wall_report)}")
     print(f"  {write_checklist(plan, brief, out_dir)}")
 

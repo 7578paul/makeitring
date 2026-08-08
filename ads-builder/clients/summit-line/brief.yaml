@@ -256,3 +256,7 @@ landing_pages:
 tracking: {}
 assets:
   images: []
+lead_delivery:
+  endpoint: https://track.makeitring.co/lead?client=summit-line
+  click_endpoint: https://track.makeitring.co/click?client=summit-line
+  dashboard: https://track.makeitring.co/dash?client=summit-line&key=SET-ME
