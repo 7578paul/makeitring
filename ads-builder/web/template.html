@@ -202,6 +202,7 @@ summary em{
 .divider{height:1px; background:var(--rule); margin:11px 0}
 
 .files{display:grid; gap:8px; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); margin-top:18px}
+a.file{text-decoration:none}
 .file{
   display:flex; justify-content:space-between; align-items:center; gap:12px;
   background:var(--surface); border:1px solid var(--rule-strong); border-radius:7px;
@@ -758,15 +759,16 @@ function utf16le(text){
   return buffer;
 }
 
-function download(name, text, utf16){
+/* This page runs inside a sandboxed frame, where a link the SCRIPT clicks is
+   blocked but a link the PERSON clicks is allowed. So the files are rendered as
+   real anchors with the blob already attached, and nothing is auto-clicked.
+   Same reason there is no "download all": browsers block a burst of downloads
+   that the user did not individually ask for. */
+function fileURL(text, utf16){
   const blob = utf16
-    ? new Blob([utf16le(text)], {type:'text/tab-separated-values'})
+    ? new Blob([utf16le(text)], {type:'application/octet-stream'})
     : new Blob([text], {type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  document.body.appendChild(a); a.click();
-  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  return URL.createObjectURL(blob);
 }
 
 /* ---------- draw ---------- */
@@ -844,28 +846,25 @@ function draw(plan, findings){
   } else {
     const made = files(plan);
     html += `<div class="files">`;
-    made.forEach(([name, text], i) =>
-      html += `<button class="file" data-i="${i}">${esc(name)}<span>${Math.ceil(text.length/1024)} KB</span></button>`);
+    made.forEach(([name, text, utf16]) => {
+      const kb = Math.ceil((utf16 ? text.length*2 : text.length)/1024);
+      html += `<a class="file" href="${fileURL(text, utf16)}" download="${esc(name)}">`
+            + `${esc(name)}<span>${kb} KB</span></a>`;
+    });
     html += `</div>
-      <div class="actions"><button id="all">Download all ${made.length} files</button></div>
-      <p class="note">In Google Ads Editor: <b>Account &rsaquo; Import &rsaquo; From file</b>, one file at a
-      time in number order. Review what it shows you, then post. Everything arrives paused,
-      so nothing spends until you switch it on.</p>`;
+      <p class="note"><b>Start with <code>campaigns_editor_import.csv</code></b> — that is the
+      whole account. In Google Ads Editor: <b>Account &rsaquo; Import &rsaquo; From file</b>.
+      Review what it shows you, then post. Everything arrives paused, so nothing spends
+      until you switch it on.</p>
+      <p class="note">If a file will not save, <b>right-click the name and choose
+      &ldquo;Save link as&rdquo;</b>. Some browsers block downloads started from an
+      embedded page unless you ask for them directly.</p>`;
     window.__files = made;
   }
 
   const box = $('results');
   box.innerHTML = html;
   box.classList.add('on');
-
-  box.querySelectorAll('.file').forEach(btn => btn.addEventListener('click', () => {
-    const [name, text, utf16] = window.__files[+btn.dataset.i];
-    download(name, text, utf16);
-  }));
-  const all = $('all');
-  if (all) all.addEventListener('click', () =>
-    window.__files.forEach(([name, text, utf16], i) =>
-      setTimeout(() => download(name, text, utf16), i*350)));
 
   box.scrollIntoView({behavior:'smooth', block:'start'});
 }
