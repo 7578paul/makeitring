@@ -14,6 +14,7 @@ from datetime import date
 from pathlib import Path
 
 from src.compiler import BriefError, compile_plan, load_yaml
+from src.editor_export import write_editor_file, write_shared_negatives
 from src.exporters import export_build_sheet, export_editor_csv
 from src.preflight import check as preflight_check, errors as preflight_errors, load_negatives
 from src.validators import has_errors, validate
@@ -80,6 +81,8 @@ def main() -> int:
 
     for path in export_editor_csv(plan, out_dir):
         print(f"  {path}")
+    print(f"  {write_editor_file(plan, out_dir, ROOT / 'data')}   <- import this one")
+    print(f"  {write_shared_negatives(plan, out_dir)}")
 
     print("\nNext: import into Google Ads Editor, review, post. Everything lands paused.")
     return 0

@@ -40,8 +40,13 @@ def main() -> int:
             if line:
                 negatives.append(line)
 
+    headers = (ROOT / "data" / "editor_schema_headers.txt").read_text(
+        encoding="utf-8").rstrip("\r\n").split("\t")
+    print(f"  {len(headers)} Editor columns")
+
     html = TEMPLATE.read_text(encoding="utf-8")
-    for token, value in (("__BLUEPRINTS__", blueprints), ("__NEGATIVES__", negatives)):
+    for token, value in (("__BLUEPRINTS__", blueprints), ("__NEGATIVES__", negatives),
+                         ("__EDITOR_HEADERS__", headers)):
         if token not in html:
             print(f"template is missing {token}", file=sys.stderr)
             return 1

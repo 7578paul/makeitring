@@ -21,6 +21,7 @@ from .model import (
     RSA_MIN_DESCRIPTIONS,
     RSA_MIN_HEADLINES,
     Plan,
+    display_length,
 )
 
 
@@ -51,7 +52,7 @@ def validate(plan: Plan) -> list[Finding]:
     for campaign in plan.campaigns:
         where = campaign.name
 
-        if campaign.location_target_type != "presence":
+        if "presence" not in campaign.location_target_type.lower():
             err(where, "location targeting must be `presence`, not presence-or-interest")
         if not campaign.locations:
             err(where, "no geo targets — the campaign would serve nationally")
@@ -117,11 +118,11 @@ def validate(plan: Plan) -> list[Finding]:
                     )
 
                 for headline in ad.headlines:
-                    if len(headline) > MAX_HEADLINE:
-                        err(awhere, f"headline {len(headline)} chars: {headline!r}")
+                    if display_length(headline) > MAX_HEADLINE:
+                        err(awhere, f"headline {display_length(headline)} chars: {headline!r}")
                 for description in ad.descriptions:
-                    if len(description) > MAX_DESCRIPTION:
-                        err(awhere, f"description {len(description)} chars: {description!r}")
+                    if display_length(description) > MAX_DESCRIPTION:
+                        err(awhere, f"description {display_length(description)} chars: {description!r}")
                 for path in (ad.path1, ad.path2):
                     if path and len(path) > MAX_PATH:
                         err(awhere, f"path {len(path)} chars: {path!r}")

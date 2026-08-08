@@ -5,8 +5,12 @@ downstream (Editor CSV today, the Ads API later) reads a Plan and nothing else.
 That separation is the whole reason adding the API backend later is cheap.
 """
 
+import re
 from dataclasses import dataclass, field
 from typing import Optional
+
+# {KeyWord:Fallback} / {LOCATION(City):Fallback} / {CUSTOMIZER.Name:Fallback}
+_INSERTION = re.compile(r"\{[A-Za-z_]+(?:\([^)]*\))?(?::(?P<fallback>[^}]*))?\}")
 
 # Google's limits. Enforced in validators, restated here because the exporters
 # assume they already hold.
@@ -19,6 +23,17 @@ RSA_MIN_HEADLINES = 3
 RSA_MAX_HEADLINES = 15
 RSA_MIN_DESCRIPTIONS = 2
 RSA_MAX_DESCRIPTIONS = 4
+
+def display_length(text: str) -> int:
+    """Length as Google counts it.
+
+    `{KeyWord:Moving Papa}` and `{LOCATION(City):Your Area}` are insertion
+    tokens: what has to fit the 30-character limit is the fallback that shows
+    when insertion cannot happen, not the literal token. Measuring the raw
+    string drops precisely the headlines that make these ads perform.
+    """
+    return len(_INSERTION.sub(lambda m: m.group("fallback") or "", text or ""))
+
 
 # Not a Google limit — a strategy limit, taken from the account this tool is
 # modelled on. See SPEC.md § what v0 got wrong, row 1.
@@ -77,7 +92,12 @@ class Campaign:
     language: str = "English"
     locations: list[str] = field(default_factory=list)
     excluded_locations: list[str] = field(default_factory=list)
-    location_target_type: str = "presence"
+    location_target_type: str = "Location of presence"
+    location_exclusion_type: str = "Location of presence"
+    target_cpa: Optional[float] = None
+    tracking_template: str = ""
+    ad_rotation: str = "Optimize for clicks"
+    budget_type: str = "Daily"
     schedule: list[ScheduleSlot] = field(default_factory=list)
     ad_groups: list[AdGroup] = field(default_factory=list)
     negatives: list[NegativeKeyword] = field(default_factory=list)

@@ -343,6 +343,7 @@ movingpapa</textarea></div>
 <script>
 const BLUEPRINTS = __BLUEPRINTS__;
 const UNIVERSAL_NEGATIVES = __NEGATIVES__;
+const EDITOR_HEADERS = __EDITOR_HEADERS__;
 
 const MAX_HEADLINE = 30, MAX_DESCRIPTION = 90, MAX_PATH = 15;
 const MAX_KEYWORD_CHARS = 80, MAX_KEYWORD_WORDS = 10;
@@ -365,7 +366,10 @@ function pairs(text){
   return out;
 }
 function render(tpl, ctx){
-  const filled = String(tpl||'').replace(/\{(\w+)\}/g, (_, k) => ctx[k] !== undefined ? ctx[k] : '');
+  /* Only substitute keys we know. {KeyWord:Fallback} and {LOCATION(City):...}
+     contain a colon so they never match, and pass through verbatim. */
+  const filled = String(tpl||'').replace(/\{(\w+)\}/g,
+    (whole, k) => ctx[k] !== undefined ? ctx[k] : whole);
   /* Clean up after a placeholder that rendered empty: "pricing. {minjob}. Nothing"
      with no minimum job leaves "pricing. . Nothing", which would go live as-is. */
   return filled
@@ -438,12 +442,16 @@ function compile(brief){
     const camp = {
       key: spec.key,
       name: render(nameFmt, {code:TRADE_CODES[brief.trade]||brief.trade.slice(0,3).toUpperCase(),
-                             label:spec.label, trade:brief.trade}),
+                             label:spec.label, trade:brief.trade,
+                             market:brief.cities[0]}),
       budget: budgets[spec.key],
       bid: spec.bid_strategy || defaults.bid_strategy || 'Maximize conversions',
       maxCpc: spec.max_cpc || null,
       status: defaults.status || 'Paused',
-      geoType: defaults.location_target_type || 'presence',
+      geoType: defaults.location_target_type || 'Location of presence',
+      targetCpa: spec.target_cpa || null,
+      trackingTemplate: defaults.tracking_template || '',
+      adRotation: defaults.ad_rotation || 'Optimize for clicks',
       locations: brief.targets,
       schedule: buildSchedule(spec.schedule, bp.schedules||{}, brief),
       negatives: negs,
@@ -505,12 +513,19 @@ function buildGroup(gs, brief, themes, ctx, city, perCity, isHome, defMatches,
   return {name, keywords, ads: ad ? [ad] : [], status};
 }
 
+/* {KeyWord:Fallback} and {LOCATION(City):Fallback} are insertion tokens — what
+   must fit the limit is the fallback shown when insertion cannot happen. */
+const INSERTION = /\{[A-Za-z_]+(?:\([^)]*\))?(?::([^}]*))?\}/g;
+function displayLength(text){
+  return String(text||'').replace(INSERTION, (_, fb) => fb || '').length;
+}
+
 function fit(templates, ctx, limit){
   const kept = []; let long = 0, empty = 0;
   for (const t of (templates||[])){
     const text = render(t, ctx);
     if (!text) empty++;
-    else if (text.length > limit) long++;
+    else if (displayLength(text) > limit) long++;
     else if (kept.indexOf(text) === -1) kept.push(text);
   }
   return {kept, long, empty};
@@ -571,7 +586,7 @@ function validate(plan){
   if (!plan.campaigns.length) err(plan.business, 'Nothing was built.');
 
   for (const c of plan.campaigns){
-    if (c.geoType !== 'presence')
+    if (!/presence/i.test(c.geoType))
       err(c.name, 'Location targeting must be people physically in the area. Anything else pays for clicks from other cities.');
     if (!c.locations.length) err(c.name, 'No locations — this would run nationwide.');
     if (c.budget <= 0) err(c.name, 'Daily budget is zero.');
@@ -595,8 +610,8 @@ function validate(plan){
           err(w, `${a.headlines.length} headlines — Google needs ${RSA_MIN_HEADLINES} to ${RSA_MAX_HEADLINES}.`);
         if (a.descriptions.length < RSA_MIN_DESCRIPTIONS || a.descriptions.length > RSA_MAX_DESCRIPTIONS)
           err(w, `${a.descriptions.length} descriptions — Google needs ${RSA_MIN_DESCRIPTIONS} to ${RSA_MAX_DESCRIPTIONS}.`);
-        for (const h of a.headlines) if (h.length > MAX_HEADLINE) err(w, `Headline is ${h.length} characters: "${h}"`);
-        for (const d of a.descriptions) if (d.length > MAX_DESCRIPTION) err(w, `Description is ${d.length} characters: "${d}"`);
+        for (const h of a.headlines) if (displayLength(h) > MAX_HEADLINE) err(w, `Headline is ${displayLength(h)} characters: "${h}"`);
+        for (const d of a.descriptions) if (displayLength(d) > MAX_DESCRIPTION) err(w, `Description is ${displayLength(d)} characters: "${d}"`);
         if (!/^https?:\/\//.test(a.url)) err(w, `The landing page needs to start with https:// — got "${a.url}"`);
       }
     }
@@ -617,8 +632,70 @@ const MATCH = {broad:'Broad', phrase:'Phrase', exact:'Exact'};
 const NEG = {broad:'Campaign Negative Broad', phrase:'Campaign Negative Phrase',
              exact:'Campaign Negative Exact'};
 
+/* The Editor import file: the full 312-column header verbatim, one row per
+   entity, tab separated. Columns we do not populate stay blank. */
+function editorFile(plan){
+  const header = EDITOR_HEADERS;
+  const index = {}; header.forEach((h,i) => index[h] = i);
+  const lines = [header.join('\t')];
+
+  const row = obj => {
+    const cells = new Array(header.length).fill('');
+    for (const key in obj){
+      if (index[key] === undefined) continue;
+      cells[index[key]] = String(obj[key] === null || obj[key] === undefined ? '' : obj[key])
+        .replace(/[\t\r\n]+/g, ' ').trim();
+    }
+    lines.push(cells.join('\t'));
+  };
+
+  for (const c of plan.campaigns){
+    const camp = {
+      'Campaign': c.name, 'Campaign Type': 'Search', 'Networks': c.networks,
+      'Budget': c.budget.toFixed(2), 'Budget type': 'Daily', 'Languages': 'English',
+      'Bid Strategy Type': c.bid, 'Ad rotation': c.adRotation || 'Optimize for clicks',
+      'Targeting method': c.geoType, 'Exclusion method': c.geoType,
+      'Campaign Status': c.status
+    };
+    if (c.targetCpa) camp['Target CPA'] = Number(c.targetCpa).toFixed(2);
+    if (c.trackingTemplate) camp['Tracking template'] = c.trackingTemplate;
+    row(camp);
+
+    c.locations.forEach(l => row({'Campaign': c.name, 'Location': l}));
+    c.schedule.forEach(s => row({'Campaign': c.name,
+      'Ad Schedule': `${s.day}, ${s.start}, ${s.end}`}));
+    c.negatives.forEach(n => row({'Campaign': c.name, 'Keyword': n.text,
+      'Criterion Type': NEG[n.match] || NEG.phrase, 'Status': 'Enabled'}));
+
+    for (const g of c.groups){
+      row({'Campaign': c.name, 'Ad Group': g.name, 'Ad Group Status': g.status});
+      g.keywords.forEach(k => row({'Campaign': c.name, 'Ad Group': g.name,
+        'Keyword': k.text, 'Criterion Type': MATCH[k.match] || 'Phrase',
+        'Status': g.status, 'Final URL': k.url}));
+      for (const a of g.ads){
+        const ad = {'Campaign': c.name, 'Ad Group': g.name, 'Ad type': 'Responsive search ad',
+          'Final URL': a.url, 'Path 1': a.path1, 'Path 2': a.path2, 'Status': g.status};
+        a.headlines.forEach((h,i) => ad[`Headline ${i+1}`] = h);
+        a.descriptions.forEach((d,i) => ad[`Description ${i+1}`] = d);
+        row(ad);
+      }
+    }
+  }
+  return lines.join('\r\n');
+}
+
 function files(plan){
   const out = [];
+  out.push(['campaigns_editor_import.csv', editorFile(plan), true]);
+
+  const seen = new Set(), negRows = [['Keyword','Match type']];
+  plan.campaigns.forEach(c => c.negatives.forEach(n => {
+    const k = n.text.toLowerCase() + '|' + n.match;
+    if (!seen.has(k)){ seen.add(k); negRows.push([n.text, n.match]); }
+  }));
+  out.push(['shared_negative_list.csv',
+    negRows.map(r => r.map(cell).join(',')).join('\r\n'), false]);
+
   out.push(['01-campaigns.csv', csv(
     ['Campaign','Campaign Type','Budget','Bid Strategy Type','Networks','Languages','Campaign Status'],
     plan.campaigns.map(c => ({'Campaign':c.name, 'Campaign Type':'Search',
@@ -671,8 +748,20 @@ function files(plan){
   return out;
 }
 
-function download(name, text){
-  const blob = new Blob([text], {type:'text/csv;charset=utf-8'});
+/* Google Ads Editor reads UTF-16 with a BOM. A UTF-8 file imports garbled, so
+   encode the code units by hand — a JS string is already UTF-16. */
+function utf16le(text){
+  const buffer = new ArrayBuffer(2 + text.length * 2);
+  const view = new DataView(buffer);
+  view.setUint8(0, 0xFF); view.setUint8(1, 0xFE);
+  for (let i = 0; i < text.length; i++) view.setUint16(2 + i*2, text.charCodeAt(i), true);
+  return buffer;
+}
+
+function download(name, text, utf16){
+  const blob = utf16
+    ? new Blob([utf16le(text)], {type:'text/tab-separated-values'})
+    : new Blob([text], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = name;
@@ -737,11 +826,11 @@ function draw(plan, findings){
       html += `</div>`;
       for (const a of g.ads){
         html += `<p class="adurl">${esc(a.url)}${a.path1 ? '/'+esc(a.path1) : ''}${a.path2 ? '/'+esc(a.path2) : ''}</p>`;
-        a.headlines.forEach(h => html += `<div class="asset${h.length > MAX_HEADLINE-3 ? ' tight' : ''}">
-          <span class="count">${h.length}</span><span>${esc(h)}</span></div>`);
+        a.headlines.forEach(h => html += `<div class="asset${displayLength(h) > MAX_HEADLINE-3 ? ' tight' : ''}">
+          <span class="count">${displayLength(h)}</span><span>${esc(h)}</span></div>`);
         html += `<div class="divider"></div>`;
-        a.descriptions.forEach(d => html += `<div class="asset${d.length > MAX_DESCRIPTION-6 ? ' tight' : ''}">
-          <span class="count">${d.length}</span><span>${esc(d)}</span></div>`);
+        a.descriptions.forEach(d => html += `<div class="asset${displayLength(d) > MAX_DESCRIPTION-6 ? ' tight' : ''}">
+          <span class="count">${displayLength(d)}</span><span>${esc(d)}</span></div>`);
       }
       html += `</div></details>`;
     }
@@ -770,12 +859,13 @@ function draw(plan, findings){
   box.classList.add('on');
 
   box.querySelectorAll('.file').forEach(btn => btn.addEventListener('click', () => {
-    const [name, text] = window.__files[+btn.dataset.i];
-    download(name, text);
+    const [name, text, utf16] = window.__files[+btn.dataset.i];
+    download(name, text, utf16);
   }));
   const all = $('all');
   if (all) all.addEventListener('click', () =>
-    window.__files.forEach(([name, text], i) => setTimeout(() => download(name, text), i*350)));
+    window.__files.forEach(([name, text, utf16], i) =>
+      setTimeout(() => download(name, text, utf16), i*350)));
 
   box.scrollIntoView({behavior:'smooth', block:'start'});
 }

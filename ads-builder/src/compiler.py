@@ -19,6 +19,7 @@ from .model import (
     RSA_MAX_HEADLINES,
     RSA_MIN_HEADLINES,
     AdGroup,
+    display_length,
     Campaign,
     Keyword,
     NegativeKeyword,
@@ -191,7 +192,11 @@ def _build_campaign(*, spec, plan, brief, blueprint, themes, defaults, schedules
             language=defaults.get("language", "English"),
             locations=list(geo_targets),
             excluded_locations=list(brief.get("service_area", {}).get("exclude") or []),
-            location_target_type=defaults.get("location_target_type", "presence"),
+            location_target_type=defaults.get("location_target_type", "Location of presence"),
+            location_exclusion_type=defaults.get("location_exclusion_type", "Location of presence"),
+            target_cpa=spec.get("target_cpa"),
+            tracking_template=defaults.get("tracking_template", ""),
+            ad_rotation=defaults.get("ad_rotation", "Optimize for clicks"),
             schedule=_build_schedule(spec.get("schedule"), schedules, brief),
             negatives=list(account_negatives)
             + _theme_negatives(spec.get("negative_themes", []), themes)
@@ -425,7 +430,7 @@ def _fit(templates: list[str], context: dict, limit: int) -> tuple[list[str], in
         text = render(template, context).strip()
         if not text:
             empty += 1
-        elif len(text) > limit:
+        elif display_length(text) > limit:
             too_long += 1
         elif text not in kept:
             kept.append(text)
