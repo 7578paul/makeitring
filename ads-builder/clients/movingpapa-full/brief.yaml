@@ -10,7 +10,10 @@ trade: moving
 services:
 - general_moving
 - general_moving_geos
+- commercial_office
 - brand
+- pmax
+- ld_ontario
 service_area:
   cities:
   - Toronto
@@ -74,6 +77,7 @@ markets:
   - Mississauga, Ontario, Canada
   - Brampton, Ontario, Canada
   - Richmond Hill, Ontario, Canada
+  target_cpa: 70
 - name: Vancouver
   monthly_budget: 20000
   cities:
@@ -83,6 +87,9 @@ markets:
   - Richmond
   - Coquitlam
   - Langley
+  - Delta
+  - Port Moody
+  - White Rock
   targets:
   - Vancouver, British Columbia, Canada
   - Burnaby, British Columbia, Canada
@@ -90,6 +97,10 @@ markets:
   - Richmond, British Columbia, Canada
   - Coquitlam, British Columbia, Canada
   - Langley, British Columbia, Canada
+  - Delta, British Columbia, Canada
+  - Port Moody, British Columbia, Canada
+  - White Rock, British Columbia, Canada
+  target_cpa: 70
 - name: Calgary
   monthly_budget: 10000
   cities:
@@ -98,6 +109,7 @@ markets:
   - Calgary, Alberta, Canada
   skip_campaigns:
   - general_moving_geos
+  target_cpa: 67
 - name: Edmonton
   monthly_budget: 10000
   cities:
@@ -106,6 +118,7 @@ markets:
   - Edmonton, Alberta, Canada
   skip_campaigns:
   - general_moving_geos
+  target_cpa: 75
 - name: Ottawa
   monthly_budget: 10000
   cities:
@@ -114,6 +127,7 @@ markets:
   - Ottawa, Ontario, Canada
   skip_campaigns:
   - general_moving_geos
+  target_cpa: 70
 budget:
   monthly_total: 70000
   weights: {}
@@ -142,6 +156,7 @@ landing:
   - Commercial & office
   subdomain: go.movingpapa.com
 landing_pages:
-  default: https://www.movingpapa.com/finalstep/residential
+  default: https://www.movingpapa.com/
+  commercial_office: https://www.movingpapa.com/service/office/
 assets:
   images: []

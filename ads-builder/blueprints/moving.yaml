@@ -77,6 +77,10 @@ campaigns:
     keywords:
     - best rated moving companies
     - top rated movers in {city}
+    - movers in {city}
+    - moving companies {city}
+    - best movers in {city}
+    - moving quotes
     rsa:
       headlines:
       - '{KeyWord:{business}}'
@@ -340,6 +344,7 @@ campaigns:
       - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
       - On-time, professional movers serving {city}. Make your next move a stress-free one!
       - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+  budget_weight: 850
 - key: commercial_office
   label: Commercial & Office
   markets_seen:
@@ -352,8 +357,7 @@ campaigns:
   - Toronto
   - Vancouver
   typical_daily_budget: 200.0
-  target_cpa: 85.0
-  bid_strategy: Maximize conversions
+  bid_strategy: Maximize clicks
   ad_groups:
   - key: office_commercial
     label: Office & Commercial
@@ -468,6 +472,7 @@ campaigns:
       - Delivering on time, every time. Dependable last mile logistics at scale.
       - Final mile made simple—fast delivery and flexible scheduling. Contact us!
       - Seamless final mile delivery from hub to home—efficiency you can count on.
+  budget_weight: 200
 - key: general_moving_geos
   label: General Moving | GEOs
   markets_seen:
@@ -513,6 +518,7 @@ campaigns:
       - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
       - On-time, professional movers serving {city}. Make your next move a stress-free one!
       - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+  budget_weight: 100
 - key: last_mile
   label: Last-mile
   markets_seen:
@@ -558,6 +564,7 @@ campaigns:
       - Delivering on time, every time. Dependable last mile logistics at scale.
       - Final mile made simple—fast delivery and flexible scheduling. Contact us!
       - Seamless final mile delivery from hub to home—efficiency you can count on.
+  budget_weight: 120
 - key: brand
   label: Brand
   markets_seen:
@@ -600,6 +607,92 @@ campaigns:
       - We offer fair & honest pricing - no surprises. Call or fill out our form today!
   all_markets: true
   note: one campaign across every market, as the source account runs it
+  budget_weight: 30
+- key: pmax
+  label: Pmax
+  name_format: '{market} | Pmax ({market} Radius)'
+  campaign_type: Performance Max
+  typical_daily_budget: 366.0
+  markets_seen:
+  - Calgary
+  - Edmonton
+  - Ottawa
+  - Toronto
+  - Vancouver
+  target_cpa: 70.0
+  bid_strategy: Maximize conversions
+  asset_group:
+    name: Asset Group 1
+    headlines:
+    - '{city}''s Most Trusted Movers'
+    - Relocation & Household Moving
+    - Local Moving Company
+    - Easy & Secure Moving
+    - Moving Made Simple
+    - Stress-Free Moving Made Easy
+    - Moving & Storage Near You
+    - Flexible Moving Dates
+    - Moving is affordable
+    - '{business}'
+    - Eco-Friendly Moves
+    - Seamless and Sustainable Moves
+    - Moving Services
+    - '{business}: Your Trusted Mover'
+    - Affordable & Reliable Movers
+    long_headlines:
+    - Seamless local move with secure storage options and commercial relocation expertise
+    - '{business}: Your Trusted Partner for a Stress-Free Move'
+    - '{business}: Your Trusted Local Moving & Storage Solution'
+    - Stress-free and sustainable moving experience with {business}
+    - Reliable, on-time service that respects your time and schedule
+    descriptions:
+    - '{business} is your trusted partner for a stress-free move.'
+    - Move with confidence! Reliable movers offering professional services across {city}.
+    - '{city}''s trusted movers for a smooth, stress-free moving experience every time.'
+    - On-time, professional movers serving {city}. Make your next move a stress-free one!
+    - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+    audience_signal: moving soon
+  ad_groups: []
+  budget_weight: 550
+- key: ld_ontario
+  label: Ontario Origination
+  fixed_name: LD | Search | Ontario Origination
+  all_markets: true
+  typical_daily_budget: 250.0
+  target_cpa: 115.0
+  bid_strategy: Maximize conversions
+  note: the live account's cheapest CPA at $51.52; keywords are best-effort, the original keyword export was filtered
+  ad_groups:
+  - key: long_distance
+    label: Long Distance
+    per_city: false
+    match_types:
+    - phrase
+    keywords:
+    - long distance movers
+    - long distance moving company
+    - long distance moving quote
+    - moving out of province
+    - cross country movers ontario
+    - moving from ontario
+    rsa:
+      headlines:
+      - '{KeyWord:{business}}'
+      - Long Distance Movers
+      - Ontario to Anywhere
+      - Licensed & Insured
+      - Written Quote, No Deposit
+      - One Crew, Door to Door
+      - '{business}'
+      - Fair Pricing, No Surprises
+      - Plan Your Move Early
+      - Get A Free Instant Quote
+      descriptions:
+      - Moving out of Ontario? Get a written, all-in quote before you commit.
+      - One crew loads and unloads. Your things are never transferred between trucks.
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+      - '{city}''s trusted movers for a smooth, stress-free moving experience every time.'
+  budget_weight: 70
 schedules:
   always:
     kind: all_week

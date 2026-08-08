@@ -154,9 +154,15 @@ def write_checklist(plan: Plan, brief: dict, out_dir: Path) -> Path:
                    "policy, or the prompt Editor shows"),
         box(False, "Review every campaign in Editor. **Do not post until it reads correctly**"),
         box(False, "Post. Everything arrives paused"),
-        box(False, "Tools → Shared library → Negative keyword lists → import "
-                   "`shared_negative_list.csv`, attach to all campaigns"),
-        box(False, f"Add the call asset using the **tracking** number, not {phone or 'the public number'}"),
+        box(False, "Optional: the negative wall is already in the import, applied per "
+                   "campaign. `shared_negative_list.csv` is the same wall as one file if "
+                   "you later prefer to manage it as a shared library list"),
+        box(False, "Add the call asset once the **tracking** number exists — the import "
+                   "ships without one on purpose, so the public number never ends up "
+                   "in ads unattributable"),
+        box(False, "Performance Max: add marketing images (landscape, square, portrait) "
+                   "and a logo to each asset group — images cannot ship in a CSV, and "
+                   "the asset group will not serve without them"),
         box(bool((brief.get("assets", {}) or {}).get("images")),
             "Add at least 3 image assets — Google marks a Search campaign down without them. "
             "Photos of real crews and trucks beat stock. Put their paths in the brief under "
@@ -165,6 +171,9 @@ def write_checklist(plan: Plan, brief: dict, out_dir: Path) -> Path:
         "",
         "## 6. Landing page",
         "",
+        box(False, f"Ad URLs currently point at the client's own site. If you deploy "
+                   f"`site/` to **{subdomain}**, update the campaigns' Final URLs to "
+                   f"match — one destination, everywhere"),
         box(False, f"Deploy `site/` to **{subdomain}**"),
         box(False, f"Ask the client to add one DNS record: `{subdomain}` CNAME → your Pages project"),
         box(False, "Load the page with `?gclid=test123` and confirm the hidden field appears"),

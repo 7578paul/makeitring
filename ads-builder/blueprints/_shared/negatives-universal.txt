@@ -1,14 +1,13 @@
-# Universal phrase negatives, lifted from the live account and safe to
-# reuse for any client in this trade.
-# Present in at least 18 of its 31 campaigns.
-# Place names and the source client's own brand have been REMOVED —
-# see the other two files for why.
+# Universal phrase negatives — the live account's full phrase wall, mined from
+# real spend Apr-Aug 2026. Own-brand terms removed; anything that would block a
+# specific client's own traffic is dropped per build by the pre-flight resolve.
 $1
 00
 000
 1 pro
 10ft
 1800
+1st class
 2 guys
 2 men
 3 men
@@ -27,7 +26,7 @@ ab
 abba
 abby
 abc
-abc""aim
+abc"aim
 abe
 abf
 abs
@@ -48,11 +47,14 @@ aires
 aires mobility
 aj campbell
 albert
+alberta
 ali
 all my sons
+all rite
 allard
 allen's
 allied
+allrite
 allstate
 alpine
 america first
@@ -67,6 +69,7 @@ andrews
 angel
 angels
 annual
+anytime
 apollo
 app
 applebee
@@ -78,6 +81,7 @@ apps
 arielli
 arizona
 ars
+asian
 assist
 association
 associations
@@ -85,7 +89,9 @@ atlas
 atlascanada
 atob
 augusta
+aurora
 aussie
+austin
 australia
 australian
 auto
@@ -101,6 +107,7 @@ battery
 baxter
 baxter's
 baxters
+bc
 beacon
 beanland
 bear
@@ -114,11 +121,13 @@ bekins
 belkin
 bell
 bell hop
+belleville
 bellhop
 bellhops
 between
 bg
 bgrs
+big steel box
 bighorn
 black ops
 black owned
@@ -135,11 +144,16 @@ bowling
 boxes
 boxful
 boxs
+brampton
 branford
+brantford
 brawny
 breton
 brew
+bro
+bro's
 bronte
+bros
 brother
 brothers
 browns
@@ -154,6 +168,10 @@ buehlers
 buhler
 buhler's
 bureau
+burlington
+burnaby
+buster
+busters
 butler
 butler's
 butlers
@@ -161,9 +179,15 @@ cabbie
 cactus
 cadillac
 calculator
+caledonia
+calgary
+cambridge
 campbell
 camper
+canada
 car
+cardinal
+cardinals
 cargo
 cargo cabbie
 cargocabbie
@@ -179,11 +203,14 @@ celik
 central
 chair
 champagne
+charity
+chatham
 cheap
 cheaper
 cheapest
 chechlist
 checklist
+chilliwack
 chinese
 chippewa
 clarkes
@@ -193,16 +220,23 @@ cleaning service
 clothes
 clutter
 clvl
+cochrane
 college hunks
+collingwood
+comox
 compass
 concrete
 container
 containers
 coops
+coquitlam
 costco
 couch
 countries
 country
+cp24
+cpm
+cr
 crablike
 craigslist
 creek
@@ -215,12 +249,15 @@ cross-border
 crosscountry
 crosses
 crossing
+cube
 cube it
 cubesmart
 cumberland
 curtis
 d & d
+d & r
 d&d
+d&r
 dagenais
 damco
 dan
@@ -235,6 +272,8 @@ davis
 dawson
 declutter
 dee
+delivery
+delta
 dhl
 diamond
 directway
@@ -244,6 +283,7 @@ dog
 dog's
 dogs
 dolly
+door to door
 dorsey
 dot
 dragonsea
@@ -251,9 +291,12 @@ drawer
 dsv
 dublin
 dumonde
+durham
 dynamic logistics
 eager
 eastvan
+easy
+eclipse
 eco
 econoline
 eddie
@@ -261,10 +304,12 @@ eddy
 eddy's
 eddys
 edgemont
+edmonton
 einstein
 el cheapo
 element
 elite
+elliptical
 emcon
 enterprise
 enterprises
@@ -308,6 +353,8 @@ fitzgerald
 flat
 flatbed
 flooring
+for rent
+for sale
 force
 fort
 fortis
@@ -316,9 +363,11 @@ francis
 frank
 frank's
 franks
+fraser valley
 fred
 fred's
 freds
+free
 freeman
 freight
 fridge
@@ -348,17 +397,23 @@ golden
 goliath
 good2go
 goody
+gorilla
 goshare
 gotruck go
 gotruckgo
 gp
+grandfather
 greenfrog
+greg &
 groupon
+gta
+guelph
 gyedo
 h k
 h&e
 hack
 hacks
+halifax
 hampton
 hanson
 haul
@@ -370,8 +425,10 @@ helper
 helping
 helps
 hendra
+hercules
 heritage
 hibbs
+high level
 hire
 hiring
 hk
@@ -379,6 +436,7 @@ hole
 homart
 home depot
 homex
+hospital
 hot tub
 hot tubs
 hotshot
@@ -397,6 +455,7 @@ hydro
 ihaul
 ikea
 imperial
+in n out
 income
 indeed
 indian owned
@@ -425,6 +484,7 @@ jiffys
 jim
 jim's
 jims
+jmd
 job
 jogger
 johnson
@@ -435,14 +495,18 @@ junk
 just in time
 k&b
 kelle
+kelowna
 kennedy
 kijiji
 king
+kingston
+kitchener
 kootenai
 kootney
 korean
 kratos
 la
+ladner
 ladysmith
 lake havasu
 lakeview
@@ -464,10 +528,12 @@ li
 lickety
 lighthouse
 lincoln
+lindsay
 line
 lion
 lions
 liquidators
+lloyd
 lo
 load
 long
@@ -487,10 +553,12 @@ maniac
 maniacs
 manuel
 manufactured
+maple
 maple leaf
 marathon
 mark
 mark's
+markham
 marks
 matrix
 mattress
@@ -516,10 +584,14 @@ midwest
 mike
 mike's
 mikes
+milton
 miltons
+mini van
+minivan
 miracle
 mirage
 mission
+mississauga
 mitch
 mobil home
 mobile
@@ -530,6 +602,7 @@ moes
 moishe
 molloy
 monashee
+moncton
 monika
 monke
 monkey
@@ -537,6 +610,7 @@ monkey's
 monkeys
 monky
 montgomery
+montreal
 moonlight
 moonline
 morrison
@@ -545,6 +619,7 @@ mountain
 mpr
 mullen
 munden
+muskoka
 mz
 naked
 natt
@@ -552,6 +627,10 @@ neighbor
 nest
 nesting
 nests
+new market
+newmarket
+niagara
+niagara falls
 niagra
 nike
 nikes
@@ -575,9 +654,11 @@ operator
 orange
 organ
 organization
+orillia
 oversea
 overseas
 owen
+owen sound
 owner
 oz
 pacific
@@ -595,6 +676,7 @@ pauls
 pb
 peci
 penske
+penticton
 people
 people's
 peoples
@@ -626,6 +708,7 @@ punjab
 punjabi
 qshark
 quality
+quebec
 rabbit
 rabbits
 raeys
@@ -641,6 +724,7 @@ reay's
 reddit
 redpath
 refrigerator
+regina
 reliance
 relo
 rent
@@ -667,12 +751,14 @@ s and b
 s b
 safe ship
 salary
+sale
 sammies
 sammy
 sammy's
 sammys
 santosh
 saprai
+saskatoon
 sauana
 sb
 scam
@@ -693,6 +779,7 @@ shakers
 share
 shark
 shaw
+shazam
 shed
 shelby
 shelby brothers
@@ -721,11 +808,15 @@ smk
 smoother
 smooths
 software
+son
+son's
+sons
 sooke
 sound
 sounds
 sp
 spa
+spanish
 sparefoot
 spokane
 st catherines
@@ -736,6 +827,7 @@ starline
 starving
 steady
 steelbox
+sterling
 stratford
 suana
 suddath
@@ -766,6 +858,7 @@ tip
 tips
 tll
 tms
+tnt
 to men
 tom
 top dog
@@ -802,6 +895,7 @@ u hual com
 u hual near me
 u hul
 u hull
+u pack
 ubaul
 uber
 uberxl
@@ -859,14 +953,18 @@ volken
 wagner
 wasaga
 wasaga beach
+waterloo
 wave
 wec
 what is
+whistler
 wide
 will
 willy
 willy's
 willys
+windsor
+winnipeg
 wish
 within
 wj

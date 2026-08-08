@@ -58,6 +58,10 @@ def validate(plan: Plan) -> list[Finding]:
             err(where, "no geo targets — the campaign would serve nationally")
         if campaign.daily_budget <= 0:
             err(where, "daily budget is zero")
+        if campaign.campaign_type == "Performance Max":
+            if not campaign.asset_group:
+                err(where, "Performance Max campaign has no asset group")
+            continue
         if not campaign.ad_groups:
             err(where, "campaign has no ad groups")
         if not campaign.negatives:

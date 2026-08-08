@@ -154,7 +154,6 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
         plan.warn("the call asset is using the public phone number — calls from ads "
                   "will not be attributable until a tracking number is set")
 
-    budgets = _allocate_budget(plan, specs, brief, blueprint)
     account_negatives = _account_negatives(blueprint, blueprint_dir)
     schedules = blueprint.get("schedules", {})
 
@@ -176,7 +175,9 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
         campaign like Brand a market's entire share — it took 17% here, where the
         source account gives it under 2%.
         """
-        base = float(spec.get("budget_weight") or spec.get("typical_daily_budget") or 1)
+        if spec.get("budget_weight"):
+            return float(spec["budget_weight"])
+        base = float(spec.get("typical_daily_budget") or 1)
         return base * max(1, len(spec.get("markets_seen") or []))
 
     days = float(blueprint.get("budget", {}).get("days_per_month", 30.4))
@@ -237,6 +238,7 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
                 geo_targets=market_geo, base_context=base_context,
                 daily_budget=allocations[spec["key"]],
                 account_negatives=account_negatives,
+                market_tcpa=(market.get("target_cpa") if isinstance(market, dict) else None),
             ))
 
     if global_specs:
@@ -317,12 +319,13 @@ def _dedupe_keywords(plan) -> None:
 
 def _build_campaign(*, spec, plan, brief, blueprint, themes, defaults, schedules, trade,
                     fmt, market_name, market_cities, geo_targets, base_context,
-                    daily_budget, account_negatives):
+                    daily_budget, account_negatives, market_tcpa=None):
         campaign = Campaign(
             key=spec["key"],
-            name=_campaign_name(trade, spec["label"], fmt, market_name),
+            name=spec.get("fixed_name") or _campaign_name(
+                trade, spec["label"], spec.get("name_format") or fmt, market_name),
             market=market_name,
-            campaign_type=defaults.get("campaign_type", "Search"),
+            campaign_type=spec.get("campaign_type", defaults.get("campaign_type", "Search")),
             daily_budget=daily_budget,
             bid_strategy=spec.get("bid_strategy", defaults.get("bid_strategy")),
             max_cpc=spec.get("max_cpc"),
@@ -333,16 +336,35 @@ def _build_campaign(*, spec, plan, brief, blueprint, themes, defaults, schedules
             excluded_locations=list(brief.get("service_area", {}).get("exclude") or []),
             location_target_type=defaults.get("location_target_type", "Location of presence"),
             location_exclusion_type=defaults.get("location_exclusion_type", "Location of presence"),
-            target_cpa=spec.get("target_cpa"),
+            # A market can tier its own target CPA — the live account runs
+            # Calgary at 67, Edmonton at 75, everywhere else 70. A campaign on a
+            # clicks strategy carries no target at all.
+            target_cpa=(None if "click" in str(spec.get("bid_strategy", "")).lower()
+                        else market_tcpa or spec.get("target_cpa")),
             tracking_template=defaults.get("tracking_template", ""),
             ad_rotation=defaults.get("ad_rotation", "Optimize for clicks"),
-            schedule=_build_schedule(spec.get("schedule"), schedules, brief),
+            # No explicit schedule means answering hours, not always-on. Calls
+            # only convert when someone picks up.
+            schedule=_build_schedule(spec.get("schedule") or "business_hours",
+                                     schedules, brief),
+            asset_group=spec.get("asset_group"),
             negatives=list(account_negatives)
             + _theme_negatives(spec.get("negative_themes", []), themes)
             + _literal_negatives(spec.get("negative_keywords", []), base_context),
             assets=_build_assets(blueprint, brief),
             audience_segments=list(blueprint.get("assets", {}).get("audience_segments", [])),
         )
+
+        if campaign.asset_group:
+            ag = campaign.asset_group
+            campaign.asset_group = {
+                "name": ag.get("name", "Asset Group 1"),
+                "headlines": [render(h, base_context) for h in ag.get("headlines", [])],
+                "long_headlines": [render(h, base_context) for h in ag.get("long_headlines", [])],
+                "descriptions": [render(d, base_context) for d in ag.get("descriptions", [])],
+                "final_url": _final_url(brief, spec["key"]),
+                "audience_signal": ag.get("audience_signal", ""),
+            }
 
         final_url = _final_url(brief, spec["key"])
         default_matches = defaults.get("match_types", ["phrase", "exact"])
@@ -424,6 +446,19 @@ def _account_negatives(blueprint: dict, blueprint_dir: Path) -> list[NegativeKey
 
     themes = blueprint.get("themes", {})
     negatives += _theme_negatives(spec.get("themes", []), themes)
+
+    # The exact-match competitor wall. It was declared in the blueprint and read
+    # by nothing — 605 negatives mined from real spend, silently absent from
+    # every build until a benchmark against the live account caught it.
+    wall = blueprint.get("negatives", {}).get("competitor_wall", {})
+    if "from_file" in wall:
+        path = blueprint_dir / wall["from_file"]
+        if path.exists():
+            match = wall.get("match_type", "exact")
+            for line in path.read_text(encoding="utf-8").splitlines():
+                line = line.split("#")[0].strip()
+                if line:
+                    negatives.append(NegativeKeyword(line, match, source="competitor-wall"))
     return negatives
 
 
@@ -471,8 +506,10 @@ def _build_assets(blueprint: dict, brief: dict) -> list[Asset]:
 
     tracking = brief.get("tracking", {})
     client = brief.get("client", {})
-    tracked = tracking.get("call_tracking_number")
-    phone = tracked or client.get("phone", "")
+    # Only a tracking number ships. The checklist says in bold not to use the
+    # public number, so emitting it anyway made the deliverable argue with
+    # itself — and calls from ads would be unattributable.
+    phone = tracking.get("call_tracking_number")
     if phone:
         # Country follows the currency unless stated. Getting this wrong makes
         # Google reject the call asset outright.

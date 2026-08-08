@@ -138,6 +138,28 @@ def rows_for(plan: Plan, geo_ids: dict[str, str] | None = None,
         for segment in campaign.audience_segments:
             out.append({"Campaign": campaign.name, "Audience segment": segment})
 
+        # A Performance Max campaign has one asset group instead of ad groups.
+        # Images cannot ship in a CSV, so the group imports incomplete and the
+        # checklist carries the step — same as image assets on Search.
+        if campaign.asset_group:
+            ag = campaign.asset_group
+            ag_row = {
+                "Campaign": campaign.name,
+                "Asset Group": ag.get("name", "Asset Group 1"),
+                "Asset Group Status": "Enabled",
+                "Final URL": ag.get("final_url", ""),
+                "Business name": plan.business_name,
+            }
+            for index, headline in enumerate(ag.get("headlines", [])[:15], start=1):
+                ag_row[f"Headline {index}"] = headline
+            for index, lh in enumerate(ag.get("long_headlines", [])[:5], start=1):
+                ag_row[f"Long headline {index}"] = lh
+            for index, desc in enumerate(ag.get("descriptions", [])[:5], start=1):
+                ag_row[f"Description {index}"] = desc
+            if ag.get("audience_signal"):
+                ag_row["Audience signal"] = ag["audience_signal"]
+            out.append(ag_row)
+
         for group in campaign.ad_groups:
             group_row = {
                 "Campaign": campaign.name,

@@ -124,6 +124,9 @@ class Campaign:
     assets: list[Asset] = field(default_factory=list)
     # Attached in Observation only: collect the data now, bid on it later.
     audience_segments: list[str] = field(default_factory=list)
+    # Performance Max only: one asset group dict (headlines, long_headlines,
+    # descriptions, final_url, audience_signal). None for Search campaigns.
+    asset_group: Optional[dict] = None
 
     @property
     def keyword_count(self) -> int:
