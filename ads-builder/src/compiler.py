@@ -146,6 +146,20 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
     if not specs:
         raise BriefError(f"none of the requested services {enabled} exist in the {trade} blueprint")
 
+    # A client's service list can add ad groups the template never had (senior
+    # moving) and remove ones that would misfire for them ("removal companies"
+    # reads as junk removal in the US, which this client refuses).
+    disable = set(brief.get("disable_ad_groups") or [])
+    custom = brief.get("custom_ad_groups") or {}
+    for spec in specs:
+        if disable:
+            spec["ad_groups"] = [g for g in spec.get("ad_groups", [])
+                                 if g.get("key") not in disable]
+        for extra in custom.get(spec["key"], []):
+            spec.setdefault("ad_groups", []).append(extra)
+        if spec["key"] in (brief.get("target_cpa_overrides") or {}):
+            spec["target_cpa"] = brief["target_cpa_overrides"][spec["key"]]
+
     unknown = set(enabled) - {c["key"] for c in blueprint["campaigns"]}
     if unknown:
         plan.warn(f"brief requests services with no blueprint campaign: {sorted(unknown)}")
@@ -155,6 +169,8 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
                   "will not be attributable until a tracking number is set")
 
     account_negatives = _account_negatives(blueprint, blueprint_dir)
+    account_negatives += _excluded_service_negatives(
+        brief.get("positioning", {}).get("excluded_services") or [])
     schedules = blueprint.get("schedules", {})
 
     # The account this is modelled on builds a campaign set per market, named
@@ -180,14 +196,16 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
         base = float(spec.get("typical_daily_budget") or 1)
         return base * max(1, len(spec.get("markets_seen") or []))
 
-    days = float(blueprint.get("budget", {}).get("days_per_month", 30.4))
+    days = float(brief.get("budget", {}).get("days_per_month")
+                 or blueprint.get("budget", {}).get("days_per_month", 30.4))
     min_daily = float(blueprint.get("budget", {}).get("min_daily", 0))
 
     global_specs = [s for s in specs if s.get("all_markets")]
     market_specs = [s for s in specs if not s.get("all_markets")]
 
-    # Account-wide campaigns take their share off the top; the markets divide
-    # what is left.
+    # When markets state their budgets, account-wide campaigns get exactly what
+    # is left of the monthly total — so "Denver 15k ... Brand takes the rest" is
+    # expressible without fraction gymnastics. Otherwise weights decide.
     total_weight = sum(theme_weight(s) for s in specs) or 1
     global_fraction = sum(theme_weight(s) for s in global_specs) / total_weight
     account_daily = monthly_budget / days
@@ -225,7 +243,7 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
             continue
 
         if stated.get(market_name):
-            market_daily = (stated[market_name] / days) * (1 - global_fraction)
+            market_daily = stated[market_name] / days
         else:
             market_daily = (account_daily * (1 - global_fraction)) / len(markets)
 
@@ -242,7 +260,11 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
             ))
 
     if global_specs:
-        allocations = allocate(account_daily * global_fraction, global_specs)
+        if sum(stated.values()):
+            global_daily = max(0.0, account_daily - sum(stated.values()) / days)
+        else:
+            global_daily = account_daily * global_fraction
+        allocations = allocate(global_daily, global_specs)
         for spec in global_specs:
             plan.campaigns.append(_build_campaign(
                 spec=spec, plan=plan, brief=brief, blueprint=blueprint, themes=themes,
@@ -340,7 +362,9 @@ def _build_campaign(*, spec, plan, brief, blueprint, themes, defaults, schedules
             # Calgary at 67, Edmonton at 75, everywhere else 70. A campaign on a
             # clicks strategy carries no target at all.
             target_cpa=(None if "click" in str(spec.get("bid_strategy", "")).lower()
-                        else market_tcpa or spec.get("target_cpa")),
+                        else (market_tcpa.get(spec["key"], market_tcpa.get("default"))
+                              if isinstance(market_tcpa, dict) else market_tcpa)
+                        or spec.get("target_cpa")),
             tracking_template=defaults.get("tracking_template", ""),
             ad_rotation=defaults.get("ad_rotation", "Optimize for clicks"),
             # No explicit schedule means answering hours, not always-on. Calls
@@ -383,7 +407,9 @@ def _build_campaign(*, spec, plan, brief, blueprint, themes, defaults, schedules
                     per_city=bool(group_spec.get("per_city")),
                     is_home_city=(index == 0),
                     default_matches=default_matches,
-                    final_url=final_url,
+                    final_url=(group_spec.get("final_url")
+                               or brief.get("landing_pages", {}).get(group_spec.get("key"))
+                               or final_url),
                     max_cpc=spec.get("max_cpc"),
                     status="Enabled",
                 )
@@ -531,6 +557,37 @@ def _literal_negatives(entries: list[dict], context: dict) -> list[NegativeKeywo
         )
         for entry in entries
     ]
+
+
+EXCLUDED_VOCAB = {
+    "storage": ["storage", "storage units", "self storage", "storage facility",
+                "storage near me", "storage containers", "portable storage"],
+    "junk": ["junk removal", "junk", "junk hauling", "trash removal",
+             "debris removal", "hauling"],
+    "commercial": ["commercial movers", "commercial moving", "business movers",
+                   "business moving company", "warehouse movers"],
+    "office": ["office movers", "office moving", "office relocation",
+               "office moving company"],
+}
+
+
+def _excluded_service_negatives(excluded: list[str]) -> list[NegativeKeyword]:
+    """Services the client explicitly does not offer.
+
+    The inherited wall cannot carry these: the source account SELLS storage, so
+    "storage" is not in its negatives — and without this, a client who refuses
+    storage work pays for storage clicks. Phrase match, one layer per service.
+    """
+    out: list[NegativeKeyword] = []
+    seen: set[str] = set()
+    for service in excluded:
+        token = service.lower()
+        terms = next((v for k, v in EXCLUDED_VOCAB.items() if k in token), [token])
+        for term in terms:
+            if term not in seen:
+                seen.add(term)
+                out.append(NegativeKeyword(term, "phrase", source="excluded-service"))
+    return out
 
 
 def _theme_negatives(theme_names: list[str], themes: dict[str, list[str]]) -> list[NegativeKeyword]:

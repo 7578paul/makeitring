@@ -49,6 +49,22 @@ def write_summary(plan: Plan, out_dir: Path, *, layer2: dict | None = None,
             f"| {c.target_cpa or '—'} | {len(c.ad_groups)} | {c.keyword_count} |"
         )
 
+    by_layer = {}
+    for c in plan.campaigns:
+        for n in c.negatives:
+            key = (n.text.lower(), n.match_type)
+            by_layer.setdefault(n.source or "other", set()).add(key)
+    if by_layer:
+        lines += ["", "## Negative wall by layer", "",
+                  "| Layer | Match | Distinct terms |", "| --- | --- | ---: |"]
+        label = {"universal": "1 — junk / DIY / informational", 
+                 "competitor-wall": "2 — competitor brands (mined from real spend)",
+                 "excluded-service": "3 — services the client refuses",
+                 "extracted": "campaign routing (from the source account)"}
+        for src, terms in sorted(by_layer.items()):
+            match = "/".join(sorted({m for _, m in terms}))
+            lines.append(f"| {label.get(src, src)} | {match} | {len(terms)} |")
+
     if layer2:
         lines += ["", "## Competitor wall (Layer 2)", "",
                   f"Source: {layer2.get('source', 'none')} · "

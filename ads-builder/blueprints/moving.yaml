@@ -81,6 +81,9 @@ campaigns:
     - moving companies {city}
     - best movers in {city}
     - moving quotes
+    - licensed movers {city}
+    - professional movers {city}
+    - moving company near me
     rsa:
       headlines:
       - '{KeyWord:{business}}'
@@ -608,6 +611,7 @@ campaigns:
   all_markets: true
   note: one campaign across every market, as the source account runs it
   budget_weight: 30
+  schedule: always
 - key: pmax
   label: Pmax
   name_format: '{market} | Pmax ({market} Radius)'
