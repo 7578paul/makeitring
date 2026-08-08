@@ -115,7 +115,29 @@ def write_checklist(plan: Plan, brief: dict, out_dir: Path) -> Path:
         box(False, "Import the call-tracking lead definition (calls over 60 seconds) as a conversion"),
         box(False, "Confirm a test lead appears in Google Ads before enabling anything"),
         "",
-        "## 3. Turn Google's automation off",
+        "## 3. If the account already has campaigns",
+        "",
+        "Skip this if the account is empty. Otherwise the old campaigns will bid",
+        "against the new ones for the same searches, and whichever wins, the client",
+        "pays twice to find out. Do not simply pause everything on day one — a hard",
+        "stop kills the lead flow while the new campaigns are still learning.",
+        "",
+        box(False, "Export the existing account from Editor first, and keep the file. "
+                   "It is the only record of what was there"),
+        box(False, "List the existing campaigns and what each one targets. Anything "
+                   "overlapping the new structure is the problem"),
+        box(False, "**Drop legacy budgets to a token amount** rather than pausing — "
+                   "traffic winds down instead of stopping dead"),
+        box(False, "Launch the new campaigns alongside them and let them gather data"),
+        box(False, "Once the new campaigns hold target CPA for a few days, **pause the "
+                   "legacy ones fully**"),
+        box(False, "Watch for name collisions: Editor **skips** a campaign whose name "
+                   "already exists rather than updating it. Rename the old one, or "
+                   "delete it, before importing"),
+        box(False, "Check the old campaigns' negative lists before deleting them — "
+                   "mined negatives are worth keeping"),
+        "",
+        "## 4. Turn Google's automation off",
         "",
         "The source account did this **first, before building anything**:",
         "",
@@ -123,7 +145,7 @@ def write_checklist(plan: Plan, brief: dict, out_dir: Path) -> Path:
         box(False, "Confirm Search Partners and Display are off on every campaign"),
         box(False, "Confirm auto-created assets and Final URL expansion are off"),
         "",
-        "## 4. Import",
+        "## 5. Import",
         "",
         box(False, "Google Ads Editor → Account → Import → From file → "
                    "`campaigns_editor_import.csv`"),
@@ -141,7 +163,7 @@ def write_checklist(plan: Plan, brief: dict, out_dir: Path) -> Path:
             "`assets.images`, or add them in the Google Ads UI"),
         box(False, "Check the ad schedule matches the hours someone actually answers"),
         "",
-        "## 5. Landing page",
+        "## 6. Landing page",
         "",
         box(False, f"Deploy `site/` to **{subdomain}**"),
         box(False, f"Ask the client to add one DNS record: `{subdomain}` CNAME → your Pages project"),
@@ -149,7 +171,7 @@ def write_checklist(plan: Plan, brief: dict, out_dir: Path) -> Path:
         box(False, "Submit a test lead and confirm it arrives wherever leads go"),
         box(False, "Confirm the thank-you page fires the conversion"),
         "",
-        "## 6. Going live, and the first fortnight",
+        "## 7. Going live, and the first fortnight",
         "",
         box(False, "Enable campaigns one at a time, starting with the core market"),
         box(False, "Read the search terms report **daily** for the first 14 days"),

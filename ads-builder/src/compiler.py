@@ -179,7 +179,64 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
             )
             plan.campaigns.append(campaign)
 
+    _dedupe_keywords(plan)
     return plan
+
+
+def _dedupe_keywords(plan) -> None:
+    """One keyword, one ad group.
+
+    The source account carries the same term in more than one place — "movers
+    toronto" sits in both the core and GEO ad groups, and a Last Mile Delivery
+    ad group exists under two campaigns. Copying that faithfully means the
+    account bids against itself and splits one query's data in two.
+
+    The owner is the ad group whose campaign theme its own name matches: a
+    "Last Mile Delivery" group belongs to Last-mile, not to Commercial &
+    Office. Where nothing matches, the first occurrence keeps it.
+    """
+    def affinity(group_name: str, campaign_name: str) -> int:
+        words = set(re.findall(r"[a-z]+", group_name.lower()))
+        theme = set(re.findall(r"[a-z]+", campaign_name.lower()))
+        return len(words & theme)
+
+    placements: dict[str, list[tuple]] = {}
+    for campaign in plan.campaigns:
+        for group in campaign.ad_groups:
+            for keyword in group.keywords:
+                placements.setdefault(keyword.text.lower(), []).append((campaign, group, keyword))
+
+    moved = 0
+    for text, spots in placements.items():
+        if len(spots) < 2:
+            continue
+        # Affinity first; then the more specific campaign, measured by how many
+        # segments its name carries. "General Moving | GEOs" is narrower than
+        # "General Moving", and a city term belongs in the narrower one — the
+        # GEO campaigns are the highest converting type in the source account,
+        # and first-wins would have emptied them completely.
+        best = max(spots, key=lambda s: (affinity(s[1].name, s[0].name),
+                                         s[0].name.count("|")))
+        for campaign, group, keyword in spots:
+            if (campaign, group) != (best[0], best[1]):
+                group.keywords = [k for k in group.keywords if k is not keyword]
+                moved += 1
+        plan.warn(f'"{text}" kept in {best[0].name} › {best[1].name}, '
+                  f"removed from {len(spots) - 1} other ad group(s)")
+
+    # An ad group whose every keyword belonged somewhere else has nothing left
+    # to do, and an empty ad group cannot serve.
+    emptied = 0
+    for campaign in plan.campaigns:
+        keep = [g for g in campaign.ad_groups if g.keywords]
+        emptied += len(campaign.ad_groups) - len(keep)
+        campaign.ad_groups = keep
+
+    if moved:
+        plan.warn(f"{moved} duplicate keyword placement(s) removed so the account "
+                  f"does not bid against itself"
+                  + (f", leaving {emptied} empty ad group(s) which were dropped"
+                     if emptied else ""))
 
 
 def _build_campaign(*, spec, plan, brief, blueprint, themes, defaults, schedules, trade,
