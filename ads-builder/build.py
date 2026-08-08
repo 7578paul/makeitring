@@ -13,8 +13,9 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from src.compiler import BriefError, compile_plan
+from src.compiler import BriefError, compile_plan, load_yaml
 from src.exporters import export_build_sheet, export_editor_csv
+from src.preflight import check as preflight_check, errors as preflight_errors, load_negatives
 from src.validators import has_errors, validate
 
 ROOT = Path(__file__).parent
@@ -34,6 +35,30 @@ def main() -> int:
         return 2
 
     findings = validate(plan)
+
+    # Never trust an inherited negative list. Test it against the keywords this
+    # build is actually about to create, before a single file is written.
+    brief = load_yaml(args.brief)
+    conflicts = preflight_check(
+        keywords=[(c.name, g.name, k.text)
+                  for c in plan.campaigns for g in c.ad_groups for k in g.keywords],
+        # Only the lists actually destined for the account. The quarantined
+        # files (market-separation, own-brand, campaign-routing) are evidence of
+        # the source account's technique, not negatives to apply — globbing them
+        # in would report conflicts against terms we were never going to use.
+        negatives=load_negatives(
+            *(ROOT / "blueprints" / "_shared" / name for name in (
+                "negatives-universal.txt", "negatives-competitors.txt"))),
+        brand_terms=brief.get("positioning", {}).get("brand_terms") or [],
+        cities=brief.get("service_area", {}).get("cities") or [],
+    )
+    for conflict in conflicts:
+        print(conflict, file=sys.stderr)
+    if preflight_errors(conflicts) and not args.force:
+        print(f"\n{len(preflight_errors(conflicts))} negative-list conflict(s) — "
+              f"nothing written. These block the client's own traffic.", file=sys.stderr)
+        return 3
+
     out_dir = args.out or ROOT / "out" / plan.client_slug / date.today().isoformat()
 
     sheet = export_build_sheet(plan, findings, out_dir)

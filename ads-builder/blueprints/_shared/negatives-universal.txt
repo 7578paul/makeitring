@@ -235,7 +235,6 @@ davis
 dawson
 declutter
 dee
-delivery
 dhl
 diamond
 directway
@@ -380,7 +379,6 @@ hole
 homart
 home depot
 homex
-hospital
 hot tub
 hot tubs
 hotshot

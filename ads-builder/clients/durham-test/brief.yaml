@@ -1,0 +1,59 @@
+client:
+  slug: durham-test
+  business_name: Durham Movers
+  website: https://www.movingpapa.com
+  phone: 833-351-1791
+  currency: CAD
+  timezone: America/Toronto
+  customer_id: null
+trade: moving
+services:
+- general_moving
+- commercial_office
+- general_moving_geos
+- last_mile
+- brand
+service_area:
+  cities:
+  - Oshawa
+  - Whitby
+  - Ajax
+  - Durham
+  targets:
+  - Oshawa, Ontario, Canada
+  - Whitby, Ontario, Canada
+  - Ajax, Ontario, Canada
+  - Durham, Ontario, Canada
+  exclude: []
+budget:
+  monthly_total: 15000
+  weights: {}
+hours:
+  always: false
+  open:
+    mon_fri:
+    - 07:00
+    - '19:00'
+    sat:
+    - 08:00
+    - '17:00'
+    sun: null
+positioning:
+  min_job_value: ''
+  offer: Free moving quote
+  usps:
+  - Licensed and insured
+  - Local and long distance
+  brand_terms:
+  - durham movers
+  - durham moving
+landing_pages:
+  default: https://durhammovers.example/
+tracking:
+  gtm_container: GTM-KHD5RLMK
+  meta_pixel: '1561438818562563'
+  clickcease: true
+  ga4_measurement_id: unknown
+  google_ads_conversion_id: unknown
+  call_tracking: unknown
+  gclid_capture: unknown

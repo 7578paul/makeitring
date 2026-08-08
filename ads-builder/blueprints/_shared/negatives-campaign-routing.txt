@@ -1,0 +1,13 @@
+# DO NOT COPY THIS FILE INTO A NEW ACCOUNT AS BLANKET NEGATIVES.
+#
+# These terms appear on most of the source account's campaigns, but they
+# are not junk — they are how it routes traffic between its OWN
+# campaigns. 'office' and 'commercial' are negative on General Moving so
+# those searches land on Commercial & Office; 'delivery' is negative
+# there so it lands on Last-mile.
+#
+# Applied blanket-wise they block the campaign that wants the traffic.
+# They belong per campaign, derived from which themes a client actually
+# runs — which is what the builder does.
+delivery
+hospital

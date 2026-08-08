@@ -1,0 +1,18 @@
+{
+  "Campaign Type": "Search",
+  "Networks": "Google search",
+  "Budget type": "Daily",
+  "Bid Strategy Type": "Maximize conversions",
+  "Target CPA": "75.0",
+  "Languages": "en",
+  "Ad rotation": "Optimize for clicks",
+  "Targeting method": "Location of presence",
+  "Exclusion method": "Location of presence",
+  "Audience targeting": "Audience segments",
+  "Flexible Reach": "Audience segments",
+  "Text asset automation": "Disabled",
+  "Final URL expansion": "Disabled",
+  "Tracking template": "{lpurl}?campaign={campaignid}&content={creative}&keyword={keyword}",
+  "Broad match keywords": "Off",
+  "Ad Schedule": "[]"
+}

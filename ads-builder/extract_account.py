@@ -116,6 +116,7 @@ def main() -> int:
         "budgets": [], "tcpa": Counter(), "bid": Counter(), "markets": set(),
     })
     neg_phrase, neg_exact = Counter(), Counter()
+    all_keywords: set[str] = set()
     settings = {}
 
     for row in rows:
@@ -166,6 +167,7 @@ def main() -> int:
         group = bucket["ad_groups"][places.strip(group_name)]
 
         if keyword:
+            all_keywords.add(norm(keyword).lower())
             group["keywords"].append(places.strip(keyword).lower())
             group["matches"].add("exact" if "exact" in criterion else "phrase")
 
@@ -216,11 +218,33 @@ def main() -> int:
     def is_brand(term):
         return term.lower() in brand_words
 
+    # A term that appears on most campaigns is not automatically universal. This
+    # account uses negatives to ROUTE traffic between its own campaigns: office,
+    # commercial and factory are negative on General Moving so those searches
+    # land on Commercial & Office; delivery is negative there so it lands on
+    # Last-mile; the brand is negative everywhere except Brand. Every one of
+    # those appears on "most" campaigns and none of them is reusable as a
+    # blanket negative — promoting them would block the very campaign that wants
+    # the traffic.
+    #
+    # The reliable test is behavioural, not statistical: a genuinely universal
+    # negative blocks none of the account's own keywords.
+    own_keywords = {k.lower() for k in all_keywords}
+
+    def blocks_own(term):
+        t = norm(term).lower()
+        if not t:
+            return False
+        return any(f" {t} " in f" {kw} " for kw in own_keywords)
+
+    routing = [t for t in universal if blocks_own(t) and not is_place(t) and not is_brand(t)]
     market_seps = [t for t in universal if is_place(t)]
     brand_negs = [t for t in universal if is_brand(t) and not is_place(t)]
-    safe = [t for t in universal if not is_place(t) and not is_brand(t)]
+    safe = [t for t in universal
+            if not is_place(t) and not is_brand(t) and not blocks_own(t)]
 
-    print(f"    of which {len(market_seps)} are place names and {len(brand_negs)} are own-brand")
+    print(f"    {len(market_seps)} place names, {len(brand_negs)} own-brand, "
+          f"{len(routing)} campaign-routing")
     print(f"    -> {len(safe):,} are safely reusable")
 
     if args.negatives_dir:
@@ -248,6 +272,19 @@ def main() -> int:
             "# Kept only as evidence of the technique. The builder regenerates the\n"
             "# equivalent per client, from the markets in their brief.\n"
             + "\n".join(market_seps) + "\n", encoding="utf-8")
+        (d / "negatives-campaign-routing.txt").write_text(
+            "# DO NOT COPY THIS FILE INTO A NEW ACCOUNT AS BLANKET NEGATIVES.\n"
+            "#\n"
+            "# These terms appear on most of the source account's campaigns, but they\n"
+            "# are not junk — they are how it routes traffic between its OWN\n"
+            "# campaigns. 'office' and 'commercial' are negative on General Moving so\n"
+            "# those searches land on Commercial & Office; 'delivery' is negative\n"
+            "# there so it lands on Last-mile.\n"
+            "#\n"
+            "# Applied blanket-wise they block the campaign that wants the traffic.\n"
+            "# They belong per campaign, derived from which themes a client actually\n"
+            "# runs — which is what the builder does.\n"
+            + "\n".join(routing) + "\n", encoding="utf-8")
         (d / "negatives-own-brand.txt").write_text(
             "# DO NOT COPY THIS FILE INTO A NEW ACCOUNT.\n"
             "#\n"

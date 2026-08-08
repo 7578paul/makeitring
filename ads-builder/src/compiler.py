@@ -50,13 +50,35 @@ def require(data: dict, path: str) -> Any:
     return node
 
 
+# Google's own ad-customiser and ValueTrack tokens. These look exactly like our
+# placeholders and must reach the ad untouched — `{KeyWord:Moving Papa}` is what
+# makes dynamic keyword insertion work, and substituting it would break the ad.
+VALUETRACK = {
+    "keyword", "campaignid", "adgroupid", "creative", "lpurl", "escapedlpurl",
+    "unescapedlpurl", "targetid", "matchtype", "network", "device", "devicemodel",
+    "adposition", "placement", "random", "loc_physical_ms", "loc_interest_ms",
+    "feeditemid", "extensionid", "merchant_id", "product_id", "ifmobile",
+    "ifsearch", "ifcontent", "ignore",
+}
+_FIELD = re.compile(r"\{(\w+)\}")
+
+
 def render(template: str, context: dict[str, str]) -> str:
-    """Fill {placeholders}. An unknown placeholder is a blueprint bug, not a
-    runtime condition, so let the KeyError surface with the template attached."""
-    try:
-        return tidy(template.format(**context))
-    except KeyError as exc:
-        raise BriefError(f"unknown placeholder {exc} in template {template!r}") from exc
+    """Fill our {placeholders}, leaving Google's alone.
+
+    Anything with a colon or parenthesis — `{KeyWord:Fallback}`,
+    `{LOCATION(City):Your Area}` — is not matched at all, so it passes through
+    verbatim. A bare `{word}` we do not recognise is a blueprint bug and raises.
+    """
+    def substitute(match: re.Match) -> str:
+        key = match.group(1)
+        if key in context:
+            return str(context[key])
+        if key.lower() in VALUETRACK or key.startswith("_"):
+            return match.group(0)
+        raise BriefError(f"unknown placeholder {{{key}}} in template {template!r}")
+
+    return tidy(_FIELD.sub(substitute, template or ""))
 
 
 def tidy(text: str) -> str:
@@ -130,16 +152,38 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
     account_negatives = _account_negatives(blueprint, blueprint_dir)
     schedules = blueprint.get("schedules", {})
 
-    for spec in specs:
+    # The account this is modelled on builds a campaign set per market, named
+    # `{market} | Search | {theme}`. A brief with no explicit markets is treated
+    # as one market covering every city, which is the single-city case.
+    markets = brief.get("markets") or [{"name": cities[0], "cities": cities}]
+    fmt = defaults.get("campaign_name_format", "{code} | Search | {label} | EN")
+
+    for market in markets:
+        market_name = market["name"] if isinstance(market, dict) else str(market)
+        market_cities = (market.get("cities") if isinstance(market, dict) else None) or cities
+
+        for spec in specs:
+            campaign = _build_campaign(
+                spec=spec, plan=plan, brief=brief, blueprint=blueprint, themes=themes,
+                defaults=defaults, schedules=schedules, trade=trade, fmt=fmt,
+                market_name=market_name, market_cities=market_cities,
+                geo_targets=geo_targets, base_context=base_context,
+                daily_budget=budgets[spec["key"]] / len(markets),
+                account_negatives=account_negatives,
+            )
+            plan.campaigns.append(campaign)
+
+    return plan
+
+
+def _build_campaign(*, spec, plan, brief, blueprint, themes, defaults, schedules, trade,
+                    fmt, market_name, market_cities, geo_targets, base_context,
+                    daily_budget, account_negatives):
         campaign = Campaign(
             key=spec["key"],
-            name=_campaign_name(
-                trade,
-                spec["label"],
-                defaults.get("campaign_name_format", "{code} | Search | {label} | EN"),
-            ),
+            name=_campaign_name(trade, spec["label"], fmt, market_name),
             campaign_type=defaults.get("campaign_type", "Search"),
-            daily_budget=budgets[spec["key"]],
+            daily_budget=daily_budget,
             bid_strategy=spec.get("bid_strategy", defaults.get("bid_strategy")),
             max_cpc=spec.get("max_cpc"),
             status=defaults.get("status", "Paused"),
@@ -158,7 +202,7 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
         default_matches = defaults.get("match_types", ["phrase", "exact"])
 
         for group_spec in spec.get("ad_groups", []):
-            targets = cities if group_spec.get("per_city") else [cities[0]]
+            targets = market_cities if group_spec.get("per_city") else [market_cities[0]]
             for index, city in enumerate(targets):
                 context = dict(base_context, city=city)
                 group = _build_ad_group(
@@ -178,18 +222,16 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
                 if group:
                     campaign.ad_groups.append(group)
 
-        plan.campaigns.append(campaign)
-
-    return plan
+        return campaign
 
 
-def _campaign_name(trade: str, label: str, fmt: str) -> str:
+def _campaign_name(trade: str, label: str, fmt: str, market: str = "") -> str:
     """Names are the join key between the plan, the account and every report we
     ever run against it, so the shape is fixed by the blueprint rather than by
     each campaign. Extracted blueprints set `{label}` to keep the source
     account's own naming untouched."""
     code = TRADE_CODES.get(trade, trade[:3].upper())
-    return render(fmt, {"code": code, "label": label, "trade": trade})
+    return render(fmt, {"code": code, "label": label, "trade": trade, "market": market})
 
 
 def _allocate_budget(plan: Plan, specs: list[dict], brief: dict, blueprint: dict) -> dict[str, float]:
