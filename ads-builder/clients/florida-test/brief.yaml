@@ -82,6 +82,4 @@ tracking:
 lead_delivery:
   endpoint: https://leads.example.com/intake
 assets:
-  images:
-  - /tmp/photo-crew.jpg
-  - /tmp/photo-truck.jpg
+  images: []

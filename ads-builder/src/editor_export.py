@@ -215,6 +215,49 @@ def write_editor_file(plan: Plan, out_dir: Path, data_dir: Path,
     return path
 
 
+# Google's image asset rules. A file that breaks these imports as an error
+# rather than being quietly ignored, so it is worth failing here instead.
+MIN_IMAGE_PX = 300
+MAX_IMAGE_BYTES = 5 * 1024 * 1024
+
+
+def image_size(data: bytes) -> tuple[int, int] | None:
+    """Width and height from the file's own header. PNG and JPEG only, which is
+    what Google accepts, and no dependency for something this small."""
+    if data[:8] == b"\x89PNG\r\n\x1a\n" and data[12:16] == b"IHDR":
+        return (int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big"))
+
+    if data[:2] == b"\xff\xd8":
+        i = 2
+        while i + 9 < len(data):
+            if data[i] != 0xFF:
+                i += 1
+                continue
+            marker = data[i + 1]
+            # SOF0-SOF15, excluding the non-frame markers in that range
+            if 0xC0 <= marker <= 0xCF and marker not in (0xC4, 0xC8, 0xCC):
+                return (int.from_bytes(data[i + 7:i + 9], "big"),
+                        int.from_bytes(data[i + 5:i + 7], "big"))
+            i += 2 + int.from_bytes(data[i + 2:i + 4], "big")
+    return None
+
+
+def check_image(path: Path) -> str | None:
+    """Return why this file cannot be used, or None if it is fine."""
+    data = path.read_bytes()
+    if len(data) > MAX_IMAGE_BYTES:
+        return f"{len(data) / 1024 / 1024:.1f} MB — over Google's 5 MB limit"
+
+    size = image_size(data)
+    if size is None:
+        return "not a readable JPEG or PNG"
+
+    width, height = size
+    if width < MIN_IMAGE_PX or height < MIN_IMAGE_PX:
+        return f"{width}x{height} — Google needs at least {MIN_IMAGE_PX}x{MIN_IMAGE_PX}"
+    return None
+
+
 def copy_images(brief: dict, out_dir: Path) -> list[str]:
     """Copy the client's photos next to the CSV and return their relative paths.
 
@@ -235,7 +278,12 @@ def copy_images(brief: dict, out_dir: Path) -> list[str]:
     for source in sources:
         path = Path(source).expanduser()
         if not path.is_file():
-            print(f"  note: photo not found, skipped — {source}")
+            print(f"  photo skipped, file not found — {source}")
+            continue
+        if problem := check_image(path):
+            # Emitting the row anyway would put a red error in front of whoever
+            # imports it, for a file they cannot fix from there.
+            print(f"  photo skipped, {problem} — {path.name}")
             continue
         target = images_dir / path.name
         shutil.copy2(path, target)
