@@ -162,47 +162,6 @@ campaigns:
       - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
       - On-time, professional movers serving {city}. Make your next move a stress-free one!
       - We offer fair & honest pricing - no surprises. Call or fill out our form today!
-  - key: clean_outs
-    label: Clean Outs
-    per_city: false
-    match_types:
-    - exact
-    - phrase
-    keywords:
-    - hoarding clean out company {city}
-    - hoarding cleanupservice
-    - estate cleanouts {city}
-    - hoarding moving service
-    - hoarding cleanupservice {city}
-    - hoarding clean out service {city}
-    - estate cleanouts
-    - whole house clean outs {city}
-    - hoarding clean out service
-    - hoarding clean out company
-    - whole house clean outs
-    - hoarding moving service {city}
-    rsa:
-      headlines:
-      - '{KeyWord:{business}}'
-      - Movers Servicing {LOCATION(City):Your Area}
-      - Fair Pricing, No Surprises
-      - '{city}''s Most Trusted Movers'
-      - Same Day Moves Available
-      - Hoarding Clean Outs & Movers
-      - Whole House Clean Outs
-      - Your Move, Our Top Priority
-      - Safe & Secure Moving Services
-      - 5-Star Reviews
-      - Get A Free Instant Quote
-      - Clear, Upfront Pricing
-      - Packing, Storage & Moving
-      - You Can Count On Us
-      - Moving, Packing & Storage
-      descriptions:
-      - Move with confidence! Reliable movers offering professional services across {city}.
-      - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
-      - On-time, professional movers serving {city}. Make your next move a stress-free one!
-      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
   - key: local_moving
     label: Local Moving
     per_city: false
@@ -216,7 +175,6 @@ campaigns:
     - household moving service
     - local movers
     - last minute movers
-    - 24 7 movers
     - movers near me
     - short distance movers
     - moving companies
@@ -227,9 +185,6 @@ campaigns:
     - packers and movers near me
     - home movers
     - moving company price
-    - moving companies near me
-    - moving company near me
-    - apartment moving company
     - same day movers
     - apartment movers
     - same day moving company
@@ -329,15 +284,11 @@ campaigns:
     - exact
     - phrase
     keywords:
-    - pent house movers
-    - premium moving company
-    - penthouse moving company
     - penthouse movers
     - luxury home moving company
     - white glove moving company
     - white glove movers
     - luxury home movers
-    - mansion moving company
     rsa:
       headlines:
       - '{KeyWord:{business}}'
@@ -367,7 +318,6 @@ campaigns:
     - exact
     - phrase
     keywords:
-    - removal service near me
     - removal companies {city}
     - removal companies near me
     rsa:
@@ -414,48 +364,26 @@ campaigns:
     - exact
     - phrase
     keywords:
-    - factory moving company
-    - business moving companies near me
-    - commercial movers near me
-    - retail storefront movers
     - hotel movers
-    - government movers and packers
-    - b2b movers
     - hospital movers
     - '{city} office movers'
-    - dentist office movers
     - office movers near me
     - office moving companies near me
     - office moving company
     - business movers near me
-    - best office movers near me
     - corporate relocation services
-    - retail store movers
     - professional office movers
-    - storefront movers
-    - government moving company
-    - dental office movers
     - commercial movers {city}
-    - retail store moving companies
     - office movers in {city}
-    - retail movers
     - commercial moving services
-    - warehouse moving company
     - industrial moving company
-    - commercial moving companies near me
-    - government movers
-    - warehouse movers
-    - best office movers
-    - b2b moving company
     - business moving
     - moving companies for offices
     - business moving company
-    - medical office movers
     - office removals
     - commercial moving company
     - employee relocation
     - employee relocation company
-    - doctor office movers
     rsa:
       headlines:
       - '{KeyWord:{business}}'
@@ -486,12 +414,7 @@ campaigns:
     - phrase
     keywords:
     - warehouse moving services
-    - warehouse moving company
     - warehouse rack install
-    - move warehouse racks
-    - warehouse racks moving
-    - warehouse racking moving
-    - warehouse movers
     rsa:
       headlines:
       - '{KeyWord:{business}}'
@@ -547,44 +470,6 @@ campaigns:
       - Delivering on time, every time. Dependable last mile logistics at scale.
       - Final mile made simple—fast delivery and flexible scheduling. Contact us!
       - Seamless final mile delivery from hub to home—efficiency you can count on.
-  - key: factory
-    label: Factory
-    per_city: false
-    match_types:
-    - exact
-    - phrase
-    keywords:
-    - factory equipment movers
-    - best factory movers
-    - trade show movers
-    - event moving company
-    - factory equipment moving company
-    - trade show moving company
-    - events and expo moving
-    - tech equipment moving company
-    - expo moving company
-    rsa:
-      headlines:
-      - '{KeyWord:{business}}'
-      - Movers Servicing {LOCATION(City):Your Area}
-      - Fair Pricing, No Surprises
-      - '{city}''s Most Trusted Movers'
-      - Factory Moving, Event Moving
-      - Best {city} Office Movers
-      - Clear, Upfront Pricing
-      - Your Move, Our Top Priority
-      - Safe & Secure Moving Services
-      - 5-Star Reviews
-      - Get A Free Instant Quote
-      - Large-Scale Move Experts
-      - Trade Show Moving Team
-      - Commercial Moving Service
-      - Event & Expo Movers
-      descriptions:
-      - Commercial, office and warehouse moving. Give us a call for a free estimate.
-      - Your trusted team for seamless event, expo, and industrial relocations.
-      - From factories to trade shows, we move it all—safe, secure, and smooth.
-      - Moving big equipment? We’ve got the crew, tools, and experience to help.
 - key: general_moving_geos
   label: General Moving | GEOs
   markets_seen:
@@ -720,3 +605,7 @@ schedules:
     kind: all_week
   business_hours:
     kind: from_brief
+pruned_by_performance:
+  keywords_removed: 36
+  ad_groups_removed: 2
+  reason: never served, or spent without booking, in a live account
