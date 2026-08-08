@@ -16,7 +16,7 @@ from pathlib import Path
 from src.compiler import BriefError, compile_plan, load_yaml
 from src.editor_export import write_editor_file, write_shared_negatives
 from src.exporters import export_build_sheet, export_editor_csv
-from src.preflight import check as preflight_check, errors as preflight_errors, load_negatives
+from src.preflight import check as preflight_check, load_negatives, resolve as preflight_resolve
 from src.validators import has_errors, validate
 
 ROOT = Path(__file__).parent
@@ -38,27 +38,30 @@ def main() -> int:
     findings = validate(plan)
 
     # Never trust an inherited negative list. Test it against the keywords this
-    # build is actually about to create, before a single file is written.
+    # build is actually about to create, drop whatever would block the client,
+    # and say so — an inherited list always carries some terms that are wrong
+    # for a new client, so this is routine rather than exceptional.
     brief = load_yaml(args.brief)
-    conflicts = preflight_check(
-        keywords=[(c.name, g.name, k.text)
-                  for c in plan.campaigns for g in c.ad_groups for k in g.keywords],
-        # Only the lists actually destined for the account. The quarantined
-        # files (market-separation, own-brand, campaign-routing) are evidence of
-        # the source account's technique, not negatives to apply — globbing them
-        # in would report conflicts against terms we were never going to use.
-        negatives=load_negatives(
-            *(ROOT / "blueprints" / "_shared" / name for name in (
-                "negatives-universal.txt", "negatives-competitors.txt"))),
-        brand_terms=brief.get("positioning", {}).get("brand_terms") or [],
-        cities=brief.get("service_area", {}).get("cities") or [],
-    )
-    for conflict in conflicts:
+    brand_terms = brief.get("positioning", {}).get("brand_terms") or []
+    cities = brief.get("service_area", {}).get("cities") or []
+    keywords = [(c.name, g.name, k.text)
+                for c in plan.campaigns for g in c.ad_groups for k in g.keywords]
+
+    negatives = load_negatives(*(ROOT / "blueprints" / "_shared" / name for name in (
+        "negatives-universal.txt", "negatives-competitors.txt")))
+    kept, removed = preflight_resolve(negatives, keywords=keywords,
+                                      brand_terms=brand_terms, cities=cities)
+    if removed:
+        print(f"\nremoved {len(removed)} negative(s) that would have blocked this client:",
+              file=sys.stderr)
+        for line in removed[:12]:
+            print(f"   {line}", file=sys.stderr)
+        if len(removed) > 12:
+            print(f"   ... and {len(removed) - 12} more", file=sys.stderr)
+
+    for conflict in preflight_check(keywords=keywords, negatives=kept,
+                                    brand_terms=brand_terms, cities=cities):
         print(conflict, file=sys.stderr)
-    if preflight_errors(conflicts) and not args.force:
-        print(f"\n{len(preflight_errors(conflicts))} negative-list conflict(s) — "
-              f"nothing written. These block the client's own traffic.", file=sys.stderr)
-        return 3
 
     out_dir = args.out or ROOT / "out" / plan.client_slug / date.today().isoformat()
 

@@ -159,6 +159,35 @@ def errors(conflicts: list[Conflict]) -> list[Conflict]:
     return [c for c in conflicts if c.severity == "error"]
 
 
+def resolve(
+    negatives: list[tuple[str, str]],
+    *,
+    keywords: list[tuple[str, str, str]],
+    brand_terms: list[str],
+    cities: list[str],
+) -> tuple[list[tuple[str, str]], list[str]]:
+    """Drop the negatives that would block this client, and say which.
+
+    Refusing to build is the safe answer but not a useful one — an inherited
+    list will always carry some terms that are wrong for a new client, and
+    that is expected rather than exceptional. So remove exactly the offenders,
+    keep everything else, and report it. The build proceeds; the human sees
+    what changed and why.
+    """
+    targets = [k for _c, _g, k in keywords] + list(cities) + list(brand_terms)
+    kept: list[tuple[str, str]] = []
+    removed: list[str] = []
+
+    for text, match_type in negatives:
+        hit = next((t for t in targets if blocks(text, match_type, t)), None)
+        if hit is None:
+            kept.append((text, match_type))
+        else:
+            removed.append(f'"{text}" [{match_type}] — would have blocked "{hit}"')
+
+    return kept, removed
+
+
 def load_negatives(*paths) -> list[tuple[str, str]]:
     """Read negative files. `.csv` with a Match type column keeps its match
     types; a plain `.txt` is one phrase negative per line."""

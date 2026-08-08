@@ -1,0 +1,34 @@
+client:
+  slug: florida-test
+  business_name: "Sunshine State Movers"
+  website: "https://sunshinestatemovers.example"
+  phone: "305-555-0199"
+  currency: USD
+  timezone: America/New_York
+  customer_id: null
+trade: moving
+services: [general_moving, commercial_office, general_moving_geos, last_mile, brand]
+service_area:
+  cities: [Miami, "Fort Lauderdale", Hialeah, Kendall, Homestead]
+  targets:
+    - "Miami, Florida, United States"
+    - "Fort Lauderdale, Florida, United States"
+    - "Hialeah, Florida, United States"
+    - "Kendall, Florida, United States"
+    - "Homestead, Florida, United States"
+  exclude: []
+budget:
+  monthly_total: 12000
+  weights: {}
+hours:
+  always: false
+  open:
+    mon_fri: ["08:00", "19:00"]
+    sat: ["09:00", "16:00"]
+    sun: null
+positioning:
+  min_job_value: ""
+  offer: "Free moving quote"
+  brand_terms: ["sunshine state movers", "sunshine movers"]
+landing_pages:
+  default: "https://sunshinestatemovers.example/quote"

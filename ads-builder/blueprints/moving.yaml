@@ -54,7 +54,7 @@ campaigns:
     - top rated movers in {city}
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -85,7 +85,7 @@ campaigns:
     - movers yorkville
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -117,7 +117,7 @@ campaigns:
     - gym equipment movers
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -158,7 +158,7 @@ campaigns:
     - hoarding moving service {city}
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -211,7 +211,7 @@ campaigns:
     - moving services near me
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -246,7 +246,7 @@ campaigns:
     - packing and moving services
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -277,7 +277,7 @@ campaigns:
     - residential moving company
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -315,7 +315,7 @@ campaigns:
     - mansion moving company
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -347,7 +347,7 @@ campaigns:
     - removal companies near me
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -433,7 +433,7 @@ campaigns:
     - doctor office movers
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -469,7 +469,7 @@ campaigns:
     - warehouse movers
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -508,7 +508,7 @@ campaigns:
     - final mile delivery service
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Last Mile Servicing {LOCATION(City):Your Area}
       - Last Mile Delivery Services
       - '{city}''s Most Trusted'
@@ -540,7 +540,7 @@ campaigns:
     - expo moving company
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -585,7 +585,7 @@ campaigns:
     - movers {city}
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):{city}}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'
@@ -636,7 +636,7 @@ campaigns:
     - last mile delivery services
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Last Mile Servicing {LOCATION(City):Your Area}
       - Last Mile Delivery Services
       - '{city}''s Most Trusted'
@@ -664,14 +664,13 @@ campaigns:
     match_types:
     - exact
     - phrase
-    keywords:
-    - moving papa
-    - movingpapa
-    - papa moving
-    - move papa
+    keyword_source: brand_terms
+    patterns:
+    - '{term}'
+    note: terms come from the client's own brand_terms, not the template
     rsa:
       headlines:
-      - '{KeyWord:Moving Papa}'
+      - '{KeyWord:{business}}'
       - Movers Servicing {LOCATION(City):Your Area}
       - Fair Pricing, No Surprises
       - '{city}''s Most Trusted Movers'

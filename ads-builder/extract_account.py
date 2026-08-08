@@ -108,6 +108,14 @@ def main() -> int:
 
     rows = read(args.data)
     places = Places(args.extra_cities)
+
+    # The source client's name appears in ad copy, including inside insertion
+    # fallbacks like {KeyWord:Moving Papa}. Left alone, the next client's ads
+    # display a competitor's brand. Swapping it for {business} keeps the token
+    # valid — the renderer fills the inner placeholder and leaves the outer
+    # insertion syntax untouched.
+    brand_re = re.compile(rf"(?<!\w){re.escape(args.business)}(?!\w)", re.I)
+    debrand = lambda t: brand_re.sub("{business}", t or "")
     g = lambda r, k: norm(r.get(k))
 
     campaigns = {}
@@ -175,10 +183,10 @@ def main() -> int:
             heads, descs = [], []
             for i in range(1, 16):
                 if h := g(row, f"Headline {i}"):
-                    heads.append(places.strip(h))
+                    heads.append(debrand(places.strip(h)))
             for i in range(1, 5):
                 if d := g(row, f"Description {i}"):
-                    descs.append(places.strip(d))
+                    descs.append(debrand(places.strip(d)))
             if heads:
                 group["rsa"] = {
                     "headlines": list(dict.fromkeys(heads))[:15],
@@ -192,9 +200,9 @@ def main() -> int:
     # market-specific noise and are left behind.
     cut = max(2, int(n_campaigns * 0.6))
     universal = sorted(t for t, n in neg_phrase.items() if n >= cut)
-    competitors = sorted(t for t, n in neg_exact.items() if n >= cut)
+    competitors_raw = sorted(t for t, n in neg_exact.items() if n >= cut)
     print(f"  {len(universal):,} universal phrase negatives, "
-          f"{len(competitors):,} competitor exact negatives")
+          f"{len(competitors_raw):,} competitor exact negatives (before filtering)")
 
     # A live account's negatives are not all reusable. Alongside genuine junk it
     # carries two client-specific kinds, and copying either into a new account
@@ -210,13 +218,31 @@ def main() -> int:
     place_words = {p.lower() for p in PLACES + args.extra_cities}
     for name in list(place_words):
         place_words.update(part.strip() for part in re.split(r"[,&]", name) if part.strip())
-    brand_words = {w.lower() for w in args.business.split()} | {args.business.lower()}
-    brand_words -= {"the", "and", "of"}
+    # Only the DISTINCTIVE parts of the business name identify the brand.
+    # "Moving Papa" is branded by "papa", not by "moving" — treating the trade
+    # word as a brand marker matches half the account's keywords and drags
+    # ordinary service ad groups in with it.
+    GENERIC = {
+        "the", "and", "of", "co", "inc", "ltd", "llc", "corp", "group", "company",
+        "companies", "services", "service", "solutions", "moving", "movers", "mover",
+        "cleaning", "cleaners", "restoration", "removals", "transport", "logistics",
+        "storage", "packing", "delivery", "van", "truck", "brothers", "sons",
+    }
+    brand_words = {w.lower() for w in args.business.split()} - GENERIC
+    if not brand_words:
+        # Nothing distinctive — fall back to the whole name so we match something.
+        brand_words = {args.business.lower()}
+    brand_words |= {args.business.lower()}
 
     def is_place(term):
         return term.lower() in place_words
     def is_brand(term):
         return term.lower() in brand_words
+
+    def is_brand_phrase(term):
+        """Any term containing a distinctive word from the source business name."""
+        words = set(norm(term).lower().split())
+        return bool(words & brand_words)
 
     # A term that appears on most campaigns is not automatically universal. This
     # account uses negatives to ROUTE traffic between its own campaigns: office,
@@ -237,6 +263,12 @@ def main() -> int:
             return False
         return any(f" {t} " in f" {kw} " for kw in own_keywords)
 
+    # The competitor wall carries the source client's OWN brand (blocked on
+    # every non-brand campaign) and some of its own service terms. Left in, a
+    # new client's Brand campaign is blocked by the previous client's name.
+    competitors = [t for t in competitors_raw if not is_brand_phrase(t) and not blocks_own(t)]
+    dropped_comp = len(competitors_raw) - len(competitors)
+
     routing = [t for t in universal if blocks_own(t) and not is_place(t) and not is_brand(t)]
     market_seps = [t for t in universal if is_place(t)]
     brand_negs = [t for t in universal if is_brand(t) and not is_place(t)]
@@ -245,6 +277,8 @@ def main() -> int:
 
     print(f"    {len(market_seps)} place names, {len(brand_negs)} own-brand, "
           f"{len(routing)} campaign-routing")
+    print(f"    competitor wall: {len(competitors):,} kept, {dropped_comp} dropped "
+          f"(source brand or its own service terms)")
     print(f"    -> {len(safe):,} are safely reusable")
 
     if args.negatives_dir:
@@ -305,8 +339,18 @@ def main() -> int:
                 "label": label,
                 "per_city": "{city}" in label,
                 "match_types": sorted(grp["matches"]) or ["phrase"],
-                "keywords": keywords,
             }
+
+            # A brand ad group's keywords are the SOURCE client's own name.
+            # Baked into a template they would make the next client bid on a
+            # competitor's brand — and pay for it. Mark the group so its terms
+            # come from whichever brief is being built instead.
+            if sum(1 for k in keywords if is_brand_phrase(k)) > len(keywords) / 2:
+                spec["keyword_source"] = "brand_terms"
+                spec["patterns"] = ["{term}"]
+                spec["note"] = "terms come from the client's own brand_terms, not the template"
+            else:
+                spec["keywords"] = keywords
             if grp["rsa"]:
                 spec["rsa"] = grp["rsa"]
             groups.append(spec)
@@ -367,7 +411,7 @@ def main() -> int:
 
     print(f"\n{'THEME':<34}{'MARKETS':>9}{'GROUPS':>8}{'KEYWORDS':>10}{'tCPA':>8}{'BUDGET':>9}")
     for t in out_themes:
-        kw = sum(len(g["keywords"]) for g in t["ad_groups"])
+        kw = sum(len(g.get("keywords", [])) for g in t["ad_groups"])
         print(f"{t['label'][:33]:<34}{len(t['markets_seen']):>9}{len(t['ad_groups']):>8}"
               f"{kw:>10}{t['target_cpa'] or 0:>8.0f}{t['typical_daily_budget'] or 0:>9.0f}")
     print(f"\nwrote {args.out}")
