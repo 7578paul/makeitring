@@ -64,6 +64,25 @@ class ResponsiveSearchAd:
 
 
 @dataclass
+class Asset:
+    """Sitelinks, callouts, snippets and the call asset.
+
+    Google reports a Search campaign without these as underperforming, and the
+    source account runs all of them on every campaign. Ads without them lose
+    the extra lines of real estate on the results page.
+    """
+    kind: str                      # callout | sitelink | snippet | call
+    text: str = ""
+    description1: str = ""
+    description2: str = ""
+    final_url: str = ""
+    header: str = ""
+    values: list[str] = field(default_factory=list)
+    phone: str = ""
+    country: str = ""
+
+
+@dataclass
 class AdGroup:
     name: str
     keywords: list[Keyword] = field(default_factory=list)
@@ -101,6 +120,9 @@ class Campaign:
     schedule: list[ScheduleSlot] = field(default_factory=list)
     ad_groups: list[AdGroup] = field(default_factory=list)
     negatives: list[NegativeKeyword] = field(default_factory=list)
+    assets: list[Asset] = field(default_factory=list)
+    # Attached in Observation only: collect the data now, bid on it later.
+    audience_segments: list[str] = field(default_factory=list)
 
     @property
     def keyword_count(self) -> int:

@@ -14,6 +14,7 @@ names for {city}.
 
 import argparse
 import csv
+import io
 import re
 import sys
 from collections import Counter, defaultdict
@@ -63,7 +64,10 @@ def read(path: Path) -> list[dict]:
                 delimiter = "\t"
             else:
                 delimiter = ","
-            rows = list(csv.DictReader(text.splitlines(), delimiter=delimiter))
+            # StringIO, not splitlines(): a quoted cell can contain newlines
+            # (structured snippet values do), and splitting the text into lines
+            # first destroys them before the CSV reader ever sees them.
+            rows = list(csv.DictReader(io.StringIO(text), delimiter=delimiter))
             if rows and len(rows[0]) > 5:
                 print(f"  {len(rows):,} rows ({encoding}, "
                       f"{'tab' if delimiter == chr(9) else 'comma'} separated)")
@@ -125,10 +129,27 @@ def main() -> int:
     })
     neg_phrase, neg_exact = Counter(), Counter()
     all_keywords: set[str] = set()
+    callouts: list[str] = []
+    snippet_header, snippet_values = "", []
+    audiences: Counter = Counter()
     settings = {}
 
     for row in rows:
         name = g(row, "Campaign")
+
+        # Assets live at account level in the source export. They are collected
+        # once and re-attached to every campaign we build, which is where Google
+        # reports them missing.
+        if text := g(row, "Callout text"):
+            callouts.append(debrand(places.strip(text)))
+        # Read raw: snippet values are newline separated inside one cell, and
+        # the usual whitespace-collapsing helper would run them together.
+        if raw_values := (row.get("Snippet Values") or "").strip():
+            snippet_header = snippet_header or g(row, "Header")
+            snippet_values = [v.strip() for v in raw_values.splitlines() if v.strip()]
+        if segment := g(row, "Audience segment"):
+            audiences[segment] += 1
+
         if not name or name.startswith("<"):
             if g(row, "Targeting method"):
                 settings["targeting_method"] = g(row, "Targeting method")
@@ -400,6 +421,16 @@ def main() -> int:
             },
         },
         "themes": {},
+        "assets": {
+            # Verbatim from the account: these say nothing client-specific.
+            "callouts": list(dict.fromkeys(callouts))[:8],
+            "snippet_header": snippet_header or "Service catalog",
+            # Values fall back to the client's own services when they have them.
+            "snippet_values": snippet_values,
+            # Observation only. The account attaches these to collect data, and
+            # bids on them later once there is something to bid on.
+            "audience_segments": [a for a, _ in audiences.most_common(12)],
+        },
         "campaigns": out_themes,
         "schedules": {"always": {"kind": "all_week"},
                       "business_hours": {"kind": "from_brief"}},

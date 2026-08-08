@@ -28,6 +28,31 @@ negatives:
     from_file: _shared/negatives-competitors.txt
     match_type: exact
 themes: {}
+assets:
+  callouts:
+  - Your move, simplified
+  - Reliable and on-time
+  - Friendly & honest
+  - Your happiness guaranteed
+  snippet_header: Service catalog
+  snippet_values:
+  - Local Moving
+  - Storage Solutions
+  - Commercial & Office
+  - Packing Services
+  audience_segments:
+  - Real Estate>Residential Properties>Residential Properties (For Sale)
+  - Business Services
+  - Real Estate>Residential Properties>Residential Properties (For Rent)>Houses (For Rent)
+  - Real Estate>Residential Properties>Residential Properties (For Rent)
+  - Real Estate>Moving & Relocation
+  - Real Estate
+  - Real Estate>Residential Properties
+  - Financial Services>Credit & Lending>Mortgage>Home Purchase Loans
+  - Financial Services>Credit & Lending>Mortgage>Home Equity Loans
+  - Real Estate>Commercial Properties
+  - Real Estate>Residential Properties>Residential Properties (For Rent)>Apartments (For Rent)
+  - Real Estate>Commercial Properties>Commercial Properties (For Rent)
 campaigns:
 - key: general_moving
   label: General Moving

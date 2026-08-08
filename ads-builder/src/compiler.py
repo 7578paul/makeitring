@@ -19,6 +19,7 @@ from .model import (
     RSA_MAX_HEADLINES,
     RSA_MIN_HEADLINES,
     AdGroup,
+    Asset,
     display_length,
     Campaign,
     Keyword,
@@ -149,6 +150,10 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
     if unknown:
         plan.warn(f"brief requests services with no blueprint campaign: {sorted(unknown)}")
 
+    if not brief.get("tracking", {}).get("call_tracking_number"):
+        plan.warn("the call asset is using the public phone number — calls from ads "
+                  "will not be attributable until a tracking number is set")
+
     budgets = _allocate_budget(plan, specs, brief, blueprint)
     account_negatives = _account_negatives(blueprint, blueprint_dir)
     schedules = blueprint.get("schedules", {})
@@ -201,6 +206,8 @@ def _build_campaign(*, spec, plan, brief, blueprint, themes, defaults, schedules
             negatives=list(account_negatives)
             + _theme_negatives(spec.get("negative_themes", []), themes)
             + _literal_negatives(spec.get("negative_keywords", []), base_context),
+            assets=_build_assets(blueprint, brief),
+            audience_segments=list(blueprint.get("assets", {}).get("audience_segments", [])),
         )
 
         final_url = _final_url(brief, spec["key"])
@@ -281,6 +288,63 @@ def _account_negatives(blueprint: dict, blueprint_dir: Path) -> list[NegativeKey
     themes = blueprint.get("themes", {})
     negatives += _theme_negatives(spec.get("themes", []), themes)
     return negatives
+
+
+def _build_assets(blueprint: dict, brief: dict) -> list[Asset]:
+    """Sitelinks, callouts, snippets and the call asset, on every campaign.
+
+    Google flags a Search campaign without these, and it is right to: they are
+    extra lines on the results page that competitors will be using. The source
+    account carries all of them.
+
+    Callouts come from the blueprint because they say nothing client-specific.
+    Sitelinks and snippet values come from the client's own services, because
+    linking one client to another's service pages would be worse than useless.
+    """
+    spec = blueprint.get("assets", {})
+    assets: list[Asset] = []
+
+    for text in spec.get("callouts", [])[:6]:
+        if text:
+            assets.append(Asset("callout", text=text[:25]))
+
+    pages = brief.get("landing_pages", {})
+    default_url = pages.get("default", "")
+    services = brief.get("landing", {}).get("services") or []
+
+    for service in services[:6]:
+        key = re.sub(r"[^a-z0-9]+", "_", service.lower()).strip("_")
+        assets.append(Asset(
+            "sitelink",
+            text=service[:25],
+            description1=f"{service} done properly"[:35],
+            description2="Free quote, no obligation"[:35],
+            final_url=pages.get(key) or default_url,
+        ))
+    if services and default_url:
+        assets.append(Asset("sitelink", text="Get a Quote"[:25],
+                            description1="Tell us about your job"[:35],
+                            description2="We reply the same day"[:35],
+                            final_url=default_url))
+
+    values = services or spec.get("snippet_values", [])
+    if values:
+        assets.append(Asset("snippet", header=spec.get("snippet_header", "Service catalog"),
+                            values=[v[:25] for v in values[:10]]))
+
+    tracking = brief.get("tracking", {})
+    client = brief.get("client", {})
+    tracked = tracking.get("call_tracking_number")
+    phone = tracked or client.get("phone", "")
+    if phone:
+        # Country follows the currency unless stated. Getting this wrong makes
+        # Google reject the call asset outright.
+        country = client.get("country") or {"USD": "US", "CAD": "CA", "GBP": "GB",
+                                            "AUD": "AU", "EUR": "IE"}.get(
+                                                client.get("currency", ""), "CA")
+        assets.append(Asset("call", phone=phone, country=country))
+
+    return assets
 
 
 def _literal_negatives(entries: list[dict], context: dict) -> list[NegativeKeyword]:

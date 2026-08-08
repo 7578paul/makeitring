@@ -31,11 +31,18 @@ def load_header(data_dir: Path) -> list[str]:
     return text.rstrip("\r\n").split(DELIMITER)
 
 
-def clean(value) -> str:
-    """A tab or newline inside a cell would shift every later column."""
+def clean(value, *, keep_newlines: bool = False) -> str:
+    """A tab or newline inside a cell would shift every later column.
+
+    Structured snippets are the exception: Editor expects their values newline
+    separated within a single quoted cell, which the CSV writer quotes for us.
+    """
     if value is None:
         return ""
-    return " ".join(str(value).replace("\t", " ").split())
+    text = str(value).replace("\t", " ")
+    if keep_newlines:
+        return "\n".join(line.strip() for line in text.split("\n") if line.strip())
+    return " ".join(text.split())
 
 
 def rows_for(plan: Plan) -> list[dict[str, str]]:
@@ -81,6 +88,28 @@ def rows_for(plan: Plan) -> list[dict[str, str]]:
                                                       NEGATIVE_LABELS["phrase"]),
                 "Status": "Enabled",
             })
+
+        for asset in campaign.assets:
+            if asset.kind == "callout":
+                out.append({"Campaign": campaign.name, "Callout text": asset.text})
+            elif asset.kind == "sitelink":
+                row = {"Campaign": campaign.name, "Link Text": asset.text,
+                       "Final URL": asset.final_url}
+                if asset.description1:
+                    row["Description Line 1"] = asset.description1
+                if asset.description2:
+                    row["Description Line 2"] = asset.description2
+                out.append(row)
+            elif asset.kind == "snippet":
+                out.append({"Campaign": campaign.name, "Header": asset.header,
+                            "Snippet Values": "\n".join(asset.values)})
+            elif asset.kind == "call":
+                out.append({"Campaign": campaign.name, "Phone Number": asset.phone,
+                            "Country of Phone": asset.country,
+                            "Conversion Action": "Use account settings"})
+
+        for segment in campaign.audience_segments:
+            out.append({"Campaign": campaign.name, "Audience segment": segment})
 
         for group in campaign.ad_groups:
             group_row = {
@@ -140,7 +169,8 @@ def write_editor_file(plan: Plan, out_dir: Path, data_dir: Path) -> Path:
                                 lineterminator="\n", quoting=csv.QUOTE_MINIMAL)
         writer.writeheader()
         for row in rows:
-            writer.writerow({key: clean(value) for key, value in row.items()})
+            writer.writerow({key: clean(value, keep_newlines=(key == "Snippet Values"))
+                             for key, value in row.items()})
 
     return path
 

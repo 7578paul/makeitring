@@ -303,6 +303,23 @@ movingpapa</textarea></div>
     </section>
 
     <section class="group">
+      <p class="eyebrow">Services &amp; call tracking</p>
+      <p class="grouphint">Services become sitelinks and the service list under your ads.
+        Google marks a campaign down without them.</p>
+      <div class="fields">
+        <div class="f"><label for="service_list">Services offered <em>one per line</em></label>
+          <textarea id="service_list">Local move
+Long distance
+Commercial &amp; office
+Packing
+Storage</textarea></div>
+        <div class="f"><label for="call_tracking">Call tracking number
+          <em>not the public one &mdash; leave blank if not set up yet</em></label>
+          <input type="text" id="call_tracking" placeholder="e.g. 305-555-0142"></div>
+      </div>
+    </section>
+
+    <section class="group">
       <p class="eyebrow">Where the clicks land</p>
       <p class="grouphint">Send ads to the page that takes the enquiry, not the homepage.
         A homepage makes the visitor go and find the form.</p>
@@ -430,6 +447,31 @@ function compile(brief){
     city: brief.cities[0], term: ''
   };
   const nameFmt = defaults.campaign_name_format || '{code} | Search | {label} | EN';
+
+  /* Sitelinks, callouts, snippets and the call asset. Google flags a Search
+     campaign without them, and the source account runs all of them. Callouts
+     come from the blueprint; sitelinks and snippet values come from the
+     client's own services, never another client's pages. */
+  const aspec = bp.assets || {};
+  const assets = [];
+  (aspec.callouts || []).slice(0,6).forEach(t => assets.push({kind:'callout', text:t.slice(0,25)}));
+  (brief.services_list || []).slice(0,6).forEach(sv => assets.push({
+    kind:'sitelink', text:sv.slice(0,25),
+    d1:(sv + ' done properly').slice(0,35), d2:'Free quote, no obligation'.slice(0,35),
+    url: brief.pagemap[sv.toLowerCase().replace(/[^a-z0-9]+/g,'_')] || brief.url}));
+  if ((brief.services_list||[]).length && brief.url)
+    assets.push({kind:'sitelink', text:'Get a Quote', d1:'Tell us about your job',
+                 d2:'We reply the same day', url:brief.url});
+  const snipVals = (brief.services_list && brief.services_list.length)
+    ? brief.services_list : (aspec.snippet_values || []);
+  if (snipVals.length)
+    assets.push({kind:'snippet', header: aspec.snippet_header || 'Service catalog',
+                 values: snipVals.slice(0,10).map(v => v.slice(0,25))});
+  const COUNTRY = {USD:'US', CAD:'CA', GBP:'GB', AUD:'AU', EUR:'IE'};
+  if (brief.phone)
+    assets.push({kind:'call', phone:brief.callTrackingNumber || brief.phone,
+                 country: COUNTRY[brief.currency] || 'CA'});
+  const audiences = aspec.audience_segments || [];
   const campaigns = [];
 
   for (const spec of specs){
@@ -455,6 +497,8 @@ function compile(brief){
       adRotation: defaults.ad_rotation || 'Optimize for clicks',
       locations: brief.targets,
       schedule: buildSchedule(spec.schedule, bp.schedules||{}, brief),
+      assets: assets,
+      audiences: audiences,
       negatives: negs,
       groups: []
     };
@@ -644,10 +688,12 @@ function editorFile(plan){
     const cells = new Array(header.length).fill('');
     for (const key in obj){
       if (index[key] === undefined) continue;
-      cells[index[key]] = String(obj[key] === null || obj[key] === undefined ? '' : obj[key])
-        .replace(/[\t\r\n]+/g, ' ').trim();
+      const raw = String(obj[key] === null || obj[key] === undefined ? '' : obj[key]);
+      cells[index[key]] = key === 'Snippet Values'
+        ? raw.replace(/\t/g, ' ').split('\n').map(v => v.trim()).filter(Boolean).join('\n')
+        : raw.replace(/[\t\r\n]+/g, ' ').trim();
     }
-    lines.push(cells.join('\t'));
+    lines.push(cells.map(v => /[\n"\t]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v).join('\t'));
   };
 
   for (const c of plan.campaigns){
@@ -667,6 +713,17 @@ function editorFile(plan){
       'Ad Schedule': `${s.day}, ${s.start}, ${s.end}`}));
     c.negatives.forEach(n => row({'Campaign': c.name, 'Keyword': n.text,
       'Criterion Type': NEG[n.match] || NEG.phrase, 'Status': 'Enabled'}));
+
+    (c.assets || []).forEach(a => {
+      if (a.kind === 'callout') row({'Campaign': c.name, 'Callout text': a.text});
+      else if (a.kind === 'sitelink') row({'Campaign': c.name, 'Link Text': a.text,
+        'Description Line 1': a.d1, 'Description Line 2': a.d2, 'Final URL': a.url});
+      else if (a.kind === 'snippet') row({'Campaign': c.name, 'Header': a.header,
+        'Snippet Values': a.values.join('\n')});
+      else if (a.kind === 'call') row({'Campaign': c.name, 'Phone Number': a.phone,
+        'Country of Phone': a.country, 'Conversion Action': 'Use account settings'});
+    });
+    (c.audiences || []).forEach(seg => row({'Campaign': c.name, 'Audience segment': seg}));
 
     for (const g of c.groups){
       row({'Campaign': c.name, 'Ad Group': g.name, 'Ad Group Status': 'Enabled'});
@@ -911,6 +968,8 @@ $('brief').addEventListener('submit', e => {
     brandTerms: lines($('brand').value),
     url: $('url').value.trim(),
     pagemap: pairs($('pagemap').value),
+    services_list: lines($('service_list').value),
+    callTrackingNumber: $('call_tracking').value.trim(),
     always: $('always').checked,
     hours: {monfri: window_($('monfri').value), sat: window_($('sat').value), sun: window_($('sun').value)}
   };
