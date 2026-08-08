@@ -1,0 +1,361 @@
+Campaign,Ad Group,Keyword,Criterion Type,Status,Final URL
+MOV | Search | Brand | EN,Brand | Exact,redline moving,Exact,Paused,https://redlinemoving.example/
+MOV | Search | Brand | EN,Brand | Exact,redline moving,Phrase,Paused,https://redlinemoving.example/
+MOV | Search | Brand | EN,Brand | Exact,redline movers,Exact,Paused,https://redlinemoving.example/
+MOV | Search | Brand | EN,Brand | Exact,redline movers,Phrase,Paused,https://redlinemoving.example/
+MOV | Search | Local Moving | EN,Movers | Toronto,movers toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,movers toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,movers in toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,movers in toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,movers near me,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,movers near me,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,movers cost toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,movers cost toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving company toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving company toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving company in toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving company in toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving company near me,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving company near me,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving company cost toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving company cost toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving companies toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving companies toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving companies in toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving companies in toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving companies near me,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving companies near me,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving companies cost toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,moving companies cost toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,local movers toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,local movers toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,local movers in toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,local movers in toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,local movers near me,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,local movers near me,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,local movers cost toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,local movers cost toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,house movers toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,house movers toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,house movers in toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,house movers in toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,house movers near me,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,house movers near me,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,house movers cost toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,house movers cost toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,apartment movers toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,apartment movers toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,apartment movers in toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,apartment movers in toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,apartment movers near me,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,apartment movers near me,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,apartment movers cost toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,apartment movers cost toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,residential movers toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,residential movers toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,residential movers in toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,residential movers in toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,residential movers near me,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,residential movers near me,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,residential movers cost toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,residential movers cost toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,home movers toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,home movers toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,home movers in toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,home movers in toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,home movers near me,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,home movers near me,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,home movers cost toronto,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Toronto,home movers cost toronto,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,movers mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,movers mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,movers in mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,movers in mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,movers cost mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,movers cost mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,moving company mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,moving company mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,moving company in mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,moving company in mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,moving company cost mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,moving company cost mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,moving companies mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,moving companies mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,moving companies in mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,moving companies in mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,moving companies cost mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,moving companies cost mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,local movers mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,local movers mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,local movers in mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,local movers in mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,local movers cost mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,local movers cost mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,house movers mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,house movers mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,house movers in mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,house movers in mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,house movers cost mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,house movers cost mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,apartment movers mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,apartment movers mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,apartment movers in mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,apartment movers in mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,apartment movers cost mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,apartment movers cost mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,residential movers mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,residential movers mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,residential movers in mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,residential movers in mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,residential movers cost mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,residential movers cost mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,home movers mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,home movers mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,home movers in mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,home movers in mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,home movers cost mississauga,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Mississauga,home movers cost mississauga,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,movers vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,movers vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,movers in vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,movers in vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,movers cost vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,movers cost vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,moving company vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,moving company vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,moving company in vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,moving company in vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,moving company cost vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,moving company cost vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,moving companies vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,moving companies vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,moving companies in vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,moving companies in vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,moving companies cost vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,moving companies cost vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,local movers vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,local movers vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,local movers in vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,local movers in vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,local movers cost vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,local movers cost vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,house movers vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,house movers vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,house movers in vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,house movers in vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,house movers cost vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,house movers cost vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,apartment movers vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,apartment movers vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,apartment movers in vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,apartment movers in vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,apartment movers cost vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,apartment movers cost vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,residential movers vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,residential movers vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,residential movers in vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,residential movers in vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,residential movers cost vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,residential movers cost vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,home movers vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,home movers vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,home movers in vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,home movers in vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,home movers cost vaughan,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Vaughan,home movers cost vaughan,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,movers markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,movers markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,movers in markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,movers in markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,movers cost markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,movers cost markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,moving company markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,moving company markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,moving company in markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,moving company in markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,moving company cost markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,moving company cost markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,moving companies markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,moving companies markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,moving companies in markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,moving companies in markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,moving companies cost markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,moving companies cost markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,local movers markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,local movers markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,local movers in markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,local movers in markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,local movers cost markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,local movers cost markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,house movers markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,house movers markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,house movers in markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,house movers in markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,house movers cost markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,house movers cost markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,apartment movers markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,apartment movers markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,apartment movers in markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,apartment movers in markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,apartment movers cost markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,apartment movers cost markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,residential movers markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,residential movers markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,residential movers in markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,residential movers in markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,residential movers cost markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,residential movers cost markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,home movers markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,home movers markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,home movers in markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,home movers in markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,home movers cost markham,Phrase,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Local Moving | EN,Movers | Markham,home movers cost markham,Exact,Paused,https://redlinemoving.example/local-movers
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance movers,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance movers,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance movers toronto,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance movers toronto,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance movers from toronto,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance movers from toronto,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance moving company,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance moving company,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance moving company toronto,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance moving company toronto,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance moving company from toronto,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance moving company from toronto,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,interstate movers,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,interstate movers,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,interstate movers toronto,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,interstate movers toronto,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,interstate movers from toronto,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,interstate movers from toronto,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,cross country movers,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,cross country movers,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,cross country movers toronto,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,cross country movers toronto,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,cross country movers from toronto,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,cross country movers from toronto,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,out of province movers,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,out of province movers,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,out of province movers toronto,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,out of province movers toronto,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,out of province movers from toronto,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,out of province movers from toronto,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance moving quote,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance moving quote,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance moving quote toronto,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance moving quote toronto,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance moving quote from toronto,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Toronto,long distance moving quote from toronto,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,long distance movers mississauga,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,long distance movers mississauga,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,long distance movers from mississauga,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,long distance movers from mississauga,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,long distance moving company mississauga,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,long distance moving company mississauga,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,long distance moving company from mississauga,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,long distance moving company from mississauga,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,interstate movers mississauga,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,interstate movers mississauga,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,interstate movers from mississauga,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,interstate movers from mississauga,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,cross country movers mississauga,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,cross country movers mississauga,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,cross country movers from mississauga,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,cross country movers from mississauga,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,out of province movers mississauga,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,out of province movers mississauga,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,out of province movers from mississauga,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,out of province movers from mississauga,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,long distance moving quote mississauga,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,long distance moving quote mississauga,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,long distance moving quote from mississauga,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,long distance moving quote from mississauga,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,long distance movers vaughan,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,long distance movers vaughan,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,long distance movers from vaughan,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,long distance movers from vaughan,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,long distance moving company vaughan,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,long distance moving company vaughan,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,long distance moving company from vaughan,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,long distance moving company from vaughan,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,interstate movers vaughan,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,interstate movers vaughan,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,interstate movers from vaughan,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,interstate movers from vaughan,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,cross country movers vaughan,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,cross country movers vaughan,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,cross country movers from vaughan,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,cross country movers from vaughan,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,out of province movers vaughan,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,out of province movers vaughan,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,out of province movers from vaughan,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,out of province movers from vaughan,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,long distance moving quote vaughan,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,long distance moving quote vaughan,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,long distance moving quote from vaughan,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,long distance moving quote from vaughan,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,long distance movers markham,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,long distance movers markham,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,long distance movers from markham,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,long distance movers from markham,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,long distance moving company markham,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,long distance moving company markham,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,long distance moving company from markham,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,long distance moving company from markham,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,interstate movers markham,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,interstate movers markham,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,interstate movers from markham,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,interstate movers from markham,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,cross country movers markham,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,cross country movers markham,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,cross country movers from markham,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,cross country movers from markham,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,out of province movers markham,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,out of province movers markham,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,out of province movers from markham,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,out of province movers from markham,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,long distance moving quote markham,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,long distance moving quote markham,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,long distance moving quote from markham,Phrase,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Long Distance | EN,Long Distance | Markham,long distance moving quote from markham,Exact,Paused,https://redlinemoving.example/long-distance
+MOV | Search | Commercial | EN,Office Movers | Toronto,office movers toronto,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,office movers toronto,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,office movers near me,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,office movers near me,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,commercial movers toronto,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,commercial movers toronto,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,commercial movers near me,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,commercial movers near me,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,business movers toronto,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,business movers toronto,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,business movers near me,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,business movers near me,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,office moving company toronto,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,office moving company toronto,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,office moving company near me,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Toronto,office moving company near me,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Mississauga,office movers mississauga,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Mississauga,office movers mississauga,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Mississauga,commercial movers mississauga,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Mississauga,commercial movers mississauga,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Mississauga,business movers mississauga,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Mississauga,business movers mississauga,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Mississauga,office moving company mississauga,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Mississauga,office moving company mississauga,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Vaughan,office movers vaughan,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Vaughan,office movers vaughan,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Vaughan,commercial movers vaughan,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Vaughan,commercial movers vaughan,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Vaughan,business movers vaughan,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Vaughan,business movers vaughan,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Vaughan,office moving company vaughan,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Vaughan,office moving company vaughan,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Markham,office movers markham,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Markham,office movers markham,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Markham,commercial movers markham,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Markham,commercial movers markham,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Markham,business movers markham,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Markham,business movers markham,Exact,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Markham,office moving company markham,Phrase,Paused,https://redlinemoving.example/commercial
+MOV | Search | Commercial | EN,Office Movers | Markham,office moving company markham,Exact,Paused,https://redlinemoving.example/commercial

@@ -1,0 +1,21 @@
+# The tracking backbone. Deploy once, serves every client.
+#
+#   wrangler d1 create makeitring-leads          # once; put the id below
+#   wrangler d1 execute makeitring-leads --file=schema.sql
+#   wrangler secret put CLIENT_KEYS              # "slug:key,slug:key"
+#   wrangler deploy
+#
+# Then point each client's landing page form at
+#   https://<worker>/lead?client=<slug>
+# and their CallRail post-call webhook at
+#   https://<worker>/webhook/callrail?client=<slug>
+# Dashboard: https://<worker>/dash?client=<slug>&key=<their key>
+
+name = "makeitring-tracking"
+main = "worker.js"
+compatibility_date = "2026-08-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "makeitring-leads"
+database_id = "PUT-DATABASE-ID-HERE"

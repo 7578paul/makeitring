@@ -1,0 +1,14 @@
+Campaign,Ad Group,Max CPC,Ad Group Status
+MOV | Search | Brand | EN,Brand | Exact,2.00,Paused
+MOV | Search | Local Moving | EN,Movers | Toronto,,Paused
+MOV | Search | Local Moving | EN,Movers | Mississauga,,Paused
+MOV | Search | Local Moving | EN,Movers | Vaughan,,Paused
+MOV | Search | Local Moving | EN,Movers | Markham,,Paused
+MOV | Search | Long Distance | EN,Long Distance | Toronto,,Paused
+MOV | Search | Long Distance | EN,Long Distance | Mississauga,,Paused
+MOV | Search | Long Distance | EN,Long Distance | Vaughan,,Paused
+MOV | Search | Long Distance | EN,Long Distance | Markham,,Paused
+MOV | Search | Commercial | EN,Office Movers | Toronto,,Paused
+MOV | Search | Commercial | EN,Office Movers | Mississauga,,Paused
+MOV | Search | Commercial | EN,Office Movers | Vaughan,,Paused
+MOV | Search | Commercial | EN,Office Movers | Markham,,Paused

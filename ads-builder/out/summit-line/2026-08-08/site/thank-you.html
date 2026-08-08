@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en" data-track="https://track.makeitring.co/click?client=summit-line">
+<head>
+<meta charset="utf-8">
+<title>Thank you — Summit Line Movers</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Summit Line Movers. Free moving quote. Call (720) 555-0143.">
+<meta name="robots" content="noindex">
+
+<style>
+*{box-sizing:border-box}
+:root{--accent:#ff5a1f;--ink:#141210;--muted:#5f584f;--line:#e5e0d8;--bg:#faf8f5;--card:#fff}
+body{margin:0;font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
+.brand{font-weight:800;font-size:19px;letter-spacing:-.02em}
+.tel{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;
+  text-decoration:none;font-weight:800;padding:11px 18px;border-radius:999px;white-space:nowrap}
+.hero{display:grid;gap:34px;grid-template-columns:1.15fr .85fr;padding:44px 0 40px;align-items:start}
+@media(max-width:860px){.hero{grid-template-columns:1fr;padding:26px 0}}
+h1{font-size:clamp(30px,4.6vw,46px);line-height:1.06;letter-spacing:-.035em;margin:0 0 14px;text-wrap:balance}
+.lede{font-size:18.5px;color:var(--muted);margin:0 0 20px;max-width:44ch}
+.stars{color:#f5a623;letter-spacing:2px;font-size:17px}
+.rating{display:flex;align-items:center;gap:10px;margin:0 0 18px;font-size:14.5px;color:var(--muted)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0;padding:0;list-style:none}
+.badges li{background:var(--card);border:1px solid var(--line);border-radius:999px;
+  padding:7px 14px;font-size:13.5px;font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;
+  box-shadow:0 1px 2px rgba(20,18,16,.04),0 12px 32px rgba(20,18,16,.07)}
+.card h2{margin:0 0 4px;font-size:22px;letter-spacing:-.02em}
+.card p.sub{margin:0 0 18px;color:var(--muted);font-size:14.5px}
+label{display:block;font-size:13px;font-weight:700;margin:0 0 5px}
+input,select,textarea{width:100%;padding:12px 13px;font:inherit;font-size:15.5px;
+  border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2.5px solid var(--accent);outline-offset:-1px}
+.row{margin:0 0 13px}
+.two{display:grid;gap:13px;grid-template-columns:1fr 1fr}
+button{width:100%;background:var(--accent);color:#fff;border:0;border-radius:999px;
+  padding:15px;font:inherit;font-weight:800;font-size:17px;cursor:pointer;margin-top:6px}
+button:hover{opacity:.92}
+.callback{text-align:center;margin:13px 0 0;font-size:14px;color:var(--muted)}
+.callback a{color:var(--accent);font-weight:700}
+section.band{background:var(--card);border-top:1px solid var(--line);padding:44px 0}
+h2.sec{font-size:clamp(23px,3vw,31px);letter-spacing:-.025em;margin:0 0 22px;text-wrap:balance}
+.g3{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.rev{background:var(--bg);border:1px solid var(--line);border-radius:13px;padding:20px}
+.rev p{margin:9px 0 12px;font-size:15.5px}
+.rev b{font-size:14px}
+.svc{display:flex;flex-wrap:wrap;gap:9px;list-style:none;padding:0;margin:0}
+.svc li{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:11px 16px;font-weight:600;font-size:15px}
+footer{padding:30px 0;color:var(--muted);font-size:13.5px;text-align:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+<script>
+/* Capture the click before anything can lose it.
+   These parameter names come from the account's real tracking template:
+   {lpurl}?campaign={campaignid}&content={creative}&keyword={keyword}
+   plus gclid, which Google appends itself. */
+(function () {
+  var FIELDS = ['gclid', 'gbraid', 'wbraid', 'campaign', 'content', 'keyword',
+                'utm_source', 'utm_medium', 'utm_campaign', 'utm_term'];
+  var KEY = 'attribution';
+
+  function read() {
+    var params = new URLSearchParams(location.search), found = {};
+    FIELDS.forEach(function (f) { if (params.get(f)) found[f] = params.get(f); });
+    return found;
+  }
+
+  /* First touch wins and is kept for 90 days: someone can click the ad today
+     and fill the form on Thursday, and it is still the ad's lead. */
+  var stored = {};
+  try { stored = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+  var fresh = read();
+
+  if (Object.keys(fresh).length) {
+    fresh.landed_at = new Date().toISOString();
+    fresh.landing_page = location.pathname;
+    if (!stored.gclid || fresh.gclid) {
+      stored = fresh;
+      try { localStorage.setItem(KEY, JSON.stringify(stored)); } catch (e) {}
+    }
+  }
+  window.__attribution = stored;
+
+  /* Write it into every form on the page as hidden fields. */
+  function fill() {
+    document.querySelectorAll('form[data-lead]').forEach(function (form) {
+      Object.keys(stored).forEach(function (k) {
+        if (form.querySelector('[name="' + k + '"]')) return;
+        var input = document.createElement('input');
+        input.type = 'hidden'; input.name = k; input.value = stored[k];
+        form.appendChild(input);
+      });
+    });
+  }
+  document.addEventListener('DOMContentLoaded', fill);
+  fill();
+
+  /* fraud layer: log the paid click, fire-and-forget. Only clicks that carry
+     ad parameters are logged — organic visits are not interesting here. */
+  var endpoint = document.documentElement.getAttribute('data-track');
+  if (endpoint && (fresh.gclid || fresh.campaign)) {
+    try {
+      navigator.sendBeacon(endpoint, new Blob([JSON.stringify({
+        gclid: fresh.gclid || '', campaign: fresh.campaign || '',
+        keyword: fresh.keyword || ''
+      })], { type: 'application/json' }));
+    } catch (e) {}
+  }
+})();
+</script>
+</head>
+<body>
+
+
+<header><div class="wrap bar"><span class="brand">Summit Line Movers</span>
+<a class="tel" href="tel:7205550143">(720) 555-0143</a></div></header>
+<div class="wrap" style="padding:70px 20px;text-align:center;max-width:640px">
+  <h1>Thanks — we've got it.</h1>
+  <p class="lede" style="margin:0 auto 22px">One of our team will call you shortly.
+     If it's urgent, ring us now and we'll pick up.</p>
+  <a class="tel" href="tel:7205550143" style="font-size:18px;padding:15px 26px">(720) 555-0143</a>
+</div>
+<footer><div class="wrap">© Summit Line Movers</div></footer>
+<script>
+/* Fires once, on the thank-you page, not on the submit click — it survives ad
+   blockers better and it is what Google Ads imports. The flag is cleared as it
+   is read, so a refresh or a back-button return cannot double-count. */
+(function () {
+  if (!sessionStorage.getItem('lead_submitted')) return;
+  sessionStorage.removeItem('lead_submitted');
+
+  if (window.gtag) {
+    gtag('event', 'generate_lead', {
+      currency: 'USD',
+      value: 1
+    });
+    /* Ads conversion label not set yet */
+  }
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event: 'generate_lead' });
+})();
+</script>
+</body>
+</html>

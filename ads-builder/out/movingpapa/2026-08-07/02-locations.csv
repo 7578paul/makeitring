@@ -1,0 +1,21 @@
+Campaign,Location,Criterion Type
+MOV | Search | Brand | EN,"Toronto, Ontario, Canada",Location
+MOV | Search | Brand | EN,"Vancouver, British Columbia, Canada",Location
+MOV | Search | Brand | EN,"Ottawa, Ontario, Canada",Location
+MOV | Search | Brand | EN,"Calgary, Alberta, Canada",Location
+MOV | Search | Brand | EN,"Edmonton, Alberta, Canada",Location
+MOV | Search | Local Moving | EN,"Toronto, Ontario, Canada",Location
+MOV | Search | Local Moving | EN,"Vancouver, British Columbia, Canada",Location
+MOV | Search | Local Moving | EN,"Ottawa, Ontario, Canada",Location
+MOV | Search | Local Moving | EN,"Calgary, Alberta, Canada",Location
+MOV | Search | Local Moving | EN,"Edmonton, Alberta, Canada",Location
+MOV | Search | Long Distance | EN,"Toronto, Ontario, Canada",Location
+MOV | Search | Long Distance | EN,"Vancouver, British Columbia, Canada",Location
+MOV | Search | Long Distance | EN,"Ottawa, Ontario, Canada",Location
+MOV | Search | Long Distance | EN,"Calgary, Alberta, Canada",Location
+MOV | Search | Long Distance | EN,"Edmonton, Alberta, Canada",Location
+MOV | Search | Commercial | EN,"Toronto, Ontario, Canada",Location
+MOV | Search | Commercial | EN,"Vancouver, British Columbia, Canada",Location
+MOV | Search | Commercial | EN,"Ottawa, Ontario, Canada",Location
+MOV | Search | Commercial | EN,"Calgary, Alberta, Canada",Location
+MOV | Search | Commercial | EN,"Edmonton, Alberta, Canada",Location

@@ -1,0 +1,17 @@
+Campaign,Location,Criterion Type
+MOV | Search | Brand | EN,"Toronto, Ontario, Canada",Location
+MOV | Search | Brand | EN,"Mississauga, Ontario, Canada",Location
+MOV | Search | Brand | EN,"Vaughan, Ontario, Canada",Location
+MOV | Search | Brand | EN,"Markham, Ontario, Canada",Location
+MOV | Search | Local Moving | EN,"Toronto, Ontario, Canada",Location
+MOV | Search | Local Moving | EN,"Mississauga, Ontario, Canada",Location
+MOV | Search | Local Moving | EN,"Vaughan, Ontario, Canada",Location
+MOV | Search | Local Moving | EN,"Markham, Ontario, Canada",Location
+MOV | Search | Long Distance | EN,"Toronto, Ontario, Canada",Location
+MOV | Search | Long Distance | EN,"Mississauga, Ontario, Canada",Location
+MOV | Search | Long Distance | EN,"Vaughan, Ontario, Canada",Location
+MOV | Search | Long Distance | EN,"Markham, Ontario, Canada",Location
+MOV | Search | Commercial | EN,"Toronto, Ontario, Canada",Location
+MOV | Search | Commercial | EN,"Mississauga, Ontario, Canada",Location
+MOV | Search | Commercial | EN,"Vaughan, Ontario, Canada",Location
+MOV | Search | Commercial | EN,"Markham, Ontario, Canada",Location

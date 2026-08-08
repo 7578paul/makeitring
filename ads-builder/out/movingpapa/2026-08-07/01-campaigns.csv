@@ -1,0 +1,5 @@
+Campaign,Campaign Type,Budget,Bid Strategy Type,Networks,Languages,Campaign Status
+MOV | Search | Brand | EN,Search,25.97,Manual CPC,Google search,English,Paused
+MOV | Search | Local Moving | EN,Search,155.82,Maximize conversions,Google search,English,Paused
+MOV | Search | Long Distance | EN,Search,233.73,Maximize conversions,Google search,English,Paused
+MOV | Search | Commercial | EN,Search,77.91,Maximize conversions,Google search,English,Paused

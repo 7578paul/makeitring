@@ -1,0 +1,45 @@
+trade: moving
+client:
+  slug: movingpapa
+  business_name: Moving Papa
+  website: ''
+  phone: 833-351-1791
+  currency: CAD
+  customer_id: ''
+services:
+- brand
+- local_moving
+- long_distance
+- commercial
+service_area:
+  cities:
+  - Toronto
+  - Vancouver
+  - Ottawa
+  - Calgary
+  - Edmonton
+  targets:
+  - Toronto, Canada
+  - Vancouver, Canada
+  - Ottawa, Canada
+  - Calgary, Canada
+  - Edmonton, Canada
+  exclude: []
+budget:
+  monthly_total: 15000.0
+  weights: {}
+hours:
+  always: false
+  open:
+    mon_fri:
+    - 07:00
+    - '19:00'
+    sat: null
+    sun: null
+positioning:
+  offer: Free in-home estimate
+  min_job_value: ''
+  brand_terms:
+  - moving papa
+landing_pages:
+  default: https://www.movingpapa.com/finalstep/residential

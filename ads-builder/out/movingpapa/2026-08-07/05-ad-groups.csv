@@ -1,0 +1,17 @@
+Campaign,Ad Group,Max CPC,Ad Group Status
+MOV | Search | Brand | EN,Brand | Exact,2.00,Paused
+MOV | Search | Local Moving | EN,Movers | Toronto,,Paused
+MOV | Search | Local Moving | EN,Movers | Vancouver,,Paused
+MOV | Search | Local Moving | EN,Movers | Ottawa,,Paused
+MOV | Search | Local Moving | EN,Movers | Calgary,,Paused
+MOV | Search | Local Moving | EN,Movers | Edmonton,,Paused
+MOV | Search | Long Distance | EN,Long Distance | Toronto,,Paused
+MOV | Search | Long Distance | EN,Long Distance | Vancouver,,Paused
+MOV | Search | Long Distance | EN,Long Distance | Ottawa,,Paused
+MOV | Search | Long Distance | EN,Long Distance | Calgary,,Paused
+MOV | Search | Long Distance | EN,Long Distance | Edmonton,,Paused
+MOV | Search | Commercial | EN,Office Movers | Toronto,,Paused
+MOV | Search | Commercial | EN,Office Movers | Vancouver,,Paused
+MOV | Search | Commercial | EN,Office Movers | Ottawa,,Paused
+MOV | Search | Commercial | EN,Office Movers | Calgary,,Paused
+MOV | Search | Commercial | EN,Office Movers | Edmonton,,Paused
