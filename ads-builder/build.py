@@ -20,7 +20,7 @@ from src.model import NegativeKeyword
 from src.package import write_checklist, write_summary
 from src.editor_export import write_editor_file, write_shared_negatives
 from src.exporters import export_build_sheet
-from src.preflight import check as preflight_check, load_negatives, resolve as preflight_resolve
+from src.preflight import apply_wall, load_negatives
 from src.validators import has_errors, validate
 
 ROOT = Path(__file__).parent
@@ -39,33 +39,26 @@ def main() -> int:
         print(f"brief error: {exc}", file=sys.stderr)
         return 2
 
-    findings = validate(plan)
-
-    # Never trust an inherited negative list. Test it against the keywords this
-    # build is actually about to create, drop whatever would block the client,
-    # and say so — an inherited list always carries some terms that are wrong
-    # for a new client, so this is routine rather than exceptional.
+    # Resolve the wall per campaign, with explicit precedence: fencing stays
+    # scoped to its markets, and a keyword-vs-negative conflict is decided by
+    # whose account this is — then logged for a human either way, never silent.
     brief = load_yaml(args.brief)
+    wall_report = apply_wall(plan, brief)
+    for line in wall_report["conflicts"][:10]:
+        print(f"   conflict: {line}", file=sys.stderr)
+    if wall_report["dropped_campaigns"]:
+        print(f"   dropped empty after conflicts: {wall_report['dropped_campaigns']}",
+              file=sys.stderr)
+    print(f"   market fencing: {wall_report['fence_terms']} generated terms",
+          file=sys.stderr)
+
     brand_terms = brief.get("positioning", {}).get("brand_terms") or []
     cities = brief.get("service_area", {}).get("cities") or []
     keywords = [(c.name, g.name, k.text)
                 for c in plan.campaigns for g in c.ad_groups for k in g.keywords]
+    removed = wall_report["dropped_negatives"]
 
-    negatives = load_negatives(*(ROOT / "blueprints" / "_shared" / name for name in (
-        "negatives-universal.txt", "negatives-competitors.txt")))
-    kept, removed = preflight_resolve(negatives, keywords=keywords,
-                                      brand_terms=brand_terms, cities=cities)
-    if removed:
-        print(f"\nremoved {len(removed)} negative(s) that would have blocked this client:",
-              file=sys.stderr)
-        for line in removed[:12]:
-            print(f"   {line}", file=sys.stderr)
-        if len(removed) > 12:
-            print(f"   ... and {len(removed) - 12} more", file=sys.stderr)
-
-    for conflict in preflight_check(keywords=keywords, negatives=kept,
-                                    brand_terms=brand_terms, cities=cities):
-        print(conflict, file=sys.stderr)
+    findings = validate(plan)
 
     out_dir = args.out or ROOT / "out" / plan.client_slug / date.today().isoformat()
 
@@ -116,7 +109,7 @@ def main() -> int:
 
     for path in write_site(brief, out_dir / "site"):
         print(f"  {path}")
-    print(f"  {write_summary(plan, out_dir, layer2=layer2, removed_negatives=removed)}")
+    print(f"  {write_summary(plan, out_dir, layer2=layer2, removed_negatives=removed, wall_report=wall_report)}")
     print(f"  {write_checklist(plan, brief, out_dir)}")
 
     print("\nNext: import into Google Ads Editor, review, post. Everything lands paused.")

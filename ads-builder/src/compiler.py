@@ -198,7 +198,9 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
 
     days = float(brief.get("budget", {}).get("days_per_month")
                  or blueprint.get("budget", {}).get("days_per_month", 30.4))
-    min_daily = float(blueprint.get("budget", {}).get("min_daily", 0))
+    min_daily = float(brief.get("budget", {}).get("min_daily")
+                      if brief.get("budget", {}).get("min_daily") is not None
+                      else blueprint.get("budget", {}).get("min_daily", 0))
 
     global_specs = [s for s in specs if s.get("all_markets")]
     market_specs = [s for s in specs if not s.get("all_markets")]

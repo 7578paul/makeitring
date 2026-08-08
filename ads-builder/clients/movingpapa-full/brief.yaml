@@ -56,7 +56,7 @@ service_area:
   exclude: []
 markets:
 - name: Toronto
-  monthly_budget: 20000
+  monthly_budget: 19000
   cities:
   - Toronto
   - Etobicoke
@@ -79,7 +79,7 @@ markets:
   - Richmond Hill, Ontario, Canada
   target_cpa: 70
 - name: Vancouver
-  monthly_budget: 20000
+  monthly_budget: 19000
   cities:
   - Vancouver
   - Burnaby
@@ -102,7 +102,7 @@ markets:
   - White Rock, British Columbia, Canada
   target_cpa: 70
 - name: Calgary
-  monthly_budget: 10000
+  monthly_budget: 9500
   cities:
   - Calgary
   targets:
@@ -111,7 +111,7 @@ markets:
   - general_moving_geos
   target_cpa: 67
 - name: Edmonton
-  monthly_budget: 10000
+  monthly_budget: 9500
   cities:
   - Edmonton
   targets:
@@ -120,7 +120,7 @@ markets:
   - general_moving_geos
   target_cpa: 75
 - name: Ottawa
-  monthly_budget: 10000
+  monthly_budget: 9500
   cities:
   - Ottawa
   targets:
@@ -130,6 +130,7 @@ markets:
   target_cpa: 70
 budget:
   monthly_total: 70000
+  min_daily: 25
   weights: {}
 hours:
   always: false
@@ -160,3 +161,4 @@ landing_pages:
   commercial_office: https://www.movingpapa.com/service/office/
 assets:
   images: []
+respect_account_negatives: true

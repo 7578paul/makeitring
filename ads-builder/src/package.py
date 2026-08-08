@@ -22,7 +22,8 @@ from .model import Plan
 
 
 def write_summary(plan: Plan, out_dir: Path, *, layer2: dict | None = None,
-                  removed_negatives: list[str] | None = None) -> Path:
+                  removed_negatives: list[str] | None = None,
+                  wall_report: dict | None = None) -> Path:
     groups = sum(len(c.ad_groups) for c in plan.campaigns)
     keywords = sum(c.keyword_count for c in plan.campaigns)
     negatives = len({(n.text, n.match_type) for c in plan.campaigns for n in c.negatives})
@@ -49,6 +50,27 @@ def write_summary(plan: Plan, out_dir: Path, *, layer2: dict | None = None,
             f"| {c.target_cpa or '—'} | {len(c.ad_groups)} | {c.keyword_count} |"
         )
 
+    if wall_report and wall_report.get("conflicts"):
+        lines += ["", "## ⚠ Decisions that need a human", "",
+                  "The template and the account's own negatives disagreed. The account "
+                  "won — its negatives are mined client intent — and the conflicting "
+                  "keywords were removed. Review each; reversing one is deliberate:", ""]
+        lines += [f"- {c}" for c in wall_report["conflicts"]]
+    if wall_report and wall_report.get("fence_terms"):
+        lines += ["", f"Market fencing: **{wall_report['fence_terms']} phrase negatives** "
+                  "generated so each market's campaigns exclude the other markets' city "
+                  "terms — a Toronto searcher typing \"movers edmonton\" never triggers "
+                  "the Toronto campaign."]
+
+    pmax = [c for c in plan.campaigns if c.asset_group]
+    if pmax:
+        lines += ["", "## ⚠ Performance Max ships without images", "",
+                  f"{len(pmax)} PMax campaign(s) carry headlines and descriptions only. "
+                  "A CSV cannot carry images, and an asset group **will not serve** "
+                  "until marketing images (landscape, square, portrait) and a logo are "
+                  "added in the UI. This is the same class of gap as the missing call "
+                  "tracking number — treat it as a launch blocker, not polish."]
+
     by_layer = {}
     for c in plan.campaigns:
         for n in c.negatives:
@@ -65,7 +87,7 @@ def write_summary(plan: Plan, out_dir: Path, *, layer2: dict | None = None,
             match = "/".join(sorted({m for _, m in terms}))
             lines.append(f"| {label.get(src, src)} | {match} | {len(terms)} |")
 
-    if layer2:
+    if layer2 and layer2.get("source") not in (None, "none"):
         lines += ["", "## Competitor wall (Layer 2)", "",
                   f"Source: {layer2.get('source', 'none')} · "
                   f"{len(layer2.get('names', []))} businesses found · "

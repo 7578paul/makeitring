@@ -21,6 +21,8 @@ Five checks:
 import re
 from dataclasses import dataclass
 
+from .model import NegativeKeyword
+
 # Google treats these as the same query.
 _PUNCT = re.compile(r"[^\w\s]")
 
@@ -186,6 +188,112 @@ def resolve(
             removed.append(f'"{text}" [{match_type}] — would have blocked "{hit}"')
 
     return kept, removed
+
+
+def apply_wall(plan, brief: dict) -> dict:
+    """Resolve the negative wall per campaign, with explicit precedence.
+
+    Three kinds of term need three different treatments, and v2 got them wrong
+    by treating the wall as one global list:
+
+    * A negative that blocks a client city is FENCING — the source account puts
+      "calgary" on its Toronto campaigns so a Toronto searcher typing "movers
+      calgary" never triggers Toronto's ads. It belongs on every campaign
+      except the market it names, and deleting it globally (v2) or applying it
+      globally (which would block the Calgary campaign's own keywords) are both
+      wrong. Fences that the wall is missing are generated from the brief.
+
+    * A negative that blocks a campaign's own keyword is a CONFLICT between the
+      template and the account. Who wins depends on whose account this is:
+      rebuilding the same account (`respect_account_negatives`), the mined
+      negative is the client's own "we don't want these jobs" and the template
+      keyword is deleted; for a new client, the previous client's exclusion
+      gives way. Either way the decision is logged for a human, not silent.
+
+    * Everything else stays, on every campaign.
+    """
+    markets = brief.get("markets") or []
+    cities_by_market = {m["name"]: [c.lower() for c in (m.get("cities") or [])]
+                        for m in markets if isinstance(m, dict)}
+    if not cities_by_market:
+        cities_by_market = {"": [c.lower() for c in
+                                 brief.get("service_area", {}).get("cities", [])]}
+    all_cities = sorted({c for cs in cities_by_market.values() for c in cs})
+    brand_terms = [b.lower() for b in
+                   (brief.get("positioning", {}).get("brand_terms") or [])]
+    rebuild = bool(brief.get("respect_account_negatives"))
+
+    conflicts: list[str] = []
+    dropped_negs: list[str] = []
+    fenced = 0
+
+    for campaign in plan.campaigns:
+        own = cities_by_market.get(campaign.market) or all_cities
+        own_kws = [k.text for g in campaign.ad_groups for k in g.keywords]
+        kept, fences_present = [], set()
+
+        for neg in campaign.negatives:
+            wall = neg.source in ("universal", "competitor-wall")
+            city_hits = [c for c in all_cities if blocks(neg.text, neg.match_type, c)]
+            brand_hit = any(blocks(neg.text, neg.match_type, b) for b in brand_terms)
+
+            if brand_hit:
+                dropped_negs.append(f"\"{neg.text}\" — blocks the client\'s own brand")
+                continue
+            if city_hits:
+                # fencing: keep unless it names this campaign's own market
+                if any(c in own for c in city_hits):
+                    continue
+                fences_present.update(city_hits)
+                kept.append(neg)
+                continue
+
+            kw_hits = [kw for kw in own_kws if blocks(neg.text, neg.match_type, kw)]
+            if kw_hits and wall:
+                if rebuild:
+                    # the account's own exclusion beats the template's keyword
+                    doomed = set(kw_hits)
+                    for g in campaign.ad_groups:
+                        g.keywords = [k for k in g.keywords if k.text not in doomed]
+                    kept.append(neg)
+                    conflicts.append(
+                        f"`{neg.text}` [{neg.match_type}] is the account's own negative, "
+                        f'and the template wanted to bid on {sorted(doomed)} in '
+                        f"{campaign.name} — the keyword(s) were removed. If the account "
+                        f"should target this, delete the negative deliberately.")
+                else:
+                    conflicts.append(
+                        f'`{neg.text}` [{neg.match_type}] came from a previous account and '
+                        f'would block {kw_hits[:2]} in {campaign.name} — the negative was '
+                        f'dropped for this client.')
+                continue
+            kept.append(neg)
+
+        # fences the wall does not already carry, from the brief's own markets
+        if campaign.campaign_type == "Search" and campaign.market in cities_by_market:
+            for market_name, market_cities in cities_by_market.items():
+                if market_name == campaign.market:
+                    continue
+                for city in market_cities:
+                    if city not in fences_present and city not in own:
+                        kept.append(NegativeKeyword(city, "phrase", source="market-fence"))
+                        fences_present.add(city)
+                        fenced += 1
+        campaign.negatives = kept
+
+    # ad groups emptied by conflict resolution cannot serve
+    emptied = []
+    for campaign in plan.campaigns:
+        keep = [g for g in campaign.ad_groups if g.keywords]
+        emptied += [f"{campaign.name} › {g.name}" for g in campaign.ad_groups if not g.keywords]
+        campaign.ad_groups = keep
+    doomed_campaigns = [c for c in plan.campaigns
+                        if not c.ad_groups and not c.asset_group]
+    plan.campaigns = [c for c in plan.campaigns if c.ad_groups or c.asset_group]
+
+    return {"conflicts": conflicts, "dropped_negatives": dropped_negs,
+            "fence_terms": fenced, "emptied_groups": emptied,
+            "dropped_campaigns": [c.name for c in doomed_campaigns]}
 
 
 def load_negatives(*paths) -> list[tuple[str, str]]:
