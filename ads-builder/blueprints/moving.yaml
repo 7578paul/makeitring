@@ -1,273 +1,698 @@
-# Moving blueprint v0.1
-#
-# THIS IS A STRAW MAN. It encodes the strategy described on makeitring.co
-# (service-per-campaign, long distance split off local, small jobs capped,
-# schedule by capacity) so the pipeline has something real to compile.
-#
-# Phase 0 replaces it with the structure exported from the live account. Until
-# that export lands, treat every keyword and headline below as a placeholder
-# with the right *shape*, not as the finished template.
-
 trade: moving
-version: "0.1"
-
+version: 1.0-from-account
+source: extracted from the live Moving Papa Google Ads account
+structure: 'campaigns are built per market: ''{market} | Search | {theme}'''
 defaults:
   campaign_type: Search
-  networks: "Google search"
-  language: "English"
-  bid_strategy: "Maximize conversions"
-  # Presence only. Presence-or-interest is the single most expensive default
-  # in Google Ads for a local service business.
-  location_target_type: presence
-  # Everything is created paused. Going live is a human decision, never a
-  # side effect of running the builder.
+  campaign_name_format: '{market} | Search | {label}'
+  networks: Google search
+  language: English
+  bid_strategy: Maximize conversions
+  location_target_type: Location of presence
+  location_exclusion_type: Location of presence
+  tracking_template: '{lpurl}?campaign={campaignid}&content={creative}&keyword={keyword}'
+  ad_rotation: Optimize for clicks
   status: Paused
-  match_types: [phrase, exact]
-
+  match_types:
+  - phrase
+  target_cpa_note: taken from the live account, not invented
 budget:
-  min_daily: 8.0
+  min_daily: 50.0
   days_per_month: 30.4
-
-# Vocabularies referenced by campaigns. Defined once, reused as both keyword
-# sources and cross-campaign negatives.
-themes:
-  local:
-    - movers
-    - moving company
-    - moving companies
-    - local movers
-    - house movers
-    - apartment movers
-    - residential movers
-    - home movers
-  long_distance:
-    - long distance movers
-    - long distance moving company
-    - interstate movers
-    - cross country movers
-    - out of province movers
-    - long distance moving quote
-  commercial:
-    - office movers
-    - commercial movers
-    - business movers
-    - office moving company
-  small_job:
-    - man with a van
-    - single item movers
-    - furniture movers
-    - piano movers
-    - same day movers
-    - hourly movers
-  # Not services — negative vocabularies.
-  rental:
-    - truck rental
-    - van rental
-    - u haul
-    - uhaul
-    - penske
-    - budget truck
-    - rent a truck
-  supplies:
-    - moving boxes
-    - packing supplies
-    - boxes for sale
-    - bubble wrap
-    - moving blankets
-  storage:
-    - storage units
-    - self storage
-    - storage facility
-    - pods
-    - portable storage
-  aggregators:
-    - thumbtack
-    - angi
-    - homeadvisor
-    - unpakt
-    - hireahelper
-    - movebuddha
-    - moving.com
-    - bark
-
 negatives:
-  # Applied as shared campaign negatives on every campaign in the account.
   account_level:
     from_file: _shared/negatives-universal.txt
     match_type: phrase
-    themes: [rental, supplies, aggregators]
-
+    themes: []
+  competitor_wall:
+    from_file: _shared/negatives-competitors.txt
+    match_type: exact
+themes: {}
 campaigns:
-  # ---------------------------------------------------------------- brand ---
-  - key: brand
-    label: "Brand"
-    budget_weight: 5
-    bid_strategy: "Manual CPC"       # brand is cheap; don't let smart bidding inflate it
-    max_cpc: 2.00
-    schedule: always
-    ad_groups:
-      - key: brand_exact
-        label: "Brand | Exact"
-        per_city: false
-        keyword_source: brand_terms   # pulled from the client brief
-        match_types: [exact, phrase]
-        rsa:
-          headlines:
-            - "{business}"
-            - "{business} | Official"
-            - "Official Site"
-            - "Book {business} Today"
-            - "Call {phone}"
-            - "{offer}"
-            - "Licensed & Insured"
-            - "Get Your Free Quote"
-          descriptions:
-            - "The official site for {business}. Call {phone} for a same-day answer."
-            - "Licensed, insured and local. Speak to the crew that does the work, not a call centre."
-            - "{min_job_value}. No hidden fees, no surprise charges on moving day."
-    negative_themes: [aggregators]
-
-  # --------------------------------------------------------- local moving ---
+- key: general_moving
+  label: General Moving
+  markets_seen:
+  - Barrie
+  - Hamilton, Burlington
+  - London
+  - Oakville & Surrounding
+  - Oshawa
+  - Ottawa
+  - Toronto
+  - Vancouver
+  typical_daily_budget: 490.62
+  target_cpa: 75.0
+  bid_strategy: Maximize conversions
+  ad_groups:
+  - key: moving_exact
+    label: Moving - EXACT
+    per_city: false
+    match_types:
+    - exact
+    keywords:
+    - best rated moving companies
+    - top rated movers in {city}
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Same Day Moves Available
+      - Moving Made Simple
+      - Local Moving Company
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - 5-Star Reviews
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - You Can Count On Us
+      - Moving, Packing & Storage
+      descriptions:
+      - Move with confidence! Reliable movers offering professional services across {city}.
+      - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your next move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+  - key: zzz_movers_city
+    label: ZZZ Movers - {city}
+    per_city: true
+    match_types:
+    - exact
+    keywords:
+    - movers {city}
+    - movers forest hill north
+    - movers yorkville
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Same Day Moves Available
+      - Moving Made Simple
+      - Local Moving Company
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - 5-Star Reviews
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - You Can Count On Us
+      - Moving, Packing & Storage
+      descriptions:
+      - Move with confidence! Reliable movers offering professional services across {city}.
+      - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your next move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+  - key: heavy_specialty_items
+    label: Heavy & Specialty Items
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - pool table movers
+    - heavy item movers
+    - gym equipment movers
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Same Day Moves Available
+      - Moving Made Simple
+      - Local Moving Company
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - Top Rated Movers
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - You Can Count On Us
+      - Moving, Packing & Storage
+      descriptions:
+      - Move with confidence! Reliable movers offering professional services across {city}.
+      - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your next move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+  - key: clean_outs
+    label: Clean Outs
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - hoarding clean out company {city}
+    - hoarding cleanupservice
+    - estate cleanouts {city}
+    - hoarding moving service
+    - hoarding cleanupservice {city}
+    - hoarding clean out service {city}
+    - estate cleanouts
+    - whole house clean outs {city}
+    - hoarding clean out service
+    - hoarding clean out company
+    - whole house clean outs
+    - hoarding moving service {city}
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Same Day Moves Available
+      - Hoarding Clean Outs & Movers
+      - Whole House Clean Outs
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - 5-Star Reviews
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - You Can Count On Us
+      - Moving, Packing & Storage
+      descriptions:
+      - Move with confidence! Reliable movers offering professional services across {city}.
+      - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your next move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
   - key: local_moving
-    label: "Local Moving"
-    budget_weight: 30
-    schedule: business_hours
-    ad_groups:
-      - key: movers
-        label: "Movers"
-        per_city: true                # one ad group per city in the brief
-        keyword_themes: [local]
-        patterns:
-          - "{term} {city}"
-          - "{term} in {city}"
-          - "{term} near me"
-          - "{term} cost {city}"
-        rsa:
-          headlines:
-            - "Movers in {city}"
-            - "{city} Moving Company"
-            - "Local Movers, {city}"
-            - "{offer}"
-            - "Licensed & Insured"
-            - "No Hidden Fees"
-            - "Same Crew, Start to End"
-            - "Call {phone}"
-            - "Book Your Move Today"
-            - "{min_job_value}"
-          descriptions:
-            - "Local moves across {city}, done by our own crew. Call {phone}."
-            - "Flat, honest pricing. {min_job_value}. Nothing added on moving day."
-            - "Licensed and insured {city} movers. Book in minutes, move this week."
-            - "Ask for a written quote before you book. No deposit, no obligation."
-          path1: "movers"
-          path2: "{city}"
-    # Local must never eat the long-distance or small-job traffic.
-    negative_themes: [long_distance, small_job, storage, rental, supplies]
-
-  # -------------------------------------------------------- long distance ---
-  - key: long_distance
-    label: "Long Distance"
-    budget_weight: 45                # the high-ticket work gets the money
-    schedule: business_hours_extended
-    ad_groups:
-      - key: long_distance
-        label: "Long Distance"
-        per_city: true
-        keyword_themes: [long_distance]
-        patterns:
-          - "{term}"
-          - "{term} {city}"
-          - "{term} from {city}"
-        rsa:
-          headlines:
-            - "Long Distance Movers"
-            - "Moving Out of {city}?"
-            - "Cross Country Movers"
-            - "Free In-Home Estimate"
-            - "Written Quote, No Deposit"
-            - "Licensed & Insured"
-            - "One Crew, Door to Door"
-            - "Call {phone}"
-            - "Plan Your Move Early"
-          descriptions:
-            - "Moving far from {city}? Get a written, all-in quote before you commit."
-            - "One crew loads and unloads. Your things are never transferred between trucks."
-            - "Licensed, insured and tracked door to door. Call {phone} to book a survey."
-            - "{offer}. Book weeks ahead and lock your date and your price."
-          path1: "long-distance"
-          path2: "movers"
-    # Kill the cheap same-day work before it drags the average job size down.
-    negative_themes: [small_job, storage, rental, supplies]
-
-  # ------------------------------------------------------------ commercial ---
-  - key: commercial
-    label: "Commercial"
-    budget_weight: 15
-    schedule: business_hours
-    ad_groups:
-      - key: office_movers
-        label: "Office Movers"
-        per_city: true
-        keyword_themes: [commercial]
-        patterns:
-          - "{term} {city}"
-          - "{term} near me"
-        rsa:
-          headlines:
-            - "Office Movers, {city}"
-            - "Commercial Moving Co."
-            - "Move After Hours"
-            - "Zero Downtime Moves"
-            - "Licensed & Insured"
-            - "Get a Site Survey"
-            - "Call {phone}"
-            - "Written Fixed Quote"
-          descriptions:
-            - "Office and commercial moves across {city}, run outside your working hours."
-            - "Site survey first, fixed written quote second. No day-of surprises."
-            - "Licensed and insured, with certificates of insurance for your building."
-            - "Call {phone} to book a survey and get your move planned this week."
-          path1: "commercial"
-          path2: "movers"
-    negative_themes: [local, small_job, storage, rental, supplies]
-
-  # ------------------------------------------------- small jobs (capacity) ---
-  # Deliberately last and deliberately capped: this work fills gaps, it does
-  # not set the pace. Off by default; switch on via the brief.
-  - key: small_jobs
-    label: "Small Jobs"
-    budget_weight: 5
-    schedule: business_hours
-    ad_groups:
-      - key: small_jobs
-        label: "Single Item & Van"
-        per_city: true
-        keyword_themes: [small_job]
-        patterns:
-          - "{term} {city}"
-          - "{term} near me"
-        rsa:
-          headlines:
-            - "Single Item Movers"
-            - "Man With a Van, {city}"
-            - "Furniture Moved Today"
-            - "{min_job_value}"
-            - "Call {phone}"
-            - "Licensed & Insured"
-          descriptions:
-            - "One item or one room, moved by insured crew. {min_job_value}."
-            - "Book a two-hour slot in {city}. Call {phone} for today's availability."
-          path1: "small-moves"
-    negative_themes: [long_distance, commercial, storage, rental, supplies]
-
-# Ad schedules referenced by campaigns. Rendered from the brief's opening hours
-# where the schedule is hours-derived.
+    label: Local Moving
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - moving service
+    - best moving companies
+    - 24 7 moving company
+    - household moving service
+    - local movers
+    - last minute movers
+    - 24 7 movers
+    - movers near me
+    - short distance movers
+    - moving companies
+    - moving quotes
+    - local movers near me
+    - find movers
+    - emergency movers
+    - packers and movers near me
+    - home movers
+    - moving company price
+    - moving companies near me
+    - moving company near me
+    - apartment moving company
+    - same day movers
+    - apartment movers
+    - same day moving company
+    - moving services near me
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Same Day Moves Available
+      - Moving Made Simple
+      - Local Moving Company
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - 5-Star Reviews
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - You Can Count On Us
+      - Moving, Packing & Storage
+      descriptions:
+      - Move with confidence! Reliable movers offering professional services across {city}.
+      - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your next move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+  - key: packing_services
+    label: Packing Services
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - packing and moving {city}
+    - packers and movers
+    - packing and moving near me
+    - packing and moving
+    - packers and movers services
+    - packing and moving services
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Same Day Moves Available
+      - Moving Made Simple
+      - Local Moving Company
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - 5-Star Reviews
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - You Can Count On Us
+      - Moving, Packing & Storage
+      descriptions:
+      - Move with confidence! Reliable movers offering professional services across {city}.
+      - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your next move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+  - key: residential_moving
+    label: Residential Moving
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - residential movers near me
+    - residential moving company
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Same Day Moves Available
+      - Moving Made Simple
+      - Local Moving Company
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - 5-Star Reviews
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - You Can Count On Us
+      - Moving, Packing & Storage
+      descriptions:
+      - Move with confidence! Reliable movers offering professional services across {city}.
+      - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your next move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+  - key: white_glove_moving
+    label: White Glove Moving
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - pent house movers
+    - premium moving company
+    - penthouse moving company
+    - penthouse movers
+    - luxury home moving company
+    - white glove moving company
+    - white glove movers
+    - luxury home movers
+    - mansion moving company
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Same Day Moves Available
+      - Moving Made Simple
+      - Local Moving Company
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - 5-Star Reviews
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - You Can Count On Us
+      - Moving, Packing & Storage
+      descriptions:
+      - Move with confidence! Reliable movers offering professional services across {city}.
+      - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your next move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+  - key: removal_companies
+    label: Removal Companies
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - removal service near me
+    - removal companies {city}
+    - removal companies near me
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Same Day Moves Available
+      - Moving Made Simple
+      - Local Moving Company
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - 5-Star Reviews
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - You Can Count On Us
+      - Moving, Packing & Storage
+      descriptions:
+      - Move with confidence! Reliable movers offering professional services across {city}.
+      - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your next move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+- key: commercial_office
+  label: Commercial & Office
+  markets_seen:
+  - Barrie
+  - Hamilton, Burlington
+  - London
+  - Oakville & Surrounding
+  - Oshawa
+  - Ottawa
+  - Toronto
+  - Vancouver
+  typical_daily_budget: 200.0
+  target_cpa: 85.0
+  bid_strategy: Maximize conversions
+  ad_groups:
+  - key: office_commercial
+    label: Office & Commercial
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - factory moving company
+    - business moving companies near me
+    - commercial movers near me
+    - retail storefront movers
+    - hotel movers
+    - government movers and packers
+    - b2b movers
+    - hospital movers
+    - '{city} office movers'
+    - dentist office movers
+    - office movers near me
+    - office moving companies near me
+    - office moving company
+    - business movers near me
+    - best office movers near me
+    - corporate relocation services
+    - retail store movers
+    - professional office movers
+    - storefront movers
+    - government moving company
+    - dental office movers
+    - commercial movers {city}
+    - retail store moving companies
+    - office movers in {city}
+    - retail movers
+    - commercial moving services
+    - warehouse moving company
+    - industrial moving company
+    - commercial moving companies near me
+    - government movers
+    - warehouse movers
+    - best office movers
+    - b2b moving company
+    - business moving
+    - moving companies for offices
+    - business moving company
+    - medical office movers
+    - office removals
+    - commercial moving company
+    - employee relocation
+    - employee relocation company
+    - doctor office movers
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Commercial & Office Movers
+      - Best {city} Office Movers
+      - Office Movers Servicing {city}
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - 5-Star Reviews
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - Commercial Moving Service
+      - Moving, Packing & Storage
+      descriptions:
+      - Commercial, office and warehouse moving. Give us a call for a free estimate.
+      - '{city}’s trusted office movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your office move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+  - key: warehouse
+    label: Warehouse
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - warehouse moving services
+    - warehouse moving company
+    - warehouse rack install
+    - move warehouse racks
+    - warehouse racks moving
+    - warehouse racking moving
+    - warehouse movers
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Commercial & Office Movers
+      - Best {city} Office Movers
+      - Office Movers Servicing {city}
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - 5-Star Reviews
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - Commercial Moving Service
+      - Moving, Packing & Storage
+      descriptions:
+      - Commercial, office and warehouse moving. Give us a call for a free estimate.
+      - '{city}’s trusted office movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your office move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+  - key: last_mile_delivery
+    label: Last Mile Delivery
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - final mile delivery company
+    - best last mile delivery
+    - last mile delivery services
+    - best final mile delivery
+    - last mile delivery company
+    - last mile service near me
+    - last mile delivery service
+    - final mile service near me
+    - final mile delivery services
+    - final mile delivery service
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Last Mile Servicing {LOCATION(City):Your Area}
+      - Last Mile Delivery Services
+      - '{city}''s Most Trusted'
+      - Last Mile Delivery
+      - Delivery Services Near You
+      - 5-Star Reviews
+      - Last Mile Management
+      - Safe & Secure Moving Services
+      descriptions:
+      - Speedy and reliable final mile delivery to keep your customers satisfied.
+      - Delivering on time, every time. Dependable last mile logistics at scale.
+      - Final mile made simple—fast delivery and flexible scheduling. Contact us!
+      - Seamless final mile delivery from hub to home—efficiency you can count on.
+  - key: factory
+    label: Factory
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - factory equipment movers
+    - best factory movers
+    - trade show movers
+    - event moving company
+    - factory equipment moving company
+    - trade show moving company
+    - events and expo moving
+    - tech equipment moving company
+    - expo moving company
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Factory Moving, Event Moving
+      - Best {city} Office Movers
+      - Clear, Upfront Pricing
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - 5-Star Reviews
+      - Get A Free Instant Quote
+      - Large-Scale Move Experts
+      - Trade Show Moving Team
+      - Commercial Moving Service
+      - Event & Expo Movers
+      descriptions:
+      - Commercial, office and warehouse moving. Give us a call for a free estimate.
+      - Your trusted team for seamless event, expo, and industrial relocations.
+      - From factories to trade shows, we move it all—safe, secure, and smooth.
+      - Moving big equipment? We’ve got the crew, tools, and experience to help.
+- key: general_moving_geos
+  label: General Moving | GEOs
+  markets_seen:
+  - Barrie
+  - Hamilton, Burlington
+  - London
+  - Oakville & Surrounding
+  - Oshawa
+  - Ottawa
+  - Toronto
+  - Vancouver
+  typical_daily_budget: 246.88
+  target_cpa: 75.0
+  bid_strategy: Maximize conversions
+  ad_groups:
+  - key: movers_city
+    label: Movers - {city}
+    per_city: true
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - movers {city}
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):{city}}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Same Day Moves Available
+      - Moving Made Simple
+      - Local Moving Company
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - 5-Star Reviews
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - You Can Count On Us
+      - Moving, Packing & Storage
+      descriptions:
+      - Move with confidence! Reliable movers offering professional services across {city}.
+      - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your next move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+- key: last_mile
+  label: Last-mile
+  markets_seen:
+  - Hamilton, Burlington
+  - Oakville & Surrounding
+  - Oshawa
+  - Toronto
+  - Vancouver
+  typical_daily_budget: 200.0
+  target_cpa: 85.0
+  bid_strategy: Maximize conversions
+  ad_groups:
+  - key: last_mile_delivery
+    label: Last Mile Delivery
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - final mile delivery service
+    - best final mile delivery
+    - best last mile delivery
+    - last mile service near me
+    - last mile delivery service
+    - final mile delivery company
+    - last mile delivery company
+    - final mile service near me
+    - final mile delivery services
+    - last mile delivery services
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Last Mile Servicing {LOCATION(City):Your Area}
+      - Last Mile Delivery Services
+      - '{city}''s Most Trusted'
+      - Last Mile Delivery
+      - Delivery Services Near You
+      - 5-Star Reviews
+      - Last Mile Management
+      - Safe & Secure Moving Services
+      descriptions:
+      - Speedy and reliable final mile delivery to keep your customers satisfied.
+      - Delivering on time, every time. Dependable last mile logistics at scale.
+      - Final mile made simple—fast delivery and flexible scheduling. Contact us!
+      - Seamless final mile delivery from hub to home—efficiency you can count on.
+- key: brand
+  label: Brand
+  markets_seen:
+  - All Markets
+  typical_daily_budget: 150.0
+  target_cpa: 30.0
+  bid_strategy: Maximize conversions
+  ad_groups:
+  - key: brand
+    label: Brand
+    per_city: false
+    match_types:
+    - exact
+    - phrase
+    keywords:
+    - moving papa
+    - movingpapa
+    - papa moving
+    - move papa
+    rsa:
+      headlines:
+      - '{KeyWord:Moving Papa}'
+      - Movers Servicing {LOCATION(City):Your Area}
+      - Fair Pricing, No Surprises
+      - '{city}''s Most Trusted Movers'
+      - Same Day Moves Available
+      - Moving Made Simple
+      - Local Moving Company
+      - Your Move, Our Top Priority
+      - Safe & Secure Moving Services
+      - Canadian Owned & Operated
+      - Get A Free Instant Quote
+      - Clear, Upfront Pricing
+      - Packing, Storage & Moving
+      - You Can Count On Us
+      - Moving, Packing & Storage
+      descriptions:
+      - Move with confidence! Reliable movers offering professional services across {city}.
+      - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
+      - On-time, professional movers serving {city}. Make your next move a stress-free one!
+      - We offer fair & honest pricing - no surprises. Call or fill out our form today!
 schedules:
   always:
     kind: all_week
   business_hours:
     kind: from_brief
-  business_hours_extended:
-    kind: from_brief
-    # Long-distance buyers research in the evening; stay on past closing.
-    extend_evening_hours: 3

@@ -1,0 +1,6 @@
+# DO NOT COPY THIS FILE INTO A NEW ACCOUNT.
+#
+# The source client's own brand, blocked in their non-brand campaigns
+# so those campaigns do not steal traffic the Brand campaign wins more
+# cheaply. Regenerate per client from their own brand terms.
+papa

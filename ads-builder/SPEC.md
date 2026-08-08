@@ -1,4 +1,35 @@
-# Corrected spec — from the playbook
+# Corrected spec — from the playbook, then from the account
+
+> **Update — the real account has now been read** (Editor export, 65,075 rows,
+> 31 campaigns). Most of the playbook held up. Four things below are wrong and
+> are corrected here rather than silently edited, because the difference between
+> a document about an account and the account itself is the whole point.
+>
+> | Playbook said | The account actually does |
+> | --- | --- |
+> | Negatives live in a shared library list | They are **pasted per campaign** — 28,962 phrase negative rows for 947 distinct terms across 31 campaigns. The shared set exists but holds almost nothing. |
+> | `utm_medium=paid&utm_keyword=...` | `{lpurl}?campaign={campaignid}&content={creative}&keyword={keyword}` — no `utm_` prefixes at all |
+> | 5–15 keywords per ad group | Median **7**, so the rule holds for most — but the flagship *Local Moving* group carries **194**. The discipline is real; the hard cap is not. |
+> | 600–700 universal negatives | **947** distinct, of which 895 are safely reusable |
+>
+> **And one thing the playbook never mentions, which matters more than any of
+> the above:** the account's negative list contains **51 place names and its own
+> brand**. Each market blocks the other markets' cities so campaigns do not
+> cannibalise each other, and blocks "papa" so General Moving does not steal from
+> Brand. Both are correct for *that* client and destructive for anyone else —
+> copy the list to a Burlington client and you block them from the word
+> "burlington". `extract_account.py` now quarantines these into
+> `negatives-market-separation.txt` and `negatives-own-brand.txt`, which carry a
+> do-not-copy header, and the builder regenerates the equivalents per client.
+>
+> Confirmed exactly as described: `Market | Search | Theme` naming, tCPA per
+> theme (General Moving 75, Commercial & Office 85, Last-mile 85, Brand 30,
+> PMax 31.25), Search-only networks, **Location of presence** targeting,
+> postal-code geo (10,367 negative locations), DKI `{KeyWord:Moving Papa}` and
+> `{LOCATION(City):Your Area}`, one RSA per ad group at Excellent strength, and
+> a call asset on a tracking number distinct from the site's public one.
+
+
 
 The v0 builder was written before the playbook existed. It guessed at structure
 and guessed wrong in ways that would have cost money. This is the corrected
