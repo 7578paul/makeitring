@@ -254,7 +254,10 @@ def _allocate_budget(plan: Plan, specs: list[dict], brief: dict, blueprint: dict
     min_daily = float(budget_cfg.get("min_daily", 0))
     overrides = (brief.get("budget", {}).get("weights") or {})
 
-    weights = {s["key"]: float(overrides.get(s["key"], s.get("budget_weight", 1))) for s in specs}
+    # An extracted blueprint has no hand-set weights, so fall back to what the
+    # source account actually spent on each theme.
+    weights = {s["key"]: float(overrides.get(s["key"],
+               s.get("budget_weight") or s.get("typical_daily_budget") or 1)) for s in specs}
     total_weight = sum(weights.values())
     if total_weight <= 0:
         raise BriefError("all campaign budget weights are zero")
