@@ -13,7 +13,11 @@ import sys
 from datetime import date
 from pathlib import Path
 
+from src.competitors import api_key_from_env, build_layer2
 from src.compiler import BriefError, compile_plan, load_yaml
+from src.landing import write_site
+from src.model import NegativeKeyword
+from src.package import write_checklist, write_summary
 from src.editor_export import write_editor_file, write_shared_negatives
 from src.exporters import export_build_sheet, export_editor_csv
 from src.preflight import check as preflight_check, load_negatives, resolve as preflight_resolve
@@ -82,10 +86,40 @@ def main() -> int:
         print("\nerrors present — no CSV written. Fix, or re-run with --force.", file=sys.stderr)
         return 1
 
+    # The competitor wall has to be built BEFORE the files are written,
+    # or it is added to a plan that has already been exported.
+    # Layer 2: the competitor wall for THIS market. An inherited one is worth
+    # nothing here — a Toronto list contains no Miami movers.
+    names_file = args.brief.parent / "competitor-names.txt"
+    layer2 = build_layer2(
+        cities=cities,
+        service_terms=brief.get("landing", {}).get("services") or ["movers"],
+        client_keywords=[k for _c, _g, k in keywords],
+        brand_terms=brand_terms,
+        api_key=api_key_from_env(),
+        names_file=names_file,
+    )
+    if layer2["negatives"]:
+        for campaign in plan.campaigns:
+            campaign.negatives.extend(
+                NegativeKeyword(t, "exact", source="competitor") for t in layer2["negatives"])
+        print(f"\ncompetitor wall: {len(layer2['negatives'])} exact negatives "
+              f"from {layer2['source']}", file=sys.stderr)
+    for problem in layer2["problems"]:
+        print(f"   competitor source: {problem}", file=sys.stderr)
+    for line in layer2["rejected"][:6]:
+        print(f"   rejected {line}", file=sys.stderr)
+
     for path in export_editor_csv(plan, out_dir):
         print(f"  {path}")
     print(f"  {write_editor_file(plan, out_dir, ROOT / 'data')}   <- import this one")
+
     print(f"  {write_shared_negatives(plan, out_dir)}")
+
+    for path in write_site(brief, out_dir / "site"):
+        print(f"  {path}")
+    print(f"  {write_summary(plan, out_dir, layer2=layer2, removed_negatives=removed)}")
+    print(f"  {write_checklist(plan, brief, out_dir)}")
 
     print("\nNext: import into Google Ads Editor, review, post. Everything lands paused.")
     return 0
