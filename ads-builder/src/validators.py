@@ -91,7 +91,9 @@ def validate(plan: Plan) -> list[Finding]:
 
                 # A keyword in two ad groups splits its own data and makes the
                 # search terms report unreadable. Report it; don't silently drop.
-                fingerprint = (keyword.text.lower(), keyword.match_type)
+                # Scoped by market: two markets bidding the same term do not
+                # compete, because presence targeting keeps them apart.
+                fingerprint = (campaign.market, keyword.text.lower(), keyword.match_type)
                 if fingerprint in seen_keywords and seen_keywords[fingerprint] != gwhere:
                     warn(
                         gwhere,

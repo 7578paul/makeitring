@@ -106,8 +106,6 @@ campaigns:
     - exact
     keywords:
     - movers {city}
-    - movers forest hill north
-    - movers yorkville
     rsa:
       headlines:
       - '{KeyWord:{business}}'
@@ -600,6 +598,8 @@ campaigns:
       - '{city}’s trusted movers for a smooth, stress-free moving experience every time.'
       - On-time, professional movers serving {city}. Make your next move a stress-free one!
       - We offer fair & honest pricing - no surprises. Call or fill out our form today!
+  all_markets: true
+  note: one campaign across every market, as the source account runs it
 schedules:
   always:
     kind: all_week

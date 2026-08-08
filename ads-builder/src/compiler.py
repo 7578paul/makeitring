@@ -164,20 +164,92 @@ def compile_brief(brief: dict[str, Any], blueprint_dir: Path) -> Plan:
     markets = brief.get("markets") or [{"name": cities[0], "cities": cities}]
     fmt = defaults.get("campaign_name_format", "{code} | Search | {label} | EN")
 
+    # Budget is allocated market first, then split inside each market across the
+    # themes that market actually runs. Doing it the other way round leaves a
+    # market's money unspent whenever it skips a theme.
+    def theme_weight(spec) -> float:
+        """A theme's share of the whole account, not of one market.
+
+        `typical_daily_budget` is what ONE market spent on that theme, so a theme
+        running in eight markets carries eight times the weight of one that runs
+        once. Comparing the per-market figures directly hands an account-wide
+        campaign like Brand a market's entire share — it took 17% here, where the
+        source account gives it under 2%.
+        """
+        base = float(spec.get("budget_weight") or spec.get("typical_daily_budget") or 1)
+        return base * max(1, len(spec.get("markets_seen") or []))
+
+    days = float(blueprint.get("budget", {}).get("days_per_month", 30.4))
+    min_daily = float(blueprint.get("budget", {}).get("min_daily", 0))
+
+    global_specs = [s for s in specs if s.get("all_markets")]
+    market_specs = [s for s in specs if not s.get("all_markets")]
+
+    # Account-wide campaigns take their share off the top; the markets divide
+    # what is left.
+    total_weight = sum(theme_weight(s) for s in specs) or 1
+    global_fraction = sum(theme_weight(s) for s in global_specs) / total_weight
+    account_daily = monthly_budget / days
+
+    stated = {}
+    for market in markets:
+        name = market["name"] if isinstance(market, dict) else str(market)
+        stated[name] = float(market.get("monthly_budget") or 0) if isinstance(market, dict) else 0.0
+
+    if sum(stated.values()) and abs(sum(stated.values()) - monthly_budget) > 1:
+        plan.warn(f"per-market budgets total {sum(stated.values()):,.0f} but "
+                  f"budget.monthly_total says {monthly_budget:,.0f} — using the "
+                  f"per-market figures")
+
+    def allocate(daily: float, chosen: list) -> dict:
+        weights = {s["key"]: theme_weight(s) for s in chosen}
+        total = sum(weights.values()) or 1
+        out = {}
+        for key, weight in weights.items():
+            amount = round(daily * weight / total, 2)
+            if min_daily and amount < min_daily:
+                plan.warn(f"{key}: raised to the {min_daily:.0f}/day floor")
+                amount = min_daily
+            out[key] = amount
+        return out
+
     for market in markets:
         market_name = market["name"] if isinstance(market, dict) else str(market)
         market_cities = (market.get("cities") if isinstance(market, dict) else None) or cities
+        market_geo = (market.get("targets") if isinstance(market, dict) else None) or geo_targets
+        skip = set((market.get("skip_campaigns") if isinstance(market, dict) else None) or [])
 
-        for spec in specs:
-            campaign = _build_campaign(
+        chosen = [s for s in market_specs if s["key"] not in skip]
+        if not chosen:
+            continue
+
+        if stated.get(market_name):
+            market_daily = (stated[market_name] / days) * (1 - global_fraction)
+        else:
+            market_daily = (account_daily * (1 - global_fraction)) / len(markets)
+
+        allocations = allocate(market_daily, chosen)
+        for spec in chosen:
+            plan.campaigns.append(_build_campaign(
                 spec=spec, plan=plan, brief=brief, blueprint=blueprint, themes=themes,
                 defaults=defaults, schedules=schedules, trade=trade, fmt=fmt,
                 market_name=market_name, market_cities=market_cities,
-                geo_targets=geo_targets, base_context=base_context,
-                daily_budget=budgets[spec["key"]] / len(markets),
+                geo_targets=market_geo, base_context=base_context,
+                daily_budget=allocations[spec["key"]],
                 account_negatives=account_negatives,
-            )
-            plan.campaigns.append(campaign)
+            ))
+
+    if global_specs:
+        allocations = allocate(account_daily * global_fraction, global_specs)
+        for spec in global_specs:
+            plan.campaigns.append(_build_campaign(
+                spec=spec, plan=plan, brief=brief, blueprint=blueprint, themes=themes,
+                defaults=defaults, schedules=schedules, trade=trade, fmt=fmt,
+                market_name="All Markets", market_cities=cities,
+                geo_targets=geo_targets, base_context=base_context,
+                daily_budget=allocations[spec["key"]],
+                account_negatives=account_negatives,
+            ))
 
     _dedupe_keywords(plan)
     return plan
@@ -200,14 +272,18 @@ def _dedupe_keywords(plan) -> None:
         theme = set(re.findall(r"[a-z]+", campaign_name.lower()))
         return len(words & theme)
 
-    placements: dict[str, list[tuple]] = {}
+    # Scoped to a market. Toronto and Vancouver can both bid on "local movers"
+    # without competing, because presence-based geo targeting separates them —
+    # deduping across markets would strip every city but the first.
+    placements: dict[tuple[str, str], list[tuple]] = {}
     for campaign in plan.campaigns:
         for group in campaign.ad_groups:
             for keyword in group.keywords:
-                placements.setdefault(keyword.text.lower(), []).append((campaign, group, keyword))
+                placements.setdefault((campaign.market, keyword.text.lower()),
+                                      []).append((campaign, group, keyword))
 
     moved = 0
-    for text, spots in placements.items():
+    for (market, text), spots in placements.items():
         if len(spots) < 2:
             continue
         # Affinity first; then the more specific campaign, measured by how many
@@ -222,7 +298,7 @@ def _dedupe_keywords(plan) -> None:
                 group.keywords = [k for k in group.keywords if k is not keyword]
                 moved += 1
         plan.warn(f'"{text}" kept in {best[0].name} › {best[1].name}, '
-                  f"removed from {len(spots) - 1} other ad group(s)")
+                  f"removed from {len(spots) - 1} other ad group(s) in {market}")
 
     # An ad group whose every keyword belonged somewhere else has nothing left
     # to do, and an empty ad group cannot serve.
@@ -245,6 +321,7 @@ def _build_campaign(*, spec, plan, brief, blueprint, themes, defaults, schedules
         campaign = Campaign(
             key=spec["key"],
             name=_campaign_name(trade, spec["label"], fmt, market_name),
+            market=market_name,
             campaign_type=defaults.get("campaign_type", "Search"),
             daily_budget=daily_budget,
             bid_strategy=spec.get("bid_strategy", defaults.get("bid_strategy")),

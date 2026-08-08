@@ -102,6 +102,7 @@ class ScheduleSlot:
 class Campaign:
     key: str
     name: str
+    market: str = ""
     campaign_type: str = "Search"
     daily_budget: float = 0.0
     bid_strategy: str = "Maximize conversions"
