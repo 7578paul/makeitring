@@ -112,7 +112,7 @@ def main() -> int:
 
     for path in export_editor_csv(plan, out_dir):
         print(f"  {path}")
-    print(f"  {write_editor_file(plan, out_dir, ROOT / 'data')}   <- import this one")
+    print(f"  {write_editor_file(plan, out_dir, ROOT / 'data', brief)}   <- import this one")
 
     print(f"  {write_shared_negatives(plan, out_dir)}")
 

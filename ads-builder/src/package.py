@@ -135,6 +135,10 @@ def write_checklist(plan: Plan, brief: dict, out_dir: Path) -> Path:
         box(False, "Tools → Shared library → Negative keyword lists → import "
                    "`shared_negative_list.csv`, attach to all campaigns"),
         box(False, f"Add the call asset using the **tracking** number, not {phone or 'the public number'}"),
+        box(bool((brief.get("assets", {}) or {}).get("images")),
+            "Add at least 3 image assets — Google marks a Search campaign down without them. "
+            "Photos of real crews and trucks beat stock. Put their paths in the brief under "
+            "`assets.images`, or add them in the Google Ads UI"),
         box(False, "Check the ad schedule matches the hours someone actually answers"),
         "",
         "## 5. Landing page",

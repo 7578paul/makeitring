@@ -726,7 +726,8 @@ function editorFile(plan){
     (c.audiences || []).forEach(seg => row({'Campaign': c.name, 'Audience segment': seg}));
 
     for (const g of c.groups){
-      row({'Campaign': c.name, 'Ad Group': g.name, 'Ad Group Status': 'Enabled'});
+      row({'Campaign': c.name, 'Ad Group': g.name, 'Ad Group Status': 'Enabled',
+           'Max CPC': '0.01'});  /* Editor wants a bid even when smart bidding ignores it */
       g.keywords.forEach(k => row({'Campaign': c.name, 'Ad Group': g.name,
         'Keyword': k.text, 'Criterion Type': MATCH[k.match] || 'Phrase',
         'Status': 'Enabled', 'Final URL': k.url}));

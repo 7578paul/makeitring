@@ -26,6 +26,22 @@ NEGATIVE_LABELS = {
 }
 
 
+def load_geo_ids(data_dir: Path) -> dict[str, str]:
+    """Google's geo criterion IDs, keyed by the location name Editor shows.
+
+    Without an ID a location imports as "unresolved" — Editor cannot tell which
+    Miami you mean until it asks Google. Supplying the ID makes it exact and
+    removes the warning. The shipped file is harvested from the source account;
+    a market it does not cover needs Google's published geotargets CSV.
+    """
+    path = data_dir / "geo-targets.csv"
+    if not path.exists():
+        return {}
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        return {(row["Location"] or "").strip(): (row["ID"] or "").strip()
+                for row in csv.DictReader(handle) if row.get("Location")}
+
+
 def load_header(data_dir: Path) -> list[str]:
     text = (data_dir / "editor_schema_headers.txt").read_text(encoding="utf-8")
     return text.rstrip("\r\n").split(DELIMITER)
@@ -45,7 +61,8 @@ def clean(value, *, keep_newlines: bool = False) -> str:
     return " ".join(text.split())
 
 
-def rows_for(plan: Plan) -> list[dict[str, str]]:
+def rows_for(plan: Plan, geo_ids: dict[str, str] | None = None,
+             images: list[str] | None = None) -> list[dict[str, str]]:
     """Flatten the plan into Editor rows, in the order Editor expects to meet
     them: a campaign before its ad groups, an ad group before its keywords."""
     out: list[dict[str, str]] = []
@@ -71,10 +88,16 @@ def rows_for(plan: Plan) -> list[dict[str, str]]:
         out.append(row)
 
         for location in campaign.locations:
-            out.append({"Campaign": campaign.name, "Location": location})
+            row = {"Campaign": campaign.name, "Location": location}
+            if geo_id := (geo_ids or {}).get(location):
+                row["ID"] = geo_id
+            out.append(row)
         for location in campaign.excluded_locations:
-            out.append({"Campaign": campaign.name, "Location": location,
-                        "Criterion Type": "Campaign Negative"})
+            row = {"Campaign": campaign.name, "Location": location,
+                   "Criterion Type": "Campaign Negative"}
+            if geo_id := (geo_ids or {}).get(location):
+                row["ID"] = geo_id
+            out.append(row)
 
         for slot in campaign.schedule:
             out.append({"Campaign": campaign.name,
@@ -108,6 +131,10 @@ def rows_for(plan: Plan) -> list[dict[str, str]]:
                             "Country of Phone": asset.country,
                             "Conversion Action": "Use account settings"})
 
+        for image in (images or []):
+            out.append({"Campaign": campaign.name, "Image": image,
+                        "Asset name": Path(image).stem})
+
         for segment in campaign.audience_segments:
             out.append({"Campaign": campaign.name, "Audience segment": segment})
 
@@ -117,8 +144,10 @@ def rows_for(plan: Plan) -> list[dict[str, str]]:
                 "Ad Group": group.name,
                 "Ad Group Status": group.status,
             }
-            if group.max_cpc:
-                group_row["Max CPC"] = f"{group.max_cpc:.2f}"
+            # Editor wants a bid even under smart bidding, where it is ignored.
+            # The source account parks every ad group at 0.01 — low enough that
+            # it cannot overspend if smart bidding is ever switched off.
+            group_row["Max CPC"] = f"{group.max_cpc:.2f}" if group.max_cpc else "0.01"
             out.append(group_row)
 
             for keyword in group.keywords:
@@ -150,10 +179,21 @@ def rows_for(plan: Plan) -> list[dict[str, str]]:
     return out
 
 
-def write_editor_file(plan: Plan, out_dir: Path, data_dir: Path) -> Path:
+def write_editor_file(plan: Plan, out_dir: Path, data_dir: Path,
+                      brief: dict | None = None) -> Path:
     header = load_header(data_dir)
     known = set(header)
-    rows = rows_for(plan)
+    geo_ids = load_geo_ids(data_dir)
+    images = copy_images(brief or {}, out_dir)
+    if images:
+        print(f"  {len(images)} photo(s) copied for image assets")
+    rows = rows_for(plan, geo_ids, images)
+
+    unresolved = [loc for c in plan.campaigns for loc in c.locations if loc not in geo_ids]
+    if unresolved:
+        print(f"  note: {len(set(unresolved))} location(s) have no Google geo ID and will "
+              f"import as unresolved until posted: {', '.join(sorted(set(unresolved))[:3])}"
+              f"{' ...' if len(set(unresolved)) > 3 else ''}")
 
     # A column we invent is a column Editor ignores — better to know now.
     unknown = {key for row in rows for key in row} - known
@@ -173,6 +213,35 @@ def write_editor_file(plan: Plan, out_dir: Path, data_dir: Path) -> Path:
                              for key, value in row.items()})
 
     return path
+
+
+def copy_images(brief: dict, out_dir: Path) -> list[str]:
+    """Copy the client's photos next to the CSV and return their relative paths.
+
+    Editor resolves image assets by path relative to the import file — the way
+    the source export ships an images/ folder beside data.csv. Photos have to
+    come from the client; nothing here can invent them.
+    """
+    import shutil
+
+    sources = (brief.get("assets", {}) or {}).get("images") or []
+    if not sources:
+        return []
+
+    images_dir = out_dir / "images"
+    images_dir.mkdir(parents=True, exist_ok=True)
+    copied: list[str] = []
+
+    for source in sources:
+        path = Path(source).expanduser()
+        if not path.is_file():
+            print(f"  note: photo not found, skipped — {source}")
+            continue
+        target = images_dir / path.name
+        shutil.copy2(path, target)
+        copied.append(f"images/{path.name}")
+
+    return copied
 
 
 def write_shared_negatives(plan: Plan, out_dir: Path) -> Path:
