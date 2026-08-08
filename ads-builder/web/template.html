@@ -653,7 +653,7 @@ function editorFile(plan){
   for (const c of plan.campaigns){
     const camp = {
       'Campaign': c.name, 'Campaign Type': 'Search', 'Networks': c.networks,
-      'Budget': c.budget.toFixed(2), 'Budget type': 'Daily', 'Languages': 'English',
+      'Budget': c.budget.toFixed(2), 'Budget type': 'Daily', 'Languages': 'en',
       'Bid Strategy Type': c.bid, 'Ad rotation': c.adRotation || 'Optimize for clicks',
       'Targeting method': c.geoType, 'Exclusion method': c.geoType,
       'Campaign Status': c.status
@@ -669,13 +669,13 @@ function editorFile(plan){
       'Criterion Type': NEG[n.match] || NEG.phrase, 'Status': 'Enabled'}));
 
     for (const g of c.groups){
-      row({'Campaign': c.name, 'Ad Group': g.name, 'Ad Group Status': g.status});
+      row({'Campaign': c.name, 'Ad Group': g.name, 'Ad Group Status': 'Enabled'});
       g.keywords.forEach(k => row({'Campaign': c.name, 'Ad Group': g.name,
         'Keyword': k.text, 'Criterion Type': MATCH[k.match] || 'Phrase',
-        'Status': g.status, 'Final URL': k.url}));
+        'Status': 'Enabled', 'Final URL': k.url}));
       for (const a of g.ads){
         const ad = {'Campaign': c.name, 'Ad Group': g.name, 'Ad type': 'Responsive search ad',
-          'Final URL': a.url, 'Path 1': a.path1, 'Path 2': a.path2, 'Status': g.status};
+          'Final URL': a.url, 'Path 1': a.path1, 'Path 2': a.path2, 'Status': 'Enabled'};
         a.headlines.forEach((h,i) => ad[`Headline ${i+1}`] = h);
         a.descriptions.forEach((d,i) => ad[`Description ${i+1}`] = d);
         row(ad);

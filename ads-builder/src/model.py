@@ -89,7 +89,7 @@ class Campaign:
     max_cpc: Optional[float] = None
     status: str = "Paused"
     networks: str = "Google search"
-    language: str = "English"
+    language: str = "en"   # Editor rejects "English" — it wants the code
     locations: list[str] = field(default_factory=list)
     excluded_locations: list[str] = field(default_factory=list)
     location_target_type: str = "Location of presence"

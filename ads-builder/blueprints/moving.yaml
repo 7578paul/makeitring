@@ -6,7 +6,7 @@ defaults:
   campaign_type: Search
   campaign_name_format: '{market} | Search | {label}'
   networks: Google search
-  language: English
+  language: en
   bid_strategy: Maximize conversions
   location_target_type: Location of presence
   location_exclusion_type: Location of presence

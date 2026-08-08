@@ -127,6 +127,9 @@ def write_checklist(plan: Plan, brief: dict, out_dir: Path) -> Path:
         "",
         box(False, "Google Ads Editor → Account → Import → From file → "
                    "`campaigns_editor_import.csv`"),
+        box(False, "**Confirm the EU political ads declaration** — Google blocks posting "
+                   "until this is answered once per account. Settings → account-level "
+                   "policy, or the prompt Editor shows"),
         box(False, "Review every campaign in Editor. **Do not post until it reads correctly**"),
         box(False, "Post. Everything arrives paused"),
         box(False, "Tools → Shared library → Negative keyword lists → import "
@@ -151,10 +154,26 @@ def write_checklist(plan: Plan, brief: dict, out_dir: Path) -> Path:
         box(False, "Scale budget in steps of 20% or less, only once CPA holds"),
         box(False, "Never change target CPA and budget on the same day"),
         "",
+        "## Warnings you should ignore",
+        "",
+        "Google will show these after import. They are it selling against the",
+        "strategy, not faults in the build — every one is a deliberate choice:",
+        "",
+        "- **\"Search Partners disabled. Enable it to reach more customers.\"** "
+        "Off on purpose. Search Partners is a different, worse audience.",
+        "- **\"Display Network expansion disabled.\"** Off on purpose. It spends "
+        "search budget on display placements that do not book jobs.",
+        "- **\"You don't have conversion tracking enabled.\"** Correct for now — "
+        "section 2 above is how it gets fixed. Do not enable campaigns until it is.",
+        "",
+        "The one real blocker is the EU political ads declaration, which Google",
+        "requires once per account before anything can be posted.",
+        "",
         "---",
         "",
         f"Generated for {name}. {len(plan.campaigns)} campaigns, "
-        f"{plan.daily_budget_total:,.2f} {plan.currency}/day, all paused.",
+        f"{plan.daily_budget_total:,.2f} {plan.currency}/day. Campaigns paused, "
+        f"ad groups enabled — so going live is one switch per campaign.",
     ]
 
     path = out_dir / "launch_checklist.md"

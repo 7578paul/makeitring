@@ -189,7 +189,7 @@ def _build_campaign(*, spec, plan, brief, blueprint, themes, defaults, schedules
             max_cpc=spec.get("max_cpc"),
             status=defaults.get("status", "Paused"),
             networks=defaults.get("networks", "Google search"),
-            language=defaults.get("language", "English"),
+            language=defaults.get("language", "en"),
             locations=list(geo_targets),
             excluded_locations=list(brief.get("service_area", {}).get("exclude") or []),
             location_target_type=defaults.get("location_target_type", "Location of presence"),
@@ -222,7 +222,7 @@ def _build_campaign(*, spec, plan, brief, blueprint, themes, defaults, schedules
                     default_matches=default_matches,
                     final_url=final_url,
                     max_cpc=spec.get("max_cpc"),
-                    status=campaign.status,
+                    status="Enabled",
                 )
                 if group:
                     campaign.ad_groups.append(group)

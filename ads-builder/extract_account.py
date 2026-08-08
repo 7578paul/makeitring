@@ -377,7 +377,7 @@ def main() -> int:
             "campaign_type": "Search",
             "campaign_name_format": "{market} | Search | {label}",
             "networks": settings.get("networks", "Google search"),
-            "language": "English",
+            "language": "en",
             "bid_strategy": "Maximize conversions",
             "location_target_type": settings.get("targeting_method", "Location of presence"),
             "location_exclusion_type": settings.get("exclusion_method", "Location of presence"),
