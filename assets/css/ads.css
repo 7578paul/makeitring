@@ -208,6 +208,67 @@ details[open] .openhint { display: none; }
   color: #ddd9d5 !important;
   border-left-color: #fff !important;
   text-align: left;
-  margin-left: auto;
-  margin-right: auto;
+  /* The note sets margin and max-width inline, and an inline shorthand beats a
+     stylesheet longhand, so it was pinned to the left edge of a centred card.
+     540px is the picker's width, so the two now share their side edges. */
+  max-width: 540px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Hero testimonials: on cleaning-ads the two client videos stand in for the
+   photo stack, so the section that used to repeat them below is gone. They
+   keep the photos' framing — white mount, hairline border, soft shadow — but
+   are staggered rather than tilted, since rotating a video leaves its native
+   controls sitting askew once it starts playing. */
+.herovids {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+  min-width: 0;
+}
+.herovids > figure {
+  margin: 0;
+  background: #fff;
+  border: 1px solid #e5e5e2;
+  border-radius: 22px;
+  padding: 8px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .08);
+}
+.herovids > figure:nth-child(2) { transform: translateY(24px); }
+/* .vid is centred and capped at 300px for the two-up section layout; in the
+   hero it has to fill its own column instead. */
+.herovids .vid { max-width: none; margin: 0; border-radius: 16px; }
+
+@media (max-width: 900px) {
+  .herovids { max-width: 460px; }
+}
+/* A fixed 66px button swallows 40% of the frame once the column narrows, so
+   size it against the frame instead of the viewport: the hero video width does
+   not track the viewport linearly, it jumps when the hero folds to one column. */
+.herovids .vid-play {
+  width: 26%;
+  height: auto;
+  min-width: 32px;
+  max-width: 58px;
+  aspect-ratio: 1;
+}
+.herovids .vid-play svg { width: 42%; height: 42%; margin-left: 4%; }
+
+/* Two portrait frames side by side leave each about 148px wide on a phone,
+   which is too small to read a face. Below 560px they go one per row and get
+   capped so a 9:16 frame does not run away down the page; the stagger goes
+   with them, since it only means anything across a row. */
+@media (max-width: 560px) {
+  .herovids {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    max-width: 262px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .herovids > figure { border-radius: 18px; padding: 6px; }
+  .herovids > figure:nth-child(2) { transform: none; }
+  .herovids .vid { border-radius: 13px; }
 }
