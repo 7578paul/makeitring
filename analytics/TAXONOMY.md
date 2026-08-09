@@ -22,7 +22,7 @@ GA4 property `G-7NRTMS7Y1R`. Site deploys from Cloudflare Workers.
 | --- | --- | --- |
 | `service` | `local`, `moving`, `cleaning`, `restoration` | the page the visitor came through |
 | `page_type` | `home`, `service`, `ads`, `ads_legacy`, `booking`, `thank_you`, `content`, `legal` | the page itself |
-| `spend_band` | `0_5k`, `5_10k`, `10k_plus`, `unset` | the monthly-spend dropdown |
+| `spend_band` | `3_5k`, `5_10k`, `10k_plus`, `unset` | the monthly-spend dropdown |
 | `form_id` | `home`, `booking` | which of the two forms was used |
 
 `service` follows the visitor. Someone landing on `cleaning-ads.html` and booking

@@ -56,11 +56,11 @@
         <p style="font-size:clamp(17.5px, 4vw, 19.5px);line-height:1.55;color:#555;margin:22px 0 26px;max-width:34em;text-wrap:pretty">We run the Google Ads for local service companies. Moving, cleaning and restoration. You get more calls from people ready to book, and a straight answer on what each one cost.</p>
         <div style="border-top:1px solid #e4e4e1;padding-top:20px">
           <p style="font-size:clamp(18.5px, 4.2vw, 20.5px);font-weight:700;letter-spacing:-0.02em;color:#111;margin:0 0 12px">What are you spending a month?</p>
-          <div class="inputrow" style="background:#f1f1ef">
+          <p class="qual-note" style="display:flex;align-items:center;gap:8px;font-size:15px;line-height:1.4;font-weight:600;color:#6b6b6b;background:#f1f1ef;border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:9px 13px;margin:0 0 12px;max-width:520px"><span aria-hidden="true" style="flex:0 0 auto;font-size:15px">&#9432;</span><span>For local service businesses spending $3k+/month on ads.</span></p><div class="inputrow" style="background:#f1f1ef">
             <span class="selectwrap">
               <select data-spend-select aria-label="Monthly ad spend">
                 <option value="">Choose your monthly spend</option>
-                <option value="0-5k">$0 to $5k a month</option>
+                <option value="3-5k">$3k to $5k a month</option>
                 <option value="5-10k">$5k to $10k a month</option>
                 <option value="10k+">$10k+ a month</option>
               </select>
@@ -314,7 +314,7 @@
           <label style="display:grid;gap:7px"><span style="font-size:15.5px;font-weight:600;color:#666">Company</span><input name="company" data-label="company" required autocomplete="organization" style="height:52px;font-size:18px;padding:0 16px;border:1.5px solid #d8d8d4;border-radius:999px;background:#fff;color:#111;outline:none"></label>
           <label style="display:grid;gap:7px"><span style="font-size:15.5px;font-weight:600;color:#666">Phone</span><input name="phone" type="tel" data-label="phone number" required autocomplete="tel" style="height:52px;font-size:18px;padding:0 16px;border:1.5px solid #d8d8d4;border-radius:999px;background:#fff;color:#111;outline:none"></label>
           <label style="display:grid;gap:7px"><span style="font-size:15.5px;font-weight:600;color:#666">Email</span><input name="email" type="email" data-label="email address" required autocomplete="email" style="height:52px;font-size:18px;padding:0 16px;border:1.5px solid #d8d8d4;border-radius:999px;background:#fff;color:#111;outline:none"></label>
-          <label style="display:grid;gap:7px"><span style="font-size:15.5px;font-weight:600;color:#666">Monthly ad spend</span><select name="spend" data-label="monthly ad spend" data-spend-fill required style="height:52px;font-size:18px;padding:0 16px;border:1.5px solid #d8d8d4;border-radius:999px;background:#fff;color:#111;outline:none;appearance:none;-webkit-appearance:none"><option value="">Choose your monthly spend</option><option value="0-5k">$0 to $5k a month</option><option value="5-10k">$5k to $10k a month</option><option value="10k+">$10k+ a month</option></select></label>
+          <label style="display:grid;gap:7px"><span style="font-size:15.5px;font-weight:600;color:#666">Monthly ad spend</span><select name="spend" data-label="monthly ad spend" data-spend-fill required style="height:52px;font-size:18px;padding:0 16px;border:1.5px solid #d8d8d4;border-radius:999px;background:#fff;color:#111;outline:none;appearance:none;-webkit-appearance:none"><option value="">Choose your monthly spend</option><option value="3-5k">$3k to $5k a month</option><option value="5-10k">$5k to $10k a month</option><option value="10k+">$10k+ a month</option></select></label>
           <button type="submit" style="width:100%;height:54px;background:var(--accent);color:#fff;border:0;border-radius:999px;font-weight:700;font-size:18px;cursor:pointer">Book a call</button>
           <p style="font-size:16px;line-height:1.55;color:#999;margin:0">One call. No sequence, no newsletter. <a href="privacy.html" style="text-decoration:underline">Privacy policy</a>.</p>
         </form>
