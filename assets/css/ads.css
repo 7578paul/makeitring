@@ -199,3 +199,15 @@ details[open] .openhint { display: none; }
   header img[src*="logo-make-it-ring"] { height: 24px !important; }
   footer img[src*="logo-make-it-ring"] { height: 20px !important; }
 }
+
+/* Qualification note above the spend picker. It is guidance, not an option, so
+   it sits outside the control with a rule down its edge. The copy is set inline;
+   the dark call to action needs the inverse, hence !important. */
+#cta .qual-note {
+  background: rgba(255, 255, 255, .10) !important;
+  color: #ddd9d5 !important;
+  border-left-color: #fff !important;
+  text-align: left;
+  margin-left: auto;
+  margin-right: auto;
+}

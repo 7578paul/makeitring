@@ -292,7 +292,7 @@
   // Spend values are normalised so the display wording can change without
   // splitting the reporting history.
   function spendBand(value) {
-    if (value === "0-5k") return "0_5k";
+    if (value === "3-5k") return "3_5k";
     if (value === "5-10k") return "5_10k";
     if (value === "10k+") return "10k_plus";
     return "unset";
