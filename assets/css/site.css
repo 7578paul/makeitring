@@ -77,8 +77,10 @@ details[open] .plus { transform: rotate(45deg); }
 .gobtn:hover { opacity: .85; }
 @media (max-width: 520px) { .inputrow { border-radius: 20px; } .selectwrap { flex: 1 1 100%; } .gobtn { flex: 1 1 100%; } }
 
-.assurances { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 20px; }
-@media (min-width: 620px) { .assurances { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); } }
+/* Without the grey pills these are just a tick and a word, so they need real
+   space between them rather than a grid cell each to sit inside. */
+.assurances { display: flex; flex-wrap: wrap; gap: 12px 30px; margin-top: 26px; }
+.assurances > span { flex: 0 1 auto; min-width: 0; }
 .navlinks { display: none; }
 @media (min-width: 1000px) { .navlinks { display: flex; align-items: center; gap: 22px; font-size:16.5px; font-weight: 500; } }
 .navphone { display: none; }
@@ -235,9 +237,7 @@ details[open] .plus { transform: rotate(45deg); }
    the chips size to their own text and flow instead: two on the first row,
    one on the second, every label on a single line. */
 @media (max-width: 619px) {
-  .assurances { display: flex; flex-wrap: wrap; gap: 8px; }
-  /* the chip sets padding, gap and label size inline, so these must win */
-  .assurances > span { flex: 0 1 auto; min-width: 0; padding: 0 11px !important; gap: 6px !important; }
+  .assurances { gap: 10px 22px; }
   .assurances > span > span { white-space: nowrap; font-size: 15px !important; }
   .assurances > span > img { width: 16px !important; height: 16px !important; }
 }
