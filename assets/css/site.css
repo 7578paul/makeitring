@@ -258,6 +258,10 @@ details[open] .plus { transform: rotate(45deg); }
   color: #ddd9d5 !important;
   border-left-color: #fff !important;
   text-align: left;
-  margin-left: auto;
-  margin-right: auto;
+  /* The note sets margin and max-width inline, and an inline shorthand beats a
+     stylesheet longhand, so it was pinned to the left edge of a centred card.
+     540px is the picker's width, so the two now share their side edges. */
+  max-width: 540px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
