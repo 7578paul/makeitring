@@ -287,6 +287,16 @@
       form_id: data.form_id || "booking",
       page_type: "thank_you"
     });
+
+    // Meta's equivalent, fired from here rather than its own handler because
+    // the flag above is cleared on read: a second reader would find nothing.
+    // Same one-shot guard, so a refresh does not count twice. No personal data.
+    if (typeof fbq === "function") {
+      fbq("track", "Lead", {
+        content_category: data.service || "local",
+        content_name: data.form_id || "booking"
+      });
+    }
   }
 
   // Spend values are normalised so the display wording can change without
