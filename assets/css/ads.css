@@ -299,3 +299,84 @@ details[open] .openhint { display: none; }
 @media (max-width: 560px) {
   .heroproof-head { max-width: 300px; margin-bottom: 14px; }
 }
+
+/* "Paulo is available" under the hero's Book a call button. Deliberately quiet:
+   a 36px face, a small live dot and one line of text, so it reads as a status
+   next to the button rather than a widget bolted onto the page.
+
+   The face is a monogram until a photograph of Paulo exists. Dropping one in is
+   a single change: put the file at images/paulo.jpg and swap .avail-mono for
+   <img class="avail-photo" src="images/paulo.jpg" alt="">. The styles below
+   already size and crop it. */
+.avail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+.avail-face {
+  position: relative;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+}
+.avail-photo,
+.avail-mono {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+  object-fit: cover;
+}
+.avail-mono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+  user-select: none;
+}
+.avail-dot {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #16a34a;
+  /* the ring is the card colour, so the dot reads as sitting on the face */
+  box-shadow: 0 0 0 2.5px #fff;
+}
+/* a slow halo, not a blinker: it should look like presence, not an alarm */
+.avail-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #16a34a;
+  animation: avail-pulse 2.4s cubic-bezier(.22,.61,.36,1) infinite;
+}
+@keyframes avail-pulse {
+  0%   { transform: scale(1);   opacity: .5; }
+  70%  { transform: scale(2.7); opacity: 0; }
+  100% { transform: scale(2.7); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avail-dot::after { animation: none; }
+}
+.avail-text {
+  font-size: 15px;
+  line-height: 1.3;
+  color: #6b6b6b;
+  min-width: 0;
+}
+.avail-text strong { color: #111; font-weight: 700; }
+
+/* Outside working hours the dot goes grey and stops pulsing, because a green
+   "available now" at 2am is the thing that makes these look fake. */
+.avail.is-away .avail-dot { background: #b5b0aa; }
+.avail.is-away .avail-dot::after { display: none; }
