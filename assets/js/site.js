@@ -360,6 +360,42 @@
     });
   }
 
+  // The thank-you page hands over the playbook straight away rather than making
+  // people wait for the email. Which one they get is decided the same way the
+  // email decides it, so the two always agree. Keys match PLAYBOOKS in
+  // autoreply/Code.gs; the markup ships with the general one, so a visitor with
+  // no session still gets a working download.
+  var PLAYBOOK_FILES = {
+    local:       { slug: "local",       file: "Make It Ring - Local Services Playbook.pdf", title: "Your local services playbook" },
+    moving:      { slug: "moving",      file: "Make It Ring - Moving Playbook.pdf",         title: "Your moving playbook" },
+    cleaning:    { slug: "cleaning",    file: "Make It Ring - Cleaning Playbook.pdf",       title: "Your cleaning playbook" },
+    restoration: { slug: "restoration", file: "Make It Ring - Restoration Playbook.pdf",    title: "Your restoration playbook" }
+  };
+
+  function initPlaybookOffer() {
+    var link = document.querySelector("[data-playbook-link]");
+    if (!link) return;
+
+    var key = currentPlaybook();
+    var book = PLAYBOOK_FILES[key] || PLAYBOOK_FILES.local;
+
+    link.setAttribute("href", "downloads/make-it-ring-" + book.slug + "-checks.pdf");
+    link.setAttribute("download", book.file);
+
+    var title = document.querySelector("[data-playbook-title]");
+    if (title) title.textContent = book.title;
+
+    // No personal data — see analytics/TAXONOMY.md.
+    link.addEventListener("click", function () {
+      if (typeof gtag !== "function") return;
+      gtag("event", "file_download", {
+        file_name: book.file,
+        service: key,
+        page_type: "thank_you"
+      });
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     initConversion();
     rememberPlaybook();
@@ -367,5 +403,6 @@
     initHeroSpend();
     initLeadForms();
     initVideos();
+    initPlaybookOffer();
   });
 })();
