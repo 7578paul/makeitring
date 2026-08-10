@@ -13,7 +13,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/site.css">
-<style>:root{ --card-pad-tablet:46px 40px; --card-pad-desktop:60px 56px; }</style>
+<style>@media (max-width:619px){
+  .pb-stats > .pad{display:flex;align-items:baseline;gap:12px;padding:13px 16px}
+  .pb-stats > .pad p:first-child{margin:0;font-size:24px;flex:0 0 auto}
+  .pb-stats > .pad p:last-child{margin:0}
+}
+:root{ --card-pad-tablet:46px 40px; --card-pad-desktop:60px 56px; }</style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-7NRTMS7Y1R"></script>
 <script>
@@ -53,8 +58,34 @@
   <section class="card" style="max-width:1240px;margin:0 auto 12px;background:#fff">
     <div class="badge" style="background:#111;color:#fff;transform:rotate(-1.5deg)">Enquiry received</div>
     <h1 style="font-size:clamp(32px,7.2vw,52px);line-height:1.02;letter-spacing:-0.05em;font-weight:900;margin:0 0 22px;max-width:20em">Got it. Your phone is <span style="color:var(--accent)">about to ring</span>.</h1>
-    <p style="font-size:clamp(18px,4vw,20px);line-height:1.55;color:#555;margin:0 0 16px;max-width:34em">A real person rings you back within the hour during working hours. Outside them, you are the first call of the next working day. No sequence, no newsletter. One call.</p>
+    <p style="font-size:clamp(18px,4vw,20px);line-height:1.55;color:#555;margin:0 0 16px;max-width:34em">A real person rings you back within the hour, or first thing the next working day. One call, no newsletter.</p>
     <p style="font-size:16px;line-height:1.55;color:#999;margin:0">Can't wait? Call us now on <a href="tel:+16474752404" style="color:#111;font-weight:600">(647) 475-2404</a>.</p>
+  </section>
+
+  <section class="card" style="max-width:1240px;margin:0 auto 12px;background:#111;color:#fff">
+    <div class="wide" style="align-items:center">
+      <div>
+        <div class="badge" style="background:var(--accent);color:#fff;transform:rotate(-1.5deg)">YOURS EITHER WAY</div>
+        <h2 style="font-size:clamp(28px,6vw,44px);line-height:1.03;letter-spacing:-0.05em;font-weight:900;margin:0 0 16px;max-width:15em"><span style="color:var(--accent)" data-playbook-title>Your playbook</span>, to read while you wait.</h2>
+        <p style="font-size:clamp(17.5px,4vw,19.5px);line-height:1.55;color:#d8d5d1;margin:0 0 26px;max-width:34em">Seven checks you can run on your own Google Ads account this afternoon. None of them are clever, all of them are free to fix, and most accounts we open have at least four of them wrong.</p>
+        <a href="downloads/make-it-ring-local-checks.pdf" download="Make It Ring - Local Services Playbook.pdf" data-playbook-link class="gobtn" style="display:inline-flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;color:#fff;height:54px;padding:0 26px;font-size:17px">
+          <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" style="flex:0 0 auto"><path fill="currentColor" d="M12 3v10.6l3.3-3.3 1.4 1.4L12 17.4l-4.7-4.7 1.4-1.4 3.3 3.3V3h2zM5 19h14v2H5v-2z"/></svg>
+          <span data-playbook-cta>Download the playbook</span>
+        </a>
+        <p style="font-size:15px;line-height:1.5;color:#8e8a86;margin:14px 0 0">PDF, no signup. It is attached to the email on its way to you too.</p>
+      </div>
+      <div>
+        <div class="g3 pb-stats" style="gap:10px;margin-bottom:14px">
+          <div class="pad" style="background:#1c1c1c;padding:18px 18px 20px"><p style="font-size:29px;font-weight:900;letter-spacing:-0.04em;line-height:1;margin:0 0 6px">7</p><p style="font-size:15px;line-height:1.35;color:#a5a19d;margin:0">checks, each one standalone</p></div>
+          <div class="pad" style="background:#1c1c1c;padding:18px 18px 20px"><p style="font-size:29px;font-weight:900;letter-spacing:-0.04em;line-height:1;margin:0 0 6px">6</p><p style="font-size:15px;line-height:1.35;color:#a5a19d;margin:0">minutes to read it</p></div>
+          <div class="pad" style="background:#1c1c1c;padding:18px 18px 20px"><p style="font-size:29px;font-weight:900;letter-spacing:-0.04em;line-height:1;margin:0 0 6px">$0</p><p style="font-size:15px;line-height:1.35;color:#a5a19d;margin:0">to fix any of them</p></div>
+        </div>
+        <figure class="pad" style="background:#1c1c1c;margin:0;padding:22px 22px 24px">
+          <blockquote style="margin:0 0 16px;font-size:clamp(18px,4.2vw,21px);line-height:1.4;letter-spacing:-0.02em;font-weight:700">&ldquo;Common sense is not common practice. These basic things actually worked for me.&rdquo;</blockquote>
+          <figcaption style="font-size:15px;line-height:1.35;color:#a5a19d">Ahmad Kadura<br><span style="color:#78746f">Owner, Advance Moving</span></figcaption>
+        </figure>
+      </div>
+    </div>
   </section>
 
   <section class="card" style="max-width:1240px;margin:0 auto 12px;background:#fff">
@@ -71,7 +102,7 @@
       </div>
       <div class="pad" style="background:#f7f7f5">
         <p class="label" style="color:var(--accent)">03</p>
-        <h2 style="font-size:23px;font-weight:700;letter-spacing:-0.025em;line-height:1.25;margin:0 0 14px">While you wait</h2>
+        <h2 style="font-size:23px;font-weight:700;letter-spacing:-0.025em;line-height:1.25;margin:0 0 14px">Have a look around</h2>
         <p class="body">Have a look at <a href="results.html" style="text-decoration:underline;color:#111">the numbers from accounts we run</a>, or read <a href="about.html" style="text-decoration:underline;color:#111">who you'll be talking to</a>.</p>
       </div>
     </div>
