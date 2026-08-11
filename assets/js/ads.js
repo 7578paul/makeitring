@@ -93,48 +93,9 @@
     });
   }
 
-  // The hero says Paulo is available. That is only worth showing when it is
-  // true, so it follows the same window the site already promises everywhere
-  // else: a real person within the hour, 7am to 7pm on a working day. Outside
-  // it the dot goes grey and the line changes, rather than claiming someone is
-  // sitting there at 2am. Hours are Toronto's, not the visitor's, since that is
-  // where the phone rings.
-  var OPEN_HOUR = 7, CLOSE_HOUR = 19, OFFICE_TZ = "America/Toronto";
-
-  function officeNow() {
-    try {
-      var parts = new Intl.DateTimeFormat("en-GB", {
-        timeZone: OFFICE_TZ, weekday: "short", hour: "numeric", hour12: false
-      }).formatToParts(new Date());
-      var out = {};
-      parts.forEach(function (p) { out[p.type] = p.value; });
-      return { day: out.weekday, hour: parseInt(out.hour, 10) };
-    } catch (e) {
-      return null;  // no Intl or no tz data: leave the markup's default alone
-    }
-  }
-
-  function initAvailability() {
-    var el = document.querySelector("[data-avail]");
-    if (!el) return;
-    var now = officeNow();
-    if (!now || isNaN(now.hour)) return;
-
-    var working = ["Mon", "Tue", "Wed", "Thu", "Fri"].indexOf(now.day) !== -1;
-    var open = working && now.hour >= OPEN_HOUR && now.hour < CLOSE_HOUR;
-    if (open) return;  // markup already ships in the available state
-
-    el.classList.add("is-away");
-    var state = el.querySelector("[data-avail-state]");
-    if (state) state.textContent = working && now.hour < OPEN_HOUR
-      ? "replies from 7am"
-      : "replies first thing";
-  }
-
   document.addEventListener("DOMContentLoaded", function () {
     rememberPlaybook();
     initVideos();
     initSpendPickers();
-    initAvailability();
   });
 })();
