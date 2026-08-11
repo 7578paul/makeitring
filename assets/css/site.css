@@ -265,3 +265,8 @@ details[open] .plus { transform: rotate(45deg); }
   margin-left: auto !important;
   margin-right: auto !important;
 }
+
+/* Match ads.css: the chips sat hard against the left margin on a phone. */
+@media (max-width: 619px) {
+  .assurances { justify-content: center; }
+}
