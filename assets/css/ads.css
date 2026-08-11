@@ -316,12 +316,14 @@ details[open] .openhint { display: none; }
 .online {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   flex: 0 0 auto;
-  padding: 4px 11px 4px 4px;
-  border-radius: 999px;
-  background: rgba(22, 163, 74, .09);
-  border: 1px solid rgba(22, 163, 74, .22);
+  /* same shape language as the qualification note below it: a rule down the
+     leading edge, square against it, rounded away from it, same 14px type */
+  padding: 8px 13px 8px 10px;
+  border-left: 3px solid #16a34a;
+  border-radius: 0 10px 10px 0;
+  background: #eef6f0;
 }
 .online-face { position: relative; flex: 0 0 auto; width: 24px; height: 24px; }
 /* swap .online-mono for <img class="online-photo" src="images/alex.jpg" alt="">
@@ -344,7 +346,7 @@ details[open] .openhint { display: none; }
   width: 9px; height: 9px;
   border-radius: 50%;
   background: #16a34a;
-  box-shadow: 0 0 0 2px #fff;
+  box-shadow: 0 0 0 2px #eef6f0;
 }
 .online-dot::after {
   content: "";
@@ -370,4 +372,40 @@ details[open] .openhint { display: none; }
 /* on a narrow phone the badge drops under the question and sits left with it */
 @media (max-width: 419px) {
   .spendhead { justify-content: flex-start; }
+}
+
+/* On a phone the button had the row to itself. It now shares it with the sign,
+   split by a hairline so the two read as separate things rather than one wide
+   control. One instance per breakpoint, the same way .ba pairs with .bamobile
+   elsewhere in this sheet. */
+.online-mob { display: none; }
+
+@media (max-width: 520px) {
+  .online-desk { display: none; }
+  .gobtn { flex: 1 1 auto; min-width: 118px; }
+  .online-mob {
+    display: inline-flex;
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 0 2px 0 11px;
+    background: none;
+    border-radius: 0;
+    /* the divider */
+    border-left: 1px solid #d6d6d2;
+    align-self: stretch;
+    align-items: center;
+  }
+  .online-mob .online-face { width: 22px; height: 22px; }
+  .online-mob .online-mono { font-size: 10px; }
+  .online-mob .online-dot { width: 8px; height: 8px; box-shadow: 0 0 0 2px #f1f1ef; }
+  .online-mob .online-text { font-size: 13.5px; }
+}
+
+/* At 320px the button's own label sets a floor min-width cannot lower, so the
+   pair wanted 264px in a 240px row. Trimming the button's side padding and the
+   sign's type keeps both on one line down to the narrowest phone in use. */
+@media (max-width: 340px) {
+  .gobtn { padding: 0 14px; }
+  .online-mob { padding-left: 9px; }
+  .online-mob .online-text { font-size: 12px; }
 }
