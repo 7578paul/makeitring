@@ -409,3 +409,16 @@ details[open] .openhint { display: none; }
   .online-mob { padding-left: 9px; }
   .online-mob .online-text { font-size: 12px; }
 }
+
+/* The note stopped 51px short of the sign above it, so their right edges did
+   not line up. Letting it run the full column width lands it exactly on the
+   sign's edge. Scoped to the sibling of .spendhead, so only the page carrying
+   the sign is affected; the note sets max-width inline, hence !important.
+   No effect on phones, where the column is already narrower than the cap. */
+.spendhead + .qual-note { max-width: none !important; }
+
+/* The chips sat hard against the left margin on a phone, which read as a
+   ragged edge under the centred picker. */
+@media (max-width: 619px) {
+  .assurances { justify-content: center; }
+}
