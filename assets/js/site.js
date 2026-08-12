@@ -376,10 +376,10 @@
   // autoreply/Code.gs; the markup ships with the general one, so a visitor with
   // no session still gets a working download.
   var PLAYBOOK_FILES = {
-    local:       { slug: "local",       file: "Make It Ring - Local Services Playbook.pdf", title: "Your local services playbook" },
-    moving:      { slug: "moving",      file: "Make It Ring - Moving Playbook.pdf",         title: "Your moving playbook" },
-    cleaning:    { slug: "cleaning",    file: "Make It Ring - Cleaning Playbook.pdf",       title: "Your cleaning playbook" },
-    restoration: { slug: "restoration", file: "Make It Ring - Restoration Playbook.pdf",    title: "Your restoration playbook" }
+    local:       { slug: "local",       file: "Make It Ring - Local Services Playbook.pdf", title: "your local services playbook" },
+    moving:      { slug: "moving",      file: "Make It Ring - Moving Playbook.pdf",         title: "your moving playbook" },
+    cleaning:    { slug: "cleaning",    file: "Make It Ring - Cleaning Playbook.pdf",       title: "your cleaning playbook" },
+    restoration: { slug: "restoration", file: "Make It Ring - Restoration Playbook.pdf",    title: "your restoration playbook" }
   };
 
   function initPlaybookOffer() {
