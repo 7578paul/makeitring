@@ -270,3 +270,30 @@ details[open] .plus { transform: rotate(45deg); }
 @media (max-width: 619px) {
   .assurances { justify-content: center; }
 }
+
+/* Oversized wordmark across the footer, the way a shop paints its name on the
+   window. Traced from the logo PNG so it stays sharp at any size: the original
+   is 961px wide and would have been resampled well past its resolution here.
+   Set as a mask rather than an image so it takes one flat tint; the two-tone
+   logo goes muddy once it is this pale. */
+.sitefoot-mark {
+  width: 100%;
+  aspect-ratio: 813 / 180;
+  opacity: .09;
+  -webkit-mask: url(../../images/logo-wordmark.svg) no-repeat center / 100% 100%;
+  mask: url(../../images/logo-wordmark.svg) no-repeat center / 100% 100%;
+  margin: 4px 0 clamp(20px, 3.2vw, 32px);
+}
+/* the colour is painted only where the mask can actually cut it out; without
+   the guard, a browser that ignores the mask would draw a plain grey bar */
+@supports (mask-image: url(i.svg)) or (-webkit-mask-image: url(i.svg)) {
+  .sitefoot-mark { background: #111; }
+}
+.footrule {
+  height: 1px;
+  background: #e4e4e1;
+  margin: 0 0 clamp(16px, 2.4vw, 24px);
+}
+@media (max-width: 619px) {
+  .sitefoot-mark { opacity: .11; }
+}
