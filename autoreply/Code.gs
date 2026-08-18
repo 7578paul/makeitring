@@ -92,6 +92,31 @@ function logLead(data) {
   }
 }
 
+// The lead notification we actually rely on. Sent from our own account, so it
+// is not a third party mailing us about ourselves and does not get filtered
+// like one. Reply-to is the enquirer, so hitting reply writes to them.
+function notifyCompany(data, book, to) {
+  var lines = [
+    'Name:    ' + (data.name || ''),
+    'Company: ' + (data.company || ''),
+    'Phone:   ' + (data.phone || ''),
+    'Email:   ' + to,
+    'Spend:   ' + (data.spend || 'not given'),
+    'Page:    ' + (book.label || data.playbook || ''),
+    '',
+    'They have been sent the ' + book.label + ' and told you will ring today.',
+    '',
+    'Reply to this email to write straight back to them.'
+  ].join('\n');
+
+  GmailApp.sendEmail(
+    REPLY_TO,
+    'New lead: ' + (data.name || 'unknown') + (data.company ? ' at ' + data.company : ''),
+    lines,
+    { name: FROM_NAME, replyTo: to }
+  );
+}
+
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
@@ -153,7 +178,22 @@ function doPost(e) {
     var pdf = attachment(book);
     if (pdf) options.attachments = [pdf];
 
-    GmailApp.sendEmail(to, 'Thanks ' + first + ', got your details', textBody(first, book), options);
+    // Tell us first. FormSubmit's notifications come from their servers rather
+    // than our domain, which is why they land in spam; this one is sent by our
+    // own account, so it arrives in the inbox. Wrapped separately so neither
+    // email can stop the other going out.
+    try {
+      notifyCompany(data, book, to);
+    } catch (err) {
+      console.error('company notification failed: ' + err);
+    }
+
+    try {
+      GmailApp.sendEmail(to, 'Thanks ' + first + ', got your details', textBody(first, book), options);
+    } catch (err) {
+      console.error('auto-reply failed: ' + err);
+      return reply({ ok: false, error: 'notified, auto-reply failed' });
+    }
     return reply({ ok: true, playbook: book.label });
 
   } catch (err) {
