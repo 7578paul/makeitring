@@ -201,6 +201,33 @@
     } catch (e) {}
   }
 
+  // If FormSubmit will not take the lead, hand the whole thing to the Apps
+  // Script relay instead, flagged so it emails us rather than the visitor.
+  // Fire and forget for the same reason as the auto-reply: no-cors means we
+  // cannot read the result, but a second blind channel beats one.
+  function sendLeadBackup(data, reason) {
+    if (!AUTOREPLY_ENDPOINT) return;
+    try {
+      fetch(AUTOREPLY_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        keepalive: true,
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          secret: AUTOREPLY_SECRET,
+          kind: "lead_backup",
+          reason: String(reason || "").slice(0, 200),
+          name: data.name || "",
+          company: data.company || "",
+          phone: data.phone || "",
+          email: data.email || "",
+          spend: data.spend || "",
+          playbook: currentPlaybook()
+        })
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
   // Lead forms: validate, submit via FormSubmit, then send the visitor to the thank-you page.
   function initLeadForms() {
     var forms = document.querySelectorAll("[data-lead-form]");
@@ -246,6 +273,24 @@
           headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify(data)
         })
+          // fetch only rejects when the browser cannot reach the host at all.
+          // A 403 for an unactivated address, a 422 for rate limiting, a 500:
+          // all of those resolve, and treating them as success sent people to
+          // the thank-you page, counted a conversion and delivered no email.
+          // The status and FormSubmit's own success flag both have to say yes.
+          .then(function (res) {
+            return res.text().then(function (body) {
+              var ok = res.ok;
+              if (ok) {
+                try {
+                  var parsed = JSON.parse(body);
+                  if (parsed && "success" in parsed) ok = String(parsed.success) === "true";
+                } catch (e) {}
+              }
+              if (!ok) throw new Error("formsubmit " + res.status + " " + body.slice(0, 140));
+              return true;
+            });
+          })
           .then(function () {
             try {
               sessionStorage.setItem("mir_pending_lead", JSON.stringify({
@@ -256,9 +301,11 @@
             } catch (e) {}
             window.location.href = "thank-you.html";
           })
-          .catch(function () {
+          .catch(function (err) {
+            // Second channel, so a FormSubmit outage does not lose the enquiry.
+            sendLeadBackup(data, err && err.message);
             if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.dataset.label; }
-            setFormAlert(form, "That didn't send. Please call (647) 475-2404 instead.");
+            setFormAlert(form, "That didn't send. Please call (647) 475-2404 so we don't miss you.");
           });
       });
     });
