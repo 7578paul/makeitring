@@ -58,6 +58,40 @@ var DEFAULT_PLAYBOOK = 'local';
 
 // ---------------------------------------------------------------------------
 
+// Every enquiry is written here before anything is sent, so there is always one
+// record that does not depend on FormSubmit, on Gmail, or on this script
+// getting as far as an email. The sheet is created on first use; its id is kept
+// in script properties so it is found again next time.
+function logLead(data) {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var id = props.getProperty('LEAD_SHEET_ID');
+    var ss = null;
+    if (id) {
+      try { ss = SpreadsheetApp.openById(id); } catch (e) { ss = null; }
+    }
+    if (!ss) {
+      ss = SpreadsheetApp.create('Make It Ring leads');
+      props.setProperty('LEAD_SHEET_ID', ss.getId());
+      ss.getSheets()[0].appendRow(
+        ['When', 'Name', 'Company', 'Phone', 'Email', 'Spend', 'Page', 'What happened']);
+    }
+    ss.getSheets()[0].appendRow([
+      new Date(),
+      String(data.name || ''),
+      String(data.company || ''),
+      String(data.phone || ''),
+      String(data.email || ''),
+      String(data.spend || ''),
+      String(data.playbook || ''),
+      data.kind === 'lead_backup' ? 'FormSubmit refused it, backup emailed' : 'enquiry submitted'
+    ]);
+  } catch (err) {
+    // Never let bookkeeping stop the email going out.
+    console.error('logLead failed: ' + err);
+  }
+}
+
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
@@ -70,6 +104,10 @@ function doPost(e) {
     if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(to)) {
       return reply({ ok: false, error: 'invalid address' });
     }
+
+    // Record it first. Everything after this point can fail without losing the
+    // enquiry, which is the whole reason the ledger exists.
+    logLead(data);
 
     // Backup channel. The site calls this when FormSubmit refuses the lead, so
     // an outage there does not lose the enquiry. It emails us, not the visitor,
