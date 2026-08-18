@@ -85,3 +85,32 @@ error.
 - Gmail caps sending at roughly 500 messages a day on a personal account and
   1,500 on Workspace — far above normal lead volume, but worth knowing.
 - If the attachment cannot be fetched the reply still goes out, just without it.
+
+## Recovering leads, and the ledger
+
+Every enquiry is written to a Google Sheet called **Make It Ring leads** before
+anything is emailed. The sheet is created the first time a lead arrives and its
+id is kept in the script's properties, so it is reused afterwards. Find it in
+the Drive of whichever account owns this script.
+
+Columns: when, name, company, phone, email, spend, which page they came
+through, and what happened. A row reading *FormSubmit refused it, backup
+emailed* means the notification never went out and the enquiry only exists
+because of this script.
+
+**If a lead ever goes missing, look in this order:**
+
+1. **The ledger sheet.** From the deployment of this version onward, this is
+   the complete record.
+2. **Gmail, Sent folder, search `subject:"got your details"`.** The auto-reply
+   is sent to the enquirer's own address and fires independently of FormSubmit,
+   so one exists for every lead this script ever handled, even the ones whose
+   notification failed. The recipient is their email and the subject carries
+   their first name.
+3. **Executions**, in the Apps Script editor. Every `doPost` run is listed with
+   a timestamp, which tells you how many enquiries arrived even where the
+   content is gone.
+4. **Smartlook.** Sessions ending on `thank-you.html` are submitted enquiries,
+   and the recording shows the form being filled unless input masking is on.
+5. **GA4**, `generate_lead` events. Count and timing only, never personal data,
+   so use it to work out how many leads to go looking for.

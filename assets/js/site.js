@@ -178,7 +178,10 @@
     return firstBad;
   }
 
-  // Ask the Apps Script relay to send the auto-reply with its attachment.
+  // Ask the Apps Script relay to send the auto-reply with its attachment, and
+  // to write the enquiry into the ledger. It carries the whole lead rather than
+  // just the name and address, so there is always one record of an enquiry that
+  // does not depend on FormSubmit having accepted it.
   // Deliberately fire-and-forget: the lead notification goes through FormSubmit
   // regardless, so a problem here must never cost us the enquiry. text/plain
   // keeps it a simple request, so the browser skips the CORS preflight that
@@ -194,7 +197,10 @@
         body: JSON.stringify({
           secret: AUTOREPLY_SECRET,
           name: data.name || "",
+          company: data.company || "",
+          phone: data.phone || "",
           email: data.email || "",
+          spend: data.spend || "",
           playbook: currentPlaybook()
         })
       }).catch(function () {});
