@@ -86,6 +86,25 @@ error.
   1,500 on Workspace — far above normal lead volume, but worth knowing.
 - If the attachment cannot be fetched the reply still goes out, just without it.
 
+## Where the lead notification comes from
+
+This script emails you the lead itself, on every submission, from your own
+account. That is the notification to rely on.
+
+FormSubmit still gets a copy and still emails `we@makeitring.co`, but its mail
+is sent by a third party on your behalf, which is why it lands in spam. Treat
+it as the spare. If you would rather drop it entirely, the site can post to
+this script alone; say so and it is a small change.
+
+Two emails leave here per lead:
+
+- **New lead: [name] at [company]** to you, with everything they typed.
+  Reply-to is set to the enquirer, so hitting reply writes to them.
+- **Thanks [first], got your details** to them, with the playbook attached.
+
+Each is wrapped on its own, so a failure in one cannot stop the other, and both
+happen after the row is written to the ledger.
+
 ## Recovering leads, and the ledger
 
 Every enquiry is written to a Google Sheet called **Make It Ring leads** before
