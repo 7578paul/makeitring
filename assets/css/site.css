@@ -297,3 +297,17 @@ details[open] .plus { transform: rotate(45deg); }
 @media (max-width: 619px) {
   .sitefoot-mark { opacity: .11; }
 }
+
+/* Matches ads.css: the hero picker must be answered before it moves anyone on. */
+.selectwrap select.is-invalid,
+.inputrow select.is-invalid {
+  border-color: #D92C07 !important;
+  background: #FFF7F5 !important;
+}
+.spend-error {
+  margin: 10px 0 0;
+  color: #C42506;
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
