@@ -94,11 +94,50 @@
   }
 
   // Hero "what are you spending" selector: remembers the choice and sends the visitor to Book a call.
+  // The picker only carries the answer forward; it is the whole reason the
+  // booking form no longer asks. Leaving it unset used to send people on with
+  // an empty spend, so it now has to be chosen first.
+  function requireSpend(select, button, onOk) {
+    // Work out where the message lives once. Looking it up again on the way
+    // out searched a different node, so the error never cleared.
+    var row = select.closest("[data-spend-pair]") || select.closest(".inputrow");
+    var host = (row && row.parentNode) || select.parentNode;
+    var msg = null;
+
+    function clear() {
+      select.classList.remove("is-invalid");
+      select.removeAttribute("aria-invalid");
+      if (msg && msg.parentNode) msg.parentNode.removeChild(msg);
+      msg = null;
+    }
+
+    select.addEventListener("change", function () { if (select.value) clear(); });
+
+    button.addEventListener("click", function () {
+      if (!select.value) {
+        select.classList.add("is-invalid");
+        select.setAttribute("aria-invalid", "true");
+        if (!msg) {
+          msg = document.createElement("p");
+          msg.className = "spend-error";
+          msg.setAttribute("role", "alert");
+          msg.textContent = "Choose your monthly spend first.";
+          host.insertBefore(msg, row ? row.nextSibling : null);
+        }
+        if (select.focus) select.focus();
+        return;
+      }
+      clear();
+      onOk();
+    });
+  }
+
   function initHeroSpend() {
     var select = document.querySelector("[data-spend-select]");
     var button = document.querySelector("[data-spend-go]");
     if (!button) return;
-    button.addEventListener("click", function () {
+    if (!select) { button.addEventListener("click", function () { window.location.href = "book-a-call.html"; }); return; }
+    requireSpend(select, button, function () {
       try {
         sessionStorage.setItem("mir_spend", select ? select.value : "");
       } catch (e) {}

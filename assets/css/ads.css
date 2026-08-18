@@ -449,3 +449,22 @@ details[open] .openhint { display: none; }
 @media (max-width: 619px) {
   .sitefoot-mark { opacity: .11; }
 }
+
+/* The picker is the only place the spend is asked for, so it has to be chosen
+   before the button moves anyone on. Same red as the booking form's errors. */
+.selectwrap select.is-invalid {
+  border-color: #D92C07 !important;
+  background: #FFF7F5 !important;
+}
+.selectwrap.dark select.is-invalid {
+  border-color: #FF6B4A !important;
+  background: #3a1c16 !important;
+}
+.spend-error {
+  margin: 10px 0 0;
+  color: #C42506;
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+#cta .spend-error { color: #FFB4A0; }
