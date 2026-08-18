@@ -71,6 +71,32 @@ function doPost(e) {
       return reply({ ok: false, error: 'invalid address' });
     }
 
+    // Backup channel. The site calls this when FormSubmit refuses the lead, so
+    // an outage there does not lose the enquiry. It emails us, not the visitor,
+    // and skips the per-address limit below because that guards the visitor's
+    // inbox and this never reaches it.
+    if (data.kind === 'lead_backup') {
+      var lines = [
+        'FormSubmit did not accept this enquiry, so the site sent it here instead.',
+        '',
+        'Name:    ' + (data.name || ''),
+        'Company: ' + (data.company || ''),
+        'Phone:   ' + (data.phone || ''),
+        'Email:   ' + to,
+        'Spend:   ' + (data.spend || 'not given'),
+        'Page:    ' + (data.playbook || ''),
+        '',
+        'Why FormSubmit refused it: ' + (data.reason || 'not reported'),
+        '',
+        'The visitor was told to ring instead, so they may call before you reach them.'
+      ].join('\n');
+      GmailApp.sendEmail(REPLY_TO, 'LEAD (backup): ' + (data.name || 'unknown') + ' — FormSubmit failed', lines, {
+        name: FROM_NAME,
+        replyTo: to
+      });
+      return reply({ ok: true, kind: 'lead_backup' });
+    }
+
     // One auto-reply per address per hour, so the open endpoint cannot be used
     // to mailbomb someone.
     if (!sendAllowed(to)) {
