@@ -389,6 +389,16 @@
         content_name: data.form_id || "booking"
       });
     }
+
+    // OpenAI's, from the same place and behind the same guard. Kept to the
+    // shape their setup page documents. No personal data.
+    if (typeof oaiq === "function") {
+      oaiq("measure", "lead_submitted", {
+        type: "customer_action",
+        amount: 0,
+        currency: "USD"
+      });
+    }
   }
 
   // Spend values are normalised so the display wording can change without
