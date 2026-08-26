@@ -390,14 +390,15 @@
       });
     }
 
-    // OpenAI's, from the same place and behind the same guard. Kept to the
-    // shape their setup page documents. No personal data.
+    // OpenAI's, from the same place and behind the same guard. Name and shape
+    // are exactly what their setup page gives for this conversion, so leave
+    // both alone. No personal data.
     if (typeof oaiq === "function") {
-      oaiq("measure", "lead_submitted", {
-        type: "customer_action",
-        amount: 0,
-        currency: "USD"
-      });
+      oaiq(
+        "measure",
+        "lead_created",
+        { type: "customer_action" }
+      );
     }
   }
 
