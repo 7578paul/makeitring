@@ -1,0 +1,16 @@
+{
+  "name": "Piggy Pocket",
+  "short_name": "Piggy",
+  "description": "A tiny personal spending tracker, locked to your passphrase.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFEFF5",
+  "theme_color": "#FFEFF5",
+  "icons": [
+    { "src": "piggy-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "piggy-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "piggy-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
