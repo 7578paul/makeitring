@@ -23,7 +23,7 @@
   catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
 </script>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
 <style>
 /* ── Piggy Pocket ────────────────────────────────────────────────────────────
    One file, no build, no backend. Everything lives in this browser, encrypted
@@ -553,7 +553,76 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   animation: scrimfade 1.3s ease forwards;
 }
 @keyframes scrimfade { 0% { opacity: 0; } 20% { opacity: 1; } 100% { opacity: 0; } }
-.fx { position: fixed; inset: 0; z-index: 96; pointer-events: none; }   /* behind the card, so the words stay readable */
+.fx { position: fixed; inset: 0; z-index: 96; pointer-events: none; }
+
+/* ── letters ──────────────────────────────────────────────────────────────
+   A different world from the rest of the app on purpose: paper, ink, and
+   no pink. Four papers, matching the composer exactly. */
+.letterbtn { position: relative; }
+.letterbtn .dot { position: absolute; top: 4px; right: 4px; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 2px var(--surface); }
+.reader { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center;
+  padding: 24px 18px calc(24px + env(safe-area-inset-bottom, 0px));
+  background: rgba(24,18,22,.62); backdrop-filter: blur(3px); overflow-y: auto; }
+.reader[hidden] { display: none; }
+.readerinner { width: 100%; max-width: 520px; margin: auto; animation: readerin .5s cubic-bezier(.2,1.1,.3,1) both; }
+.shelfinner { max-width: 460px; }
+@keyframes readerin {
+  0% { opacity: 0; transform: translateY(18px) scale(.96) rotate(.6deg); }
+  100% { opacity: 1; transform: none; }
+}
+.readerbar { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+
+.paper {
+  position: relative; background: #F4EFE4; color: #211F1B; border-radius: 3px;
+  padding: 34px 30px 36px; box-shadow: 0 26px 60px -26px rgba(0,0,0,.8), 0 2px 0 rgba(0,0,0,.18);
+  transform: rotate(-.5deg); overflow: hidden;
+}
+.paper::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background-image: radial-gradient(rgba(60,50,35,.10) .5px, transparent .5px),
+                    radial-gradient(rgba(60,50,35,.07) .5px, transparent .5px);
+  background-size: 3px 3px, 5px 5px; background-position: 0 0, 2px 3px;
+}
+.paper .meta { font-family: Nunito, sans-serif; font-size: 10.5px; letter-spacing: .22em;
+  text-transform: uppercase; color: #8A7F6C; margin-bottom: 16px; }
+.paper .title { font-family: "EB Garamond", Georgia, serif; font-size: 27px; line-height: 1.15;
+  margin: 0 0 14px; font-weight: 500; }
+.paper .body { white-space: pre-wrap; overflow-wrap: anywhere; }
+.paper .rule { height: 1px; background: rgba(33,31,27,.22); margin: 20px 0 14px; }
+.paper .sign { font-family: "Caveat", cursive; font-size: 22px; color: #4A443A; }
+.paper.ink { background: #F4EFE4; }
+.paper.ink .body { font-family: "EB Garamond", Georgia, serif; font-size: 19.5px; line-height: 1.62; }
+.paper.ink .body::first-letter { font-size: 2.1em; line-height: .9; float: left; padding: 6px 8px 0 0; }
+.paper.type { background: #EFEBE3; }
+.paper.type .title, .paper.type .body { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.paper.type .title { font-size: 18px; letter-spacing: .04em; text-transform: uppercase; }
+.paper.type .body { font-size: 14.5px; line-height: 1.8; text-shadow: .4px .3px 0 rgba(90,60,40,.16); }
+.paper.marker { background: #F1F2EC;
+  background-image: linear-gradient(rgba(60,80,95,.10) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(60,80,95,.10) 1px, transparent 1px);
+  background-size: 22px 22px, 22px 22px; }
+.paper.marker .title { font-family: "Caveat", cursive; font-size: 32px; }
+.paper.marker .body { font-family: "Caveat", cursive; font-size: 25px; line-height: 1.42; color: #1B2A33; }
+.paper.press { background: #E3DED4; color: #2B2822; }
+.paper.press .title { font-family: Nunito, sans-serif; font-size: 15px; text-transform: uppercase;
+  letter-spacing: .3em; font-weight: 800; }
+.paper.press .body { font-family: Nunito, sans-serif; font-size: 14px; text-transform: uppercase;
+  letter-spacing: .17em; line-height: 2.1; font-weight: 600;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5), 0 -1px 0 rgba(0,0,0,.06); }
+
+.shelfrow { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+  width: 100%; text-align: left; background: none; border: none; cursor: pointer;
+  padding: 10px 8px; border-radius: 12px; border-bottom: 1px solid var(--line); }
+.shelfrow:last-child { border-bottom: none; }
+.shelfrow:hover { background: var(--surface-2); }
+.shelfrow .nm { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shelfrow .dt { font-size: 12px; color: var(--muted); white-space: nowrap; }
+@media (max-width: 420px) {
+  .paper { padding: 26px 22px 28px; }
+  .paper.ink .body { font-size: 18px; }
+  .paper.marker .body { font-size: 23px; }
+}   /* behind the card, so the words stay readable */
 .pigrun { position: fixed; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); left: -90px;
   z-index: 98; font-size: 44px; pointer-events: none; animation: pigtrot 2.8s linear forwards; }
 .pigrun span { display: block; animation: pigbob .26s ease-in-out infinite alternate; }
@@ -774,6 +843,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
         <option value="C$">C$</option><option value="A$">A$</option><option value="₹">₹</option>
         <option value="¥">¥</option><option value="kr">kr</option>
       </select>
+      <button class="btn ghost small letterbtn" type="button" id="lettersbtn" aria-label="Letters" title="Letters">✉️<i class="dot" hidden></i></button>
       <button class="btn ghost small" type="button" id="soundbtn" aria-label="Turn the little sound off" title="Turn the little sound off">🔊</button>
       <button class="btn ghost small" type="button" id="themebtn" aria-label="Switch to the dark theme" title="Switch to the dark theme">🌙</button>
       <button class="btn ghost small" type="button" id="lock">🔒 Lock</button>
@@ -925,6 +995,30 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   <p class="sig">Made with lots of 🤍 by your future husband</p>
 </div>
 
+<div class="reader" id="reader" hidden>
+  <div class="readerinner">
+    <div id="readerpaper"></div>
+    <div class="readerbar">
+      <button class="btn ghost small" type="button" id="readerclose">Close</button>
+      <button class="btn small" type="button" id="readernext" hidden></button>
+    </div>
+  </div>
+</div>
+<div class="reader" id="shelf" hidden>
+  <div class="readerinner shelfinner">
+    <div class="card" style="margin:0">
+      <div class="card-head">
+        <h2>💌 Letters</h2>
+        <p id="shelfsub"></p>
+      </div>
+      <div id="shelflist"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <button class="btn ghost small" type="button" id="pasteletter">Paste a letter</button>
+        <button class="btn ghost small" type="button" id="shelfclose">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 <canvas class="fx" id="fx" aria-hidden="true"></canvas>
 <div class="tip" id="tip" role="status" aria-live="polite"></div>
 <div class="toast" id="toast" hidden></div>
@@ -1066,7 +1160,8 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   var ITER = 310000;
   var key = null, meta = null;
   var SCHEMA = 3;
-  var data = { v: SCHEMA, cur: '$', spends: [], series: [] };
+  var data = { v: SCHEMA, cur: '$', spends: [], series: [], letters: [] };
+  var bootAt = Date.now();
 
   var enc = new TextEncoder(), dec = new TextDecoder();
   function b64(buf) {
@@ -1163,7 +1258,10 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     if (moved || grown || data.v !== SCHEMA) save();
     render();
     armIdleLock();
-    dayGreeting();
+    refreshLetterBadge();
+    var arrived = takeDelivery();
+    if (arrived) refreshLetterBadge();
+    setTimeout(function () { if (!openDue()) dayGreeting(); }, arrived ? 700 : 500);
   }
   function lock(byIdle) {
     key = null;
@@ -1193,7 +1291,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     deriveKey(pass, salt, ITER).then(function (k) {
       key = k;
       meta = { v: 2, user: user, salt: b64(salt), iter: ITER, iv: '', ct: '', created: Date.now() };
-      data = { cur: '$', spends: [], series: [] };
+      data = { v: SCHEMA, cur: '$', spends: [], series: [], letters: [] };
       var carried = carryOldData();
       return save().then(function () {
         return rememberDevice($('#su-remember').checked);
@@ -1254,7 +1352,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     if (!confirm('Start over? The spending saved here can never be opened again.')) return;
     if (!confirm('Really sure? This erases the encrypted data on this device.')) return;
     localStorage.removeItem(VKEY); localStorage.removeItem(RKEY);
-    meta = null; key = null; data = { cur: '$', spends: [], series: [] };
+    meta = null; key = null; data = { v: SCHEMA, cur: '$', spends: [], series: [], letters: [] };
     showGate('setup');
   });
 
@@ -1461,6 +1559,166 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     }, { passive: true });
   }
 
+  /* ── letters ──────────────────────────────────────────────────────────
+     They arrive in a link — no server anywhere — and wait in the vault
+     until the day or the moment they were meant for. */
+  var PENDING = 'piggy.letter.pending';
+  function unpack(code) {
+    try {
+      var b64 = String(code || '').trim().replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      var obj = JSON.parse(decodeURIComponent(escape(atob(b64))));
+      return obj && Array.isArray(obj.letters) ? obj : null;
+    } catch (e) { return null; }
+  }
+  function catchLetter() {
+    var m = (location.hash || '').match(/[#&]l=([A-Za-z0-9\-_]+)/);
+    if (!m) return;
+    try { sessionStorage.setItem(PENDING, m[1]); } catch (e) {}
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+  catchLetter();
+  window.addEventListener('hashchange', function () {
+    catchLetter();
+    if (!key) return;                       /* it waits in the pocket until she unlocks */
+    if (takeDelivery()) {
+      refreshLetterBadge();
+      setTimeout(openDue, 500);
+    }
+  });
+
+  function takeDelivery() {
+    var code = '';
+    try { code = sessionStorage.getItem(PENDING) || ''; } catch (e) {}
+    if (!code) return 0;
+    try { sessionStorage.removeItem(PENDING); } catch (e) {}
+    return acceptLetters(code);
+  }
+  function acceptLetters(code) {
+    var bag = unpack(code);
+    if (!bag) { toast('That letter would not open — ask for it again.'); return 0; }
+    data.letters = data.letters || [];
+    var have = {};
+    data.letters.forEach(function (l) { have[l.id] = true; });
+    var added = 0;
+    bag.letters.forEach(function (l) {
+      if (!l || !l.body || have[l.id]) return;
+      data.letters.push({
+        id: l.id || uid(), title: String(l.title || '').slice(0, 80),
+        body: String(l.body).slice(0, 4000), sign: String(l.sign || '').slice(0, 60),
+        style: ['ink', 'type', 'marker', 'press'].indexOf(l.style) > -1 ? l.style : 'ink',
+        when: ['now', 'open', 'date'].indexOf(l.when) > -1 ? l.when : 'now',
+        at: /^\d{4}-\d{2}-\d{2}$/.test(l.at || '') ? l.at : '',
+        got: Date.now(), read: 0
+      });
+      added++;
+    });
+    if (!added) { toast('Those letters were already here.'); return 0; }
+    save();
+    play('magic');
+    toast(added === 1 ? 'A letter arrived 💌' : added + ' letters arrived 💌');
+    return added;
+  }
+
+  function letterDue(l) {
+    if (l.read) return false;
+    if (l.when === 'date') return l.at && todayISO() >= l.at;
+    if (l.when === 'open') return (l.got || 0) < bootAt;   /* not this visit — the next one */
+    return true;
+  }
+  function dueLetters() { return (data.letters || []).filter(letterDue); }
+  function refreshLetterBadge() {
+    var btn = $('#lettersbtn');
+    if (!btn) return;
+    var any = (data.letters || []).length;
+    btn.hidden = !any;
+    btn.querySelector('.dot').hidden = dueLetters().length === 0;
+  }
+
+  var readerQueue = [];
+  function showLetter(l, queued) {
+    var box = $('#readerpaper');
+    box.textContent = '';
+    var paper = el('div', 'paper ' + l.style);
+    var when = l.when === 'date' && l.at ? 'Kept for ' + dayLabel(l.at) : 'For you';
+    paper.appendChild(el('div', 'meta', when));
+    if (l.title) paper.appendChild(el('div', 'title', l.title));
+    paper.appendChild(el('div', 'body', l.body));
+    if (l.sign) {
+      paper.appendChild(el('div', 'rule'));
+      paper.appendChild(el('div', 'sign', l.sign));
+    }
+    box.appendChild(paper);
+    var next = $('#readernext');
+    next.hidden = !queued;
+    next.textContent = queued ? 'Next letter (' + queued + ')' : '';
+    $('#reader').hidden = false;
+    if (!l.read) { l.read = Date.now(); save(); }
+    refreshLetterBadge();
+  }
+  function readQueue() {
+    if (!readerQueue.length) { $('#reader').hidden = true; render(); return; }
+    var l = readerQueue.shift();
+    showLetter(l, readerQueue.length);
+  }
+  function openDue() {
+    var due = dueLetters();
+    if (!due.length) return false;
+    readerQueue = due.slice(1);
+    showLetter(due[0], readerQueue.length);
+    return true;
+  }
+  $('#readernext').addEventListener('click', readQueue);
+  $('#readerclose').addEventListener('click', function () {
+    readerQueue = [];
+    $('#reader').hidden = true;
+    refreshLetterBadge();
+  });
+  $('#reader').addEventListener('click', function (e) {
+    if (e.target === $('#reader')) { readerQueue = []; $('#reader').hidden = true; refreshLetterBadge(); }
+  });
+
+  /* the shelf of everything she has been sent */
+  function openShelf() {
+    var list = $('#shelflist');
+    list.textContent = '';
+    var all = (data.letters || []).slice().sort(function (a, b) { return (b.got || 0) - (a.got || 0); });
+    var waiting = all.filter(function (l) { return !l.read && !letterDue(l); }).length;
+    $('#shelfsub').textContent = all.length
+      ? all.length + (all.length === 1 ? ' letter' : ' letters')
+        + (waiting ? ' · ' + waiting + ' still sealed' : '')
+      : '';
+    if (!all.length) list.appendChild(emptyNote('✉️', 'Nothing yet. Letters arrive by link.'));
+    all.forEach(function (l) {
+      var sealed = !l.read && !letterDue(l);
+      var row = el('button', 'shelfrow');
+      row.type = 'button';
+      row.appendChild(el('span', null, sealed ? '🔒' : (l.read ? '📄' : '💌')));
+      row.appendChild(el('span', 'nm', sealed
+        ? (l.when === 'date' && l.at ? 'Sealed until ' + dayLabel(l.at) : 'Sealed')
+        : (l.title || l.body.split('\n')[0].slice(0, 40))));
+      row.appendChild(el('span', 'dt', l.read ? dayLabel(new Date(l.read).toISOString().slice(0, 10)) : 'new'));
+      if (!sealed) row.addEventListener('click', function () {
+        $('#shelf').hidden = true;
+        readerQueue = [];
+        showLetter(l, 0);
+      });
+      else row.addEventListener('click', function () { toast('Not yet — that one has a date on it.'); });
+      list.appendChild(row);
+    });
+    $('#shelf').hidden = false;
+  }
+  $('#lettersbtn').addEventListener('click', function () {
+    if (!openDue()) openShelf();
+  });
+  $('#shelfclose').addEventListener('click', function () { $('#shelf').hidden = true; });
+  $('#shelf').addEventListener('click', function (e) { if (e.target === $('#shelf')) $('#shelf').hidden = true; });
+  $('#pasteletter').addEventListener('click', function () {
+    var code = prompt('Paste the letter code:');
+    if (!code) return;
+    if (acceptLetters(code)) { $('#shelf').hidden = true; setTimeout(openDue, 400); }
+  });
+
   /* certain days say hello on their own, once each */
   function dayGreeting() {
     var key = todayISO().slice(5);
@@ -1475,7 +1733,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   $('#soundbtn').addEventListener('click', function () { applySound(!soundOn); if (soundOn) chime(); });
 
   function normalise(obj) {
-    var d = { v: SCHEMA, cur: '$', spends: [], series: [] };
+    var d = { v: SCHEMA, cur: '$', spends: [], series: [], letters: [] };
     if (!obj || typeof obj !== 'object') return d;
     if (typeof obj.cur === 'string') d.cur = obj.cur;
     if (typeof obj.v === 'number') d.v = obj.v;
@@ -1485,6 +1743,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
       });
     }
     if (Array.isArray(obj.series)) d.series = obj.series;
+    if (Array.isArray(obj.letters)) d.letters = obj.letters;
     return d;
   }
 
@@ -3098,6 +3357,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   function render() {
     renderFilterOptions();
     refreshSampleButton();
+    refreshLetterBadge();
     var list = rows();
     renderStats(list);
     renderDonut(list);
@@ -3116,7 +3376,18 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
       return;
     }
     try { meta = JSON.parse(localStorage.getItem(VKEY) || 'null'); } catch (e) { meta = null; }
-    if (!meta) { showGate('setup'); return; }
+    var waiting = '';
+    try { waiting = sessionStorage.getItem(PENDING) || ''; } catch (e) {}
+    if (!meta) {
+      showGate('setup');
+      if (waiting) {
+        $('#su-msg').className = 'hint';
+        $('#su-msg').textContent = 'A letter came with that link, but this browser has no piggy in it. '
+          + 'Open the app where you normally use it and paste the letter code there — the envelope '
+          + 'button, then “paste a letter”.';
+      }
+      return;
+    }
 
     /* a trusted device keeps the key, so there is nothing to type */
     var remembered = null;

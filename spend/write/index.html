@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Letters — Piggy Pocket</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#17161A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%89%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Caveat:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── The composer ────────────────────────────────────────────────────────────
+   Private side of the letters: written here, carried by a link, read in her
+   app. Nothing is sent anywhere — the link itself is the envelope. */
+:root {
+  color-scheme: dark;
+  --bg: #141317;
+  --panel: #1C1B21;
+  --panel-2: #232229;
+  --line: #2F2E37;
+  --ink: #F2EFEA;
+  --ink-2: #B6B1AA;
+  --muted: #83807C;
+  --accent: #D98E5F;
+  --accent-2: #7FA6A1;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: Nunito, system-ui, sans-serif; font-size: 16px; line-height: 1.5;
+  background-image: radial-gradient(circle at 15% -10%, #201E26 0 42%, transparent 70%),
+                    radial-gradient(circle at 90% 0%, #1E2224 0 30%, transparent 60%);
+  background-attachment: fixed;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding: 26px 20px 90px; }
+h1 { font-family: "EB Garamond", Georgia, serif; font-weight: 500; font-size: 34px; margin: 0; letter-spacing: .01em; }
+h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .16em; color: var(--muted); margin: 0 0 10px; font-weight: 800; }
+.sub { color: var(--ink-2); margin: 6px 0 26px; max-width: 62ch; }
+.cols { display: grid; gap: 22px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 940px) { .cols { grid-template-columns: minmax(0, 1fr) minmax(0, 440px); } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+label.f { display: block; margin-bottom: 14px; }
+label.f > span { display: block; font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); font-weight: 800; margin-bottom: 6px; }
+label.f > span em { text-transform: none; letter-spacing: 0; font-weight: 600; font-style: italic; opacity: .8; }
+.in {
+  width: 100%; background: var(--panel-2); color: var(--ink); border: 1px solid var(--line);
+  border-radius: 10px; padding: 11px 13px; font: inherit; min-height: 46px;
+}
+.in:focus { outline: none; border-color: var(--accent); }
+textarea.in { min-height: 210px; resize: vertical; line-height: 1.6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14.5px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.chip {
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--ink-2);
+  border-radius: 999px; padding: 9px 15px; cursor: pointer; font-size: 14px; font-weight: 700;
+  min-height: 42px;
+}
+.chip[aria-pressed="true"] { border-color: var(--accent); color: var(--ink); background: #2A2118; }
+.btn {
+  background: var(--accent); color: #17140F; border: none; border-radius: 10px;
+  padding: 12px 18px; font-weight: 800; cursor: pointer; min-height: 46px; font-size: 15px;
+}
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn.ghost:hover { border-color: var(--accent); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.hint { color: var(--muted); font-size: 13.5px; }
+.err { color: #E08A7E; }
+
+/* the stack of letters waiting to go */
+.stack { display: grid; gap: 10px; margin-top: 6px; }
+.slip { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; }
+.slip .t { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slip .w { font-size: 12.5px; color: var(--muted); }
+.slip button { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px;
+  padding: 8px; border-radius: 8px; }
+.slip button:hover { color: var(--accent); background: #241F1A; }
+.out { width: 100%; word-break: break-all; background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 10px; padding: 12px; font-family: ui-monospace, monospace; font-size: 12.5px;
+  color: var(--ink-2); max-height: 130px; overflow: auto; }
+
+/* ── the paper ────────────────────────────────────────────────────────────
+   Four ways a letter can look. Kept identical in her app, so the preview
+   here is exactly what she gets. */
+.paper {
+  position: relative; background: #F4EFE4; color: #211F1B; border-radius: 3px;
+  padding: 34px 32px 38px; box-shadow: 0 22px 48px -22px rgba(0,0,0,.75), 0 2px 0 rgba(0,0,0,.25);
+  transform: rotate(-.5deg); overflow: hidden;
+}
+.paper::after {                       /* a little tooth on the paper */
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background-image: radial-gradient(rgba(60,50,35,.10) .5px, transparent .5px),
+                    radial-gradient(rgba(60,50,35,.07) .5px, transparent .5px);
+  background-size: 3px 3px, 5px 5px; background-position: 0 0, 2px 3px;
+}
+.paper .meta { font-family: Nunito, sans-serif; font-size: 10.5px; letter-spacing: .22em;
+  text-transform: uppercase; color: #8A7F6C; margin-bottom: 16px; }
+.paper .title { font-family: "EB Garamond", Georgia, serif; font-size: 27px; line-height: 1.15;
+  margin: 0 0 14px; font-weight: 500; }
+.paper .body { white-space: pre-wrap; overflow-wrap: anywhere; }
+.paper .rule { height: 1px; background: rgba(33,31,27,.22); margin: 20px 0 14px; }
+.paper .sign { font-family: "Caveat", cursive; font-size: 22px; color: #4A443A; }
+
+.paper.ink { background: #F4EFE4; }
+.paper.ink .body { font-family: "EB Garamond", Georgia, serif; font-size: 19.5px; line-height: 1.62; }
+.paper.ink .body::first-letter { font-size: 2.1em; line-height: .9; float: left; padding: 6px 8px 0 0; }
+
+.paper.type { background: #EFEBE3; }
+.paper.type .title, .paper.type .body { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.paper.type .title { font-size: 18px; letter-spacing: .04em; text-transform: uppercase; }
+.paper.type .body { font-size: 14.5px; line-height: 1.8; letter-spacing: .005em;
+  text-shadow: .4px .3px 0 rgba(90,60,40,.16); }
+
+.paper.marker { background: #F1F2EC;
+  background-image: linear-gradient(rgba(60,80,95,.10) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(60,80,95,.10) 1px, transparent 1px);
+  background-size: 22px 22px, 22px 22px; }
+.paper.marker .title { font-family: "Caveat", cursive; font-size: 32px; }
+.paper.marker .body { font-family: "Caveat", cursive; font-size: 25px; line-height: 1.42; color: #1B2A33; }
+
+.paper.press { background: #E3DED4; color: #2B2822; }
+.paper.press .title { font-family: Nunito, sans-serif; font-size: 15px; text-transform: uppercase;
+  letter-spacing: .3em; font-weight: 800; }
+.paper.press .body { font-family: Nunito, sans-serif; font-size: 14px; text-transform: uppercase;
+  letter-spacing: .17em; line-height: 2.1; font-weight: 600;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5), 0 -1px 0 rgba(0,0,0,.06); }
+
+.foot { margin-top: 30px; color: var(--muted); font-size: 13px; }
+a { color: var(--accent-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Letters</h1>
+  <p class="sub">Write here, send the link once, and each letter turns up in her app at the moment you
+    chose. Nothing is stored anywhere but this browser and that link — the link <em>is</em> the envelope,
+    so treat it like one.</p>
+
+  <div class="cols">
+    <section class="panel">
+      <h2>Write</h2>
+      <label class="f">
+        <span>Title <em class="hint">optional</em></span>
+        <input class="in" id="title" type="text" maxlength="60" placeholder="No title is fine">
+      </label>
+      <label class="f">
+        <span>The letter</span>
+        <textarea class="in" id="body" placeholder="Line breaks stay exactly as you type them.&#10;&#10;    Indents too."></textarea>
+      </label>
+      <label class="f">
+        <span>Signed</span>
+        <input class="in" id="sign" type="text" maxlength="40" placeholder="— P">
+      </label>
+
+      <div class="f">
+        <span style="display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:6px">Paper</span>
+        <div class="row" id="styles"></div>
+      </div>
+
+      <div class="f">
+        <span style="display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:6px">When she sees it</span>
+        <div class="row" id="whens"></div>
+        <label class="f" id="datewrap" hidden style="margin-top:12px">
+          <span>On this day</span>
+          <input class="in" id="date" type="date">
+        </label>
+      </div>
+
+      <div class="row">
+        <button class="btn" type="button" id="add">Add to the stack</button>
+        <button class="btn ghost" type="button" id="clearform">Clear</button>
+      </div>
+      <p class="hint err" id="msg" role="status" aria-live="polite" style="margin-top:10px"></p>
+    </section>
+
+    <section class="panel">
+      <h2>How it will look</h2>
+      <div id="preview"></div>
+      <p class="hint" style="margin-top:14px">The preview updates as you type.</p>
+    </section>
+  </div>
+
+  <section class="panel" style="margin-top:22px">
+    <h2>The stack <span id="count" class="hint"></span></h2>
+    <div class="stack" id="stack"></div>
+    <p class="hint" id="empty">Nothing in the stack yet.</p>
+    <div class="row" style="margin-top:16px">
+      <button class="btn" type="button" id="make">Make the link</button>
+      <button class="btn ghost" type="button" id="wipe">Empty the stack</button>
+    </div>
+    <div id="linkout" hidden style="margin-top:16px">
+      <div class="out" id="link"></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" type="button" id="copy">Copy the link</button>
+        <button class="btn ghost" type="button" id="copycode">Copy the code instead</button>
+        <button class="btn ghost" type="button" id="open">Open it myself to check</button>
+      </div>
+      <p class="hint" style="margin-top:10px">Send her the link. If a chat app mangles it, she can paste
+        the code into the app instead — the envelope button, then “paste a letter”.</p>
+    </div>
+  </section>
+
+  <p class="foot">Drafts live in this browser only — clearing site data clears them, so keep anything
+    precious somewhere else too. One thing worth knowing: a link tapped inside a chat app sometimes
+    opens in that app's own little browser, which has no piggy in it. If she lands somewhere that asks
+    her to make a new one, send her the code instead and let her paste it into the app she already has.</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; }
+
+  var STYLES = [
+    { key: 'ink', label: 'Ink' },
+    { key: 'type', label: 'Typewriter' },
+    { key: 'marker', label: 'Marker' },
+    { key: 'press', label: 'Press' }
+  ];
+  var WHENS = [
+    { key: 'now', label: 'The moment she opens the link' },
+    { key: 'open', label: 'Next time she opens the app' },
+    { key: 'date', label: 'On a date' }
+  ];
+  var style = 'ink', when = 'now';
+  var KEY = 'piggy.letters.drafts.v1';
+  var stack = [];
+  try { stack = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { stack = []; }
+  if (!Array.isArray(stack)) stack = [];
+
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function saveDrafts() { try { localStorage.setItem(KEY, JSON.stringify(stack)); } catch (e) {} }
+
+  /* ── the paper, built the same way here and in her app ───────────────── */
+  function paperEl(letter) {
+    var p = el('div', 'paper ' + (letter.style || 'ink'));
+    var meta = el('div', 'meta', letter.meta || 'A letter');
+    p.appendChild(meta);
+    if (letter.title) p.appendChild(el('div', 'title', letter.title));
+    p.appendChild(el('div', 'body', letter.body || ''));
+    if (letter.sign) {
+      p.appendChild(el('div', 'rule'));
+      p.appendChild(el('div', 'sign', letter.sign));
+    }
+    return p;
+  }
+
+  function draft() {
+    return {
+      id: uid(),
+      title: $('#title').value.trim(),
+      body: $('#body').value.replace(/\s+$/, ''),
+      sign: $('#sign').value.trim(),
+      style: style,
+      when: when,
+      at: when === 'date' ? $('#date').value : ''
+    };
+  }
+  function whenText(l) {
+    if (l.when === 'now') return 'as soon as she opens the link';
+    if (l.when === 'open') return 'next time she opens the app';
+    if (l.when === 'date' && l.at) return 'on ' + l.at;
+    return 'on a date';
+  }
+
+  function renderChips() {
+    var sBox = $('#styles'); sBox.textContent = '';
+    STYLES.forEach(function (s) {
+      var b = el('button', 'chip', s.label);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(s.key === style));
+      b.addEventListener('click', function () { style = s.key; renderChips(); preview(); });
+      sBox.appendChild(b);
+    });
+    var wBox = $('#whens'); wBox.textContent = '';
+    WHENS.forEach(function (w) {
+      var b = el('button', 'chip', w.label);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(w.key === when));
+      b.addEventListener('click', function () {
+        when = w.key;
+        $('#datewrap').hidden = when !== 'date';
+        renderChips();
+      });
+      wBox.appendChild(b);
+    });
+  }
+
+  function preview() {
+    var d = draft();
+    d.meta = 'For you · ' + whenText(d);
+    var box = $('#preview'); box.textContent = '';
+    box.appendChild(paperEl(d));
+  }
+  ['#title', '#body', '#sign'].forEach(function (sel) {
+    $(sel).addEventListener('input', preview);
+  });
+
+  function renderStack() {
+    var box = $('#stack'); box.textContent = '';
+    $('#empty').hidden = stack.length > 0;
+    $('#count').textContent = stack.length ? '· ' + stack.length : '';
+    stack.forEach(function (l, i) {
+      var row = el('div', 'slip');
+      var left = el('div');
+      left.appendChild(el('div', 't', l.title || (l.body || '').split('\n')[0].slice(0, 46) || 'Untitled'));
+      left.appendChild(el('div', 'w', l.style + ' · ' + whenText(l)));
+      var edit = el('button', null, '✎');
+      edit.type = 'button'; edit.title = 'Put it back in the editor';
+      edit.addEventListener('click', function () {
+        $('#title').value = l.title || '';
+        $('#body').value = l.body || '';
+        $('#sign').value = l.sign || '';
+        style = l.style; when = l.when;
+        if (l.at) $('#date').value = l.at;
+        $('#datewrap').hidden = when !== 'date';
+        stack.splice(i, 1); saveDrafts(); renderChips(); renderStack(); preview();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      var del = el('button', null, '✕');
+      del.type = 'button'; del.title = 'Remove';
+      del.addEventListener('click', function () { stack.splice(i, 1); saveDrafts(); renderStack(); });
+      row.appendChild(left); row.appendChild(edit); row.appendChild(del);
+      box.appendChild(row);
+    });
+  }
+
+  $('#add').addEventListener('click', function () {
+    var d = draft();
+    if (!d.body) { $('#msg').textContent = 'Write something first.'; return; }
+    if (d.when === 'date' && !d.at) { $('#msg').textContent = 'Pick the day it should arrive.'; return; }
+    $('#msg').textContent = '';
+    stack.push(d);
+    saveDrafts(); renderStack();
+    $('#title').value = ''; $('#body').value = ''; preview();
+    $('#linkout').hidden = true;
+  });
+  $('#clearform').addEventListener('click', function () {
+    $('#title').value = ''; $('#body').value = ''; $('#sign').value = '';
+    $('#msg').textContent = ''; preview();
+  });
+  $('#wipe').addEventListener('click', function () {
+    if (!stack.length) return;
+    if (!confirm('Empty the stack? The letters in it are lost.')) return;
+    stack = []; saveDrafts(); renderStack(); $('#linkout').hidden = true;
+  });
+
+  /* ── packing the envelope ─────────────────────────────────────────────
+     JSON → UTF-8 → base64url, carried in the link's hash so it never
+     leaves the two devices. */
+  function pack(obj) {
+    var json = JSON.stringify(obj);
+    var b64 = btoa(unescape(encodeURIComponent(json)));
+    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function payload() {
+    return pack({ v: 1, sent: new Date().toISOString().slice(0, 10), letters: stack });
+  }
+  function linkFor(code) {
+    var base = location.href.replace(/write\/?(index\.html)?(\?.*)?(#.*)?$/, '');
+    return base + '#l=' + code;
+  }
+  $('#make').addEventListener('click', function () {
+    if (!stack.length) { $('#msg').textContent = 'Add a letter to the stack first.'; return; }
+    var code = payload();
+    var url = linkFor(code);
+    $('#link').textContent = url;
+    $('#linkout').hidden = false;
+    $('#linkout').dataset.code = code;
+    if (url.length > 6000) {
+      $('#msg').className = 'hint';
+      $('#msg').textContent = 'That is a long link (' + url.length + ' characters). It will work, but some '
+        + 'chat apps shorten what they show — the code button is the safe way to send it.';
+    } else { $('#msg').textContent = ''; }
+    $('#linkout').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+  function copy(text, said) {
+    var done = function () { $('#msg').className = 'hint'; $('#msg').textContent = said; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, done);
+    else done();
+  }
+  $('#copy').addEventListener('click', function () { copy($('#link').textContent, 'Link copied.'); });
+  $('#copycode').addEventListener('click', function () { copy($('#linkout').dataset.code || '', 'Code copied.'); });
+  $('#open').addEventListener('click', function () { window.open($('#link').textContent, '_blank'); });
+
+  renderChips(); renderStack(); preview();
+})();
+</script>
+</body>
+</html>
