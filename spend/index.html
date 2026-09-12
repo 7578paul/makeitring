@@ -245,7 +245,11 @@ button, .chip, .tabs button, .seg button, summary { touch-action: manipulation; 
 .top-spacer { flex: 1 1 auto; }
 .who { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 .who .name { font-size: 13px; font-weight: 800; color: var(--ink-2); max-width: 40vw;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  background: none; border: none; padding: 6px 4px; cursor: pointer; border-radius: 10px; }
+.who .name:hover { color: var(--accent); background: var(--accent-soft); }
+.who input.name { background: var(--surface-2); border: 2px solid var(--accent); width: 116px;
+  padding: 6px 8px; cursor: text; }
 
 /* ── cards ──────────────────────────────────────────────────────────────── */
 .card {
@@ -764,7 +768,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
       </div>
     </div>
     <div class="who">
-      <span class="name" id="whoname"></span>
+      <button class="name" type="button" id="whoname" title="Tap to change the name"></button>
       <select class="input" id="cur" aria-label="Currency" style="width:88px;min-height:40px;padding:6px 8px">
         <option value="$">$</option><option value="£">£</option><option value="€">€</option>
         <option value="C$">C$</option><option value="A$">A$</option><option value="₹">₹</option>
@@ -1149,7 +1153,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   function openApp() {
     $('#gate').hidden = true;
     $('#app').hidden = false;
-    $('#whoname').textContent = meta.user;
+    wireName();
     $('#cur').value = data.cur || '$';
     $('#sym').textContent = data.cur || '$';
     $('#date').value = todayISO();
@@ -1255,6 +1259,50 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   });
 
   $('#lock').addEventListener('click', function () { lock(false); });
+
+  /* tap the name to change it — it is only a label on the vault */
+  function wireName() {
+    var btn = $('#whoname');
+    if (!btn || btn.tagName !== 'BUTTON') return;
+    btn.textContent = (meta && meta.user) || '';
+    btn.title = 'Tap to change the name';
+    if (btn.getAttribute('data-wired')) return;
+    btn.setAttribute('data-wired', '1');
+    btn.addEventListener('click', startRename);
+  }
+  function startRename() {
+    var btn = $('#whoname');
+    var box = document.createElement('input');
+    box.type = 'text';
+    box.className = 'name';
+    box.id = 'whoname';
+    box.maxLength = 40;
+    box.value = (meta && meta.user) || '';
+    box.setAttribute('aria-label', 'Your name');
+    btn.replaceWith(box);
+    box.focus(); box.select();
+    var settled = false;
+    var finish = function (keep) {
+      if (settled) return;
+      settled = true;
+      var name = box.value.trim();
+      var renamed = keep && name && name !== meta.user;
+      if (renamed) { meta.user = name; save(); }
+      var again = el('button', 'name');
+      again.type = 'button';
+      again.id = 'whoname';
+      box.replaceWith(again);
+      wireName();
+      if (renamed) toast('Saved. This piggy belongs to ' + name + '.');
+    };
+    box.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+      else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+    });
+    box.addEventListener('blur', function () { finish(true); });
+  }
+  wireName();
+
   $('#themebtn').addEventListener('click', function () { applyTheme(theme() === 'dark' ? 'light' : 'dark'); });
 
   /* the hop is a one-off; once it lands the piggy goes back to breathing */
@@ -1516,7 +1564,8 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     return (data.cur || '$') + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  var filters = { period: 'all', cat: 'all', q: '', kind: 'all', from: '', to: '' };
+  /* the month you are in is the useful default; everything else is a click away */
+  var filters = { period: 'this', cat: 'all', q: '', kind: 'all', from: '', to: '' };
   var listLimit = 40;
 
   function lastMonthKey() {
@@ -2205,7 +2254,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
       if (m !== monthKey(todayISO()) && m !== lastMonthKey()) opts.push(['m:' + m, monthLong(m)]);
     });
     opts.forEach(function (o) { var op = el('option', null, o[1]); op.value = o[0]; sel.appendChild(op); });
-    sel.value = opts.some(function (o) { return o[0] === cur; }) ? cur : 'all';
+    sel.value = opts.some(function (o) { return o[0] === cur; }) ? cur : 'this';
     filters.period = sel.value;
     $('#frange').hidden = filters.period !== 'custom';
 
@@ -2242,7 +2291,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   $('#fcat').addEventListener('change', function () { filters.cat = this.value; listLimit = 40; render(); });
   $('#fq').addEventListener('input', function () { filters.q = this.value.trim(); listLimit = 40; render(); });
   $('#freset').addEventListener('click', function () {
-    filters = { period: 'all', cat: 'all', q: '', kind: 'all', from: '', to: '' };
+    filters = { period: 'this', cat: 'all', q: '', kind: 'all', from: '', to: '' };
     $('#fq').value = ''; $('#ffrom').value = ''; $('#fto').value = '';
     listLimit = 40; render();
   });
@@ -2440,7 +2489,10 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     }
     months = months.slice(-12);
     var max = months.reduce(function (a, m) { return Math.max(a, byMonth[m]); }, 0);
-    var selected = filters.period.slice(0, 2) === 'm:' ? filters.period.slice(2) : null;
+    /* "this month" and "last month" should light up their bar too */
+    var selected = filters.period.slice(0, 2) === 'm:' ? filters.period.slice(2)
+      : filters.period === 'this' ? monthKey(todayISO())
+      : filters.period === 'last' ? lastMonthKey() : null;
     var maxMonth = months.reduce(function (a, m) { return byMonth[m] > byMonth[a] ? m : a; }, months[0]);
     $('#msub').textContent = months.length + (months.length === 1 ? ' month' : ' months')
       + (filters.cat !== 'all' ? ' · ' + cat(filters.cat).label + ' only' : '');
