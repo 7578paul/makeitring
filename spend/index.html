@@ -211,28 +211,34 @@ button, .chip, .tabs button, .seg button, summary { touch-action: manipulation; 
   margin: 6px 2px 18px; padding-top: 6px; }
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand-mark {
-  width: 46px; height: 46px; display: grid; place-items: center; font-size: 26px;
+  width: 46px; height: 46px; display: grid; place-items: center;
   background: var(--surface); border: 2px solid var(--line-2); border-radius: 16px;
   box-shadow: var(--shadow-sm); transform: rotate(-4deg);
-  cursor: pointer; user-select: none; -webkit-user-select: none;
-  animation: breathe 7s ease-in-out infinite;
+  cursor: pointer; user-select: none; -webkit-user-select: none; overflow: hidden;
 }
-/* mostly still — it only stirs for a moment at the end of each loop */
-@keyframes breathe {
-  0%, 62% { transform: rotate(-4deg) scale(1); }
-  70% { transform: rotate(-4deg) scale(1.05); }
-  78% { transform: rotate(2deg) scale(1.03); }
-  84% { transform: rotate(-7deg) scale(1.04); }
-  90% { transform: rotate(-1deg) scale(1.01); }
-  100% { transform: rotate(-4deg) scale(1); }
+.pigface {
+  display: block; font-size: 26px; line-height: 1; text-align: center;
+  transform-origin: 50% 72%;
+  animation: pigidle 6.5s ease-in-out infinite;
 }
-.brand-mark:hover { animation: none; transform: rotate(3deg) scale(1.08); transition: transform .18s ease; }
-.brand-mark.hop { animation: hop .6s cubic-bezier(.3,1.5,.5,1); }
+/* still for most of the loop, then a breath and a wiggle */
+@keyframes pigidle {
+  0%, 56% { transform: scale(1) rotate(0deg); }
+  64% { transform: scale(1.08) rotate(0deg); }
+  72% { transform: scale(1.03) rotate(-7deg); }
+  80% { transform: scale(1.06) rotate(6deg); }
+  88% { transform: scale(1.02) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.brand-mark:hover .pigface { animation: none; transform: scale(1.14) rotate(-5deg); transition: transform .18s ease; }
+.brand-mark:active .pigface { transform: scale(.94) rotate(3deg); }
+.brand-mark.hop .pigface { animation: hop .62s cubic-bezier(.3,1.5,.5,1); }
 @keyframes hop {
-  0% { transform: rotate(-4deg) scale(1); }
-  35% { transform: rotate(6deg) scale(1.18) translateY(-6px); }
-  60% { transform: rotate(-6deg) scale(.96) translateY(0); }
-  100% { transform: rotate(-4deg) scale(1); }
+  0% { transform: scale(1) rotate(0deg) translateY(0); }
+  30% { transform: scale(1.2, .84) rotate(0deg) translateY(1px); }
+  55% { transform: scale(.94, 1.14) rotate(-8deg) translateY(-5px); }
+  80% { transform: scale(1.04) rotate(5deg) translateY(0); }
+  100% { transform: scale(1) rotate(0deg) translateY(0); }
 }
 .brand h1 { font-size: 24px; margin: 0; line-height: 1.1; }
 .brand p { margin: 1px 0 0; font-size: 13px; color: var(--ink-2); }
@@ -543,41 +549,64 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   animation: scrimfade 1.3s ease forwards;
 }
 @keyframes scrimfade { 0% { opacity: 0; } 20% { opacity: 1; } 100% { opacity: 0; } }
+.fx { position: fixed; inset: 0; z-index: 96; pointer-events: none; }   /* behind the card, so the words stay readable */
+.pigrun { position: fixed; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); left: -90px;
+  z-index: 98; font-size: 44px; pointer-events: none; animation: pigtrot 2.8s linear forwards; }
+.pigrun span { display: block; animation: pigbob .26s ease-in-out infinite alternate; }
+@keyframes pigtrot { to { transform: translateX(calc(100vw + 200px)); } }
+@keyframes pigbob { from { transform: translateY(0) rotate(-5deg); } to { transform: translateY(-9px) rotate(5deg); } }
 .cheer {
   position: fixed; left: 50%; top: 42%; z-index: 98; pointer-events: none; text-align: center;
-  min-width: 210px; padding: 20px 28px 18px;
+  min-width: 216px; padding: 16px 28px 18px;
   background: var(--surface); border: 3px solid var(--accent); border-radius: 28px;
   box-shadow: 0 22px 50px -18px rgba(120,40,80,.55), 0 0 0 8px var(--accent-soft);
-  animation: cheerpop 1.45s cubic-bezier(.22,1.15,.34,1) forwards;
+  animation: cheerpop 1.9s cubic-bezier(.22,1.15,.34,1) forwards;
 }
 @keyframes cheerpop {
-  0%   { transform: translate(-50%, -50%) scale(.35) rotate(-8deg); opacity: 0; }
-  16%  { transform: translate(-50%, -50%) scale(1.1) rotate(3deg); opacity: 1; }
-  28%  { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
-  76%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  100% { transform: translate(-50%, -74%) scale(.9); opacity: 0; }
+  0%   { transform: translate(-50%, -50%) scale(.4) rotate(-7deg); opacity: 0; }
+  9%   { transform: translate(-50%, -50%) scale(1.08) rotate(2deg); opacity: 1; }
+  16%  { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  82%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -76%) scale(.88); opacity: 0; }
 }
-.cheerpig { display: block; font-size: 54px; line-height: 1.1; animation: cheerwiggle .9s ease .18s both; }
-@keyframes cheerwiggle {
-  0% { transform: scale(.8) rotate(0deg); }
-  30% { transform: scale(1.14) rotate(-7deg); }
-  55% { transform: scale(.98) rotate(6deg); }
-  75% { transform: scale(1.04) rotate(-3deg); }
+.cheerstage { position: relative; height: 96px; display: flex; align-items: flex-end; justify-content: center; }
+.cheerpig { display: block; font-size: 58px; line-height: 1; transform-origin: 50% 88%;
+  animation: cheerland .7s cubic-bezier(.3,1.3,.5,1) .34s both; }
+@keyframes cheerland {
+  0% { transform: scale(.9) translateY(2px); }
+  100% { transform: scale(1) translateY(0); }
+}
+/* the hit: squash, spring back, settle */
+.cheerpig.whump { animation: whump .78s cubic-bezier(.28,1.3,.45,1) both; }
+@keyframes whump {
+  0% { transform: scale(1) rotate(0deg); }
+  16% { transform: scale(1.3, .72) rotate(0deg); }
+  38% { transform: scale(.88, 1.2) rotate(-7deg) translateY(-8px); }
+  58% { transform: scale(1.08, .95) rotate(5deg) translateY(0); }
+  78% { transform: scale(.98, 1.03) rotate(-2deg); }
   100% { transform: scale(1) rotate(0deg); }
 }
 .cheercoin {
-  display: block; font-size: 26px; line-height: 1; height: 26px;
-  animation: cheerdrop .55s cubic-bezier(.5,.05,.7,1) both;
+  position: absolute; left: 50%; top: 0; margin-left: -15px; font-size: 30px; line-height: 1;
+  animation: cheerdrop .44s cubic-bezier(.55,0,.85,.6) both;
 }
 @keyframes cheerdrop {
-  0% { transform: translateY(-54px) scale(.7) rotate(0deg); opacity: 0; }
-  30% { opacity: 1; }
-  80% { transform: translateY(4px) scale(1) rotate(320deg); opacity: 1; }
-  100% { transform: translateY(10px) scale(.55) rotate(360deg); opacity: 0; }
+  0% { transform: translateY(-130px) scaleY(.8) rotate(0deg); opacity: 0; }
+  22% { opacity: 1; }
+  78% { transform: translateY(28px) scaleY(1.35) scaleX(.82) rotate(300deg); opacity: 1; }
+  100% { transform: translateY(46px) scale(.6) rotate(360deg); opacity: 0; }
 }
-.cheeramt { font-family: Fredoka, sans-serif; font-size: 34px; color: var(--accent); margin-top: 2px; }
+.cheer.shake { animation: cheerpop 1.9s cubic-bezier(.22,1.15,.34,1) forwards, jolt .26s ease-out; }
+@keyframes jolt {
+  0% { margin-top: 0; } 25% { margin-top: 5px; } 55% { margin-top: -3px; }
+  80% { margin-top: 1px; } 100% { margin-top: 0; }
+}
+.cheeramt { font-family: Fredoka, sans-serif; font-size: 36px; color: var(--accent); margin-top: 4px;
+  font-variant-numeric: tabular-nums; animation: amtpop .5s cubic-bezier(.3,1.5,.5,1) .4s both; }
+@keyframes amtpop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
 .cheer.found { border-color: var(--accent); box-shadow: 0 22px 50px -18px rgba(120,40,80,.55), 0 0 0 10px var(--accent-soft); }
-.cheer.wide { max-width: min(340px, calc(100vw - 40px)); animation-duration: 3.2s; }
+.cheer.wide { max-width: min(340px, calc(100vw - 40px)); animation-duration: 3.4s; }
+.cheer.wide .cheerstage { height: 78px; }
 .cheernote { margin-top: 8px; font-size: 14.5px; font-weight: 700; color: var(--ink);
   line-height: 1.45; max-width: 260px; }
 .cheernote.big { font-family: Fredoka, sans-serif; font-weight: 500; font-size: 17px; max-width: none; }
@@ -586,8 +615,8 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   font-size: 13.5px; font-weight: 700; color: var(--ink-2); margin-top: 4px; }
 .cheercat i { width: 9px; height: 9px; border-radius: 50%; background: var(--k-c, var(--accent)); flex: none; }
 @media (prefers-reduced-motion: reduce) { .cheer { opacity: 1; transform: translate(-50%, -50%); } }
-@media (max-width: 420px) { .cheer { min-width: 180px; padding: 18px 22px 16px; }
-  .cheerpig { font-size: 46px; } .cheeramt { font-size: 30px; } }
+@media (max-width: 420px) { .cheer { min-width: 188px; padding: 14px 22px 16px; }
+  .cheerstage { height: 86px; } .cheerpig { font-size: 50px; } .cheeramt { font-size: 32px; } }
 .btn.popped { animation: popped .5s cubic-bezier(.3,1.4,.5,1); }
 @keyframes popped {
   0% { transform: scale(1); } 40% { transform: scale(1.06) translateY(-2px); } 100% { transform: scale(1); }
@@ -618,9 +647,8 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
 @media (max-width: 560px) {
   .wrap { padding: 10px calc(14px + env(safe-area-inset-right, 0px))
           calc(84px + env(safe-area-inset-bottom, 0px)) calc(14px + env(safe-area-inset-left, 0px)); }
-  .top { margin: 2px 2px 12px; gap: 8px; justify-content: center; text-align: center; }
-  .brand { justify-content: center; }
-  .who { gap: 8px; margin: 0 auto; justify-content: center; }
+  .top { margin: 2px 2px 12px; gap: 8px; }
+  .who { gap: 8px; }
   .card { padding: 15px; border-radius: 20px; margin-bottom: 13px; }
   h2 { font-size: 18px; }
   .brand h1 { font-size: 21px; }
@@ -729,7 +757,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
 
   <header class="top">
     <div class="brand">
-      <div class="brand-mark" id="pig" aria-hidden="true">🐷</div>
+      <div class="brand-mark" id="pig" aria-hidden="true"><span class="pigface">🐷</span></div>
       <div>
         <h1>Piggy Pocket<svg class="brandbloom" aria-hidden="true"><use href="#flower"></use></svg></h1>
         <p>your spending, in one small friendly place</p>
@@ -886,13 +914,14 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     Everything stays in this browser, encrypted with your passphrase — nothing is uploaded anywhere.
     <br><button class="btn link" type="button" id="backup">save a backup file</button>
     · <button class="btn link" type="button" id="restore">restore from a backup</button>
-    · <button class="btn link" type="button" id="sample">add samples</button>
+    · <button class="btn link" type="button" id="unsample" hidden>remove the sample spends</button>
     · <button class="btn link" type="button" id="clear">delete everything</button>
     <input type="file" id="restorefile" accept=".json,application/json" class="sr">
   </p>
   <p class="sig">Made with lots of 🤍 by your future husband</p>
 </div>
 
+<canvas class="fx" id="fx" aria-hidden="true"></canvas>
 <div class="tip" id="tip" role="status" aria-live="polite"></div>
 <div class="toast" id="toast" hidden></div>
 <div class="burst" id="burst" aria-hidden="true"></div>
@@ -1236,6 +1265,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   /* five taps on the piggy and it lets something slip */
   var taps = 0, tapTimer = null, noteTurn = 0;
   $('#pig').addEventListener('click', function () {
+    if (held) { held = false; return; }
     taps++;
     clearTimeout(tapTimer);
     tapTimer = setTimeout(function () { taps = 0; }, 1600);
@@ -1261,16 +1291,126 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     cheer.appendChild(el('div', 'cheernote big', msg));
     burst.appendChild(scrim);
     burst.appendChild(cheer);
-    chime();
+    play('magic');
     if (navigator.vibrate) { try { navigator.vibrate([10, 60, 14, 60, 20]); } catch (e) {} }
     var cx = window.innerWidth / 2, cy = window.innerHeight * 0.42;
-    if (!reduced) {
-      petalBurst(cx, cy, 20, HEARTS);
-      setTimeout(function () { petalBurst(cx, cy, 14, HEARTS); }, 300);
-    }
+    fxBurst(cx, cy, { n: 26, glyphs: HEARTS, power: 10, lift: 3 });
+    setTimeout(function () { fxBurst(cx, cy, { n: 18, glyphs: HEARTS, power: 7, lift: 2 }); }, 260);
     var done = function () { cheer.remove(); scrim.remove(); };
     cheer.addEventListener('animationend', done);
     setTimeout(done, 3200);
+  }
+
+  /* hold the piggy for a moment and he softens */
+  var holdTimer = null, held = false;
+  function holdStart() {
+    held = false;
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(function () { held = true; surprise('🐷', extra('longpress')); }, 620);
+  }
+  function holdEnd() { clearTimeout(holdTimer); }
+  $('#pig').addEventListener('pointerdown', holdStart);
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) {
+    $('#pig').addEventListener(ev, holdEnd);
+  });
+
+  /* the flower in the wordmark shakes its petals loose */
+  var bloom = document.querySelector('.brandbloom');
+  if (bloom) {
+    bloom.style.cursor = 'pointer';
+    bloom.addEventListener('click', function () {
+      play('pip');
+      fxRain(2600, ['🌸', '🌼', '🌷', '💮', '🌺']);
+      surprise('🌸', extra('flower'));
+    });
+  }
+
+  /* type his name into the search box and he trots past */
+  function pigRun() {
+    var run = el('div', 'pigrun');
+    var face = el('span', null, '🐷');
+    run.appendChild(face);
+    $('#burst').appendChild(run);
+    play('rattle');
+    run.addEventListener('animationend', function () { run.remove(); });
+  }
+  var searchEgg = false;
+  $('#fq').addEventListener('input', function () {
+    var v = this.value.trim().toLowerCase();
+    if (v === 'piggy' && !searchEgg) {
+      searchEgg = true;
+      pigRun();
+      setTimeout(function () { surprise('🐷', extra('search')); }, 900);
+    }
+    if (v !== 'piggy') searchEgg = false;
+  });
+
+  /* the old cheat code, for anyone who grew up with a controller */
+  var KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    'ArrowLeft', 'ArrowRight', 'b', 'a'];
+  var konamiAt = 0;
+  document.addEventListener('keydown', function (e) {
+    var t = e.target && e.target.tagName;
+    if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') { konamiAt = 0; return; }
+    var k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    konamiAt = (k === KONAMI[konamiAt]) ? konamiAt + 1 : (k === KONAMI[0] ? 1 : 0);
+    if (konamiAt < KONAMI.length) return;
+    konamiAt = 0;
+    play('magic');
+    var w = window.innerWidth, h = window.innerHeight;
+    for (var i = 0; i < 5; i++) {
+      (function (i) {
+        setTimeout(function () {
+          fxBurst(w * (0.15 + Math.random() * 0.7), h * (0.3 + Math.random() * 0.4),
+            { n: 30, glyphs: PETALS.concat(HEARTS), power: 13, lift: 4, glyphRatio: 0.4 });
+        }, i * 160);
+      })(i);
+    }
+    fxRain(2600, ['🌈', '✨', '💖', '🪙', '🎉']);
+    surprise('🎮', extra('konami'));
+  });
+
+  /* three taps on the big number and it tells you what that is in coffees */
+  var heroTaps = 0, heroTimer = null;
+  document.addEventListener('click', function (e) {
+    var tile = e.target && e.target.closest ? e.target.closest('.tile.hero') : null;
+    if (!tile) return;
+    heroTaps++;
+    clearTimeout(heroTimer);
+    heroTimer = setTimeout(function () { heroTaps = 0; }, 900);
+    if (heroTaps < 3) return;
+    heroTaps = 0;
+    var total = rows().reduce(function (a, x) { return a + x.amount; }, 0);
+    var val = tile.querySelector('.val'), sub = tile.querySelector('.sub');
+    if (!val) return;
+    var coffees = Math.round(total / 4.6);
+    var was = val.textContent, wasSub = sub ? sub.textContent : '';
+    val.textContent = '☕ × ' + coffees.toLocaleString();
+    if (sub) sub.textContent = 'that is what you have spent, in flat whites';
+    play('pip');
+    fxBurst(window.innerWidth / 2, window.innerHeight * 0.3, { n: 14, glyphs: ['☕', '✨'], power: 8 });
+    setTimeout(function () { val.textContent = was; if (sub) sub.textContent = wasSub; }, 3600);
+  });
+
+  /* give the phone a shake and the coins complain */
+  var lastShake = 0;
+  if (window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission !== 'function') {
+    window.addEventListener('devicemotion', function (e) {
+      var a = e.accelerationIncludingGravity;
+      if (!a) return;
+      var force = Math.abs(a.x || 0) + Math.abs(a.y || 0) + Math.abs(a.z || 0);
+      if (force < 34 || Date.now() - lastShake < 4000) return;
+      lastShake = Date.now();
+      play('rattle');
+      var pigFace = $('#pig').querySelector('.pigface');
+      if (pigFace && pigFace.animate) {
+        pigFace.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-14deg)' },
+          { transform: 'rotate(12deg)' }, { transform: 'rotate(-6deg)' }, { transform: 'rotate(0)' }],
+          { duration: 520, easing: 'ease-in-out' });
+      }
+      fxBurst(window.innerWidth / 2, window.innerHeight * 0.35, { n: 16, glyphs: ['🪙'], power: 9, glyphRatio: 0.9 });
+      surprise('🪙', extra('shake'));
+    }, { passive: true });
   }
 
   /* certain days say hello on their own, once each */
@@ -1637,7 +1777,8 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
         + (pickedRepeat === 'once' ? '' : ' · repeats ' + repeatLabel(pickedRepeat));
     freshId = data.spends.length ? data.spends[data.spends.length - 1].id : null;
     celebrate('+' + moneyExact(amount), picked,
-      milestoneFor(data.spends.length) || secretFor(note));
+      milestoneFor(data.spends.length) || secretFor(note) || occasionFor(amount, date),
+      amount);
     render();
     /* the cursor goes back to the amount box only once the cheering is done,
        and without dragging the page anywhere */
@@ -1693,6 +1834,20 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     dates: {
       '02-14': 'SGFwcHkgVmFsZW50aW5lJ3Mg8J+SmCBzcGVuZCBzb21ldGhpbmcgc2lsbHkgdG9kYXku',
       '01-01': 'TmV3IHllYXIsIHNhbWUgcGlnZ3kg8J+OiiBoZXJlIHdlIGdvIGFnYWluLg=='
+    },
+    /* the rest of the hiding places */
+    extras: {
+      longpress: 'SGVsZCBvbiB0byB0aGUgcGlnZ3ksIGRpZCB5b3U/IEhlIGxpa2VzIHlvdSB0b28g8J+rtg==',
+      flower: 'UGV0YWxzIGZvciB5b3Ug8J+MuCBiZWNhdXNlIHlvdSBrZWVwIGV2ZXJ5dGhpbmcgaW4gb3JkZXIu',
+      search: 'WW91IHR5cGVkIGhpcyBuYW1lLiBPZiBjb3Vyc2UgaGUgY2FtZSBydW5uaW5nIPCfkLfwn5Ko',
+      nice: 'TG9vayBhdCB0aGF0IG51bWJlciDinKggcGVyZmVjdGx5LCBwb2ludGxlc3NseSBuZWF0Lg==',
+      night: 'U3BlbmRpbmcgYWZ0ZXIgbWlkbmlnaHQg8J+MmSBnbyB0byBiZWQsIGdvcmdlb3VzLg==',
+      newmonth: 'Rmlyc3Qgb25lIG9mIHRoZSBtb250aCDwn4yxIGNsZWFuIHNsYXRlLCBzYW1lIHBpZ2d5Lg==',
+      konami: 'VXAgdXAgZG93biBkb3du4oCmIHlvdSBhYnNvbHV0ZSBsZWdlbmQg8J+OrvCfkpY=',
+      shake: 'T2theSBva2F5LCB0aGUgY29pbnMgYXJlIHJhdHRsaW5nIPCfqpkgcHV0IGhpbSBkb3duIQ==',
+      weekend: 'V2Vla2VuZCBtb25leS4gRW50aXJlbHkgYWxsb3dlZCDwn42w',
+      big: 'T29mdC4gQSBiaWcgb25lLiBXb3J0aCBpdCwgSSdtIHN1cmUg8J+ShQ==',
+      tiny: 'VGhlIHNtYWxsZXN0IHNwZW5kIHNvIGZhci4gUHJlY2lzaW9uIPCfkJw='
     }
   };
   function secret(b) {
@@ -1705,6 +1860,26 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   }
   function milestoneFor(n) {
     return SECRETS.milestones[n] ? secret(SECRETS.milestones[n]) : '';
+  }
+  function extra(k) { return SECRETS.extras && SECRETS.extras[k] ? secret(SECRETS.extras[k]) : ''; }
+
+  /* things worth noticing about a spend as it is saved */
+  function occasionFor(amount, date) {
+    var hh = new Date().getHours();
+    var cents = Math.round(amount * 100);
+    var str = amount.toFixed(2).replace('.', '');
+    var repdigit = /^(\d)\1+$/.test(str);                       /* 11.11, 2.22, 555.55 */
+    if (repdigit && cents >= 111) return extra('nice');
+    if (cents % 10000 === 0 && cents >= 10000) return extra('nice');   /* a round hundred */
+    if (date === todayISO() && hh >= 0 && hh < 5) return extra('night');
+    if (amount >= 500) return extra('big');
+    var firstOfMonth = data.spends.filter(function (x) {
+      return monthKey(x.date) === monthKey(date);
+    }).length <= 1;
+    if (firstOfMonth && data.spends.length > 3) return extra('newmonth');
+    var dow = new Date(date + 'T12:00:00').getDay();
+    if ((dow === 0 || dow === 6) && Math.random() < 0.22) return extra('weekend');
+    return '';
   }
 
   /* Audio has to be woken by a real tap, and iOS otherwise silences pages
@@ -1726,111 +1901,293 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   document.addEventListener('pointerdown', function () { audio(); }, { passive: true });
   document.addEventListener('keydown', function () { audio(); }, { passive: true });
 
-  function note(ctx, freq, at, dur, gain, type) {
+  /* ── sound ────────────────────────────────────────────────────────────
+     Four layers, made on the spot: a whoosh as the coin falls, a bell and
+     a soft thump as it lands, an arpeggio on top, and a wobble as the
+     piggy settles. */
+  function tone(ctx, out, freq, at, dur, gain, type, glideTo) {
     var osc = ctx.createOscillator(), g = ctx.createGain();
     osc.type = type || 'triangle';
     osc.frequency.setValueAtTime(freq, at);
+    if (glideTo) osc.frequency.exponentialRampToValueAtTime(glideTo, at + dur);
     g.gain.setValueAtTime(0.0001, at);
-    g.gain.exponentialRampToValueAtTime(gain, at + 0.014);
+    g.gain.exponentialRampToValueAtTime(gain, at + 0.012);
     g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
-    osc.connect(g); g.connect(ctx.destination);
-    osc.start(at);
-    osc.stop(at + dur + 0.02);
+    osc.connect(g); g.connect(out);
+    osc.start(at); osc.stop(at + dur + 0.03);
   }
-  function chime() {
+  var noiseBuf = null;
+  function noise(ctx, out, at, dur, gain, f0, f1) {
+    if (!noiseBuf) {
+      noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.6), ctx.sampleRate);
+      var d = noiseBuf.getChannelData(0);
+      for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    var src = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+    src.buffer = noiseBuf;
+    bp.type = 'bandpass'; bp.Q.value = 1.1;
+    bp.frequency.setValueAtTime(f0, at);
+    bp.frequency.exponentialRampToValueAtTime(f1, at + dur);
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.exponentialRampToValueAtTime(gain, at + dur * 0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    src.connect(bp); bp.connect(g); g.connect(out);
+    src.start(at); src.stop(at + dur + 0.02);
+  }
+  function master(ctx, vol) {
+    var g = ctx.createGain();
+    g.gain.value = vol;
+    g.connect(ctx.destination);
+    return g;
+  }
+
+  var SFX = {
+    /* the coin-into-piggy sequence, timed to the animation */
+    save: function (ctx, t) {
+      var out = master(ctx, 0.9);
+      noise(ctx, out, t + 0.02, 0.34, 0.05, 1800, 420);           /* the fall */
+      tone(ctx, out, 1480, t + 0.40, 0.22, 0.20, 'sine');         /* the clink */
+      tone(ctx, out, 2220, t + 0.40, 0.16, 0.10, 'sine');
+      tone(ctx, out, 78, t + 0.40, 0.18, 0.30, 'sine');           /* its body */
+      noise(ctx, out, t + 0.40, 0.09, 0.05, 5200, 1400);
+      [[1046.5, 0.50], [1318.5, 0.58], [1568.0, 0.66], [2093.0, 0.74]].forEach(function (n) {
+        tone(ctx, out, n[0], t + n[1], 0.34, 0.12, 'sine');       /* sparkles */
+      });
+      tone(ctx, out, 330, t + 0.62, 0.30, 0.09, 'sine', 190);     /* the settle */
+    },
+    /* something found */
+    magic: function (ctx, t) {
+      var out = master(ctx, 0.9);
+      [[659.3, 0], [880, 0.09], [1174.7, 0.18], [1318.5, 0.27], [1760, 0.38]].forEach(function (n) {
+        tone(ctx, out, n[0], t + n[1], 0.5, 0.13, 'sine');
+      });
+      noise(ctx, out, t + 0.3, 0.5, 0.025, 6000, 2000);
+      tone(ctx, out, 110, t, 0.5, 0.11, 'sine', 220);
+    },
+    /* a quiet blip, for toggles and taps */
+    pip: function (ctx, t) {
+      var out = master(ctx, 0.8);
+      tone(ctx, out, 1046.5, t, 0.14, 0.15, 'sine');
+      tone(ctx, out, 1568, t + 0.06, 0.18, 0.08, 'sine');
+    },
+    /* coins shifting about inside */
+    rattle: function (ctx, t) {
+      var out = master(ctx, 0.8);
+      for (var i = 0; i < 9; i++) {
+        var at = t + i * 0.045 + Math.random() * 0.02;
+        tone(ctx, out, 900 + Math.random() * 1400, at, 0.1, 0.07, 'sine');
+        noise(ctx, out, at, 0.05, 0.025, 5000, 1500);
+      }
+    }
+  };
+  function play(name) {
     if (!soundOn) return;
     var ctx = audio();
-    if (!ctx) return;
-    var t = ctx.currentTime + 0.01;
-    note(ctx, 523.25, t, 0.26, 0.30, 'sine');          /* C5, the coin landing */
-    note(ctx, 783.99, t + 0.085, 0.28, 0.26);          /* G5 */
-    note(ctx, 1046.5, t + 0.17, 0.42, 0.24);           /* C6 */
-    note(ctx, 1568.0, t + 0.25, 0.5, 0.12, 'sine');    /* G6, the sparkle on top */
+    if (!ctx || !SFX[name]) return;
+    try { SFX[name](ctx, ctx.currentTime + 0.01); }
+    catch (e) { if (window.console && console.debug) console.debug('sfx', name, e && e.message); }
   }
+  function chime() { play('pip'); }
 
-  function flyCoin(from, to) {
-    if (reduced || !from || !to || !from.animate) return Promise.resolve();
-    var a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
-    var coin = el('div', 'coin', '🪙');
-    coin.style.left = (a.left + a.width / 2) + 'px';
-    coin.style.top = (a.top + a.height / 2) + 'px';
-    $('#burst').appendChild(coin);
-    var dx = (b.left + b.width / 2) - (a.left + a.width / 2);
-    var dy = (b.top + b.height / 2) - (a.top + a.height / 2);
-    var anim = coin.animate([
-      { transform: 'translate(-50%, -50%) scale(.4) rotate(0deg)', opacity: 0 },
-      { transform: 'translate(calc(-50% + ' + dx * 0.35 + 'px), calc(-50% + ' + (dy * 0.35 - 90) + 'px)) scale(1.25) rotate(180deg)', opacity: 1, offset: 0.45 },
-      { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(.5) rotate(420deg)', opacity: 0.9 }
-    ], { duration: 620, easing: 'cubic-bezier(.35,.05,.3,1)' });
-    return anim.finished.then(function () { coin.remove(); }, function () { coin.remove(); });
+  /* ── confetti ─────────────────────────────────────────────────────────
+     One canvas with real gravity, so petals fall the way petals do. */
+  var fx = { cv: null, ctx: null, parts: [], on: false, w: 0, h: 0 };
+  function fxInit() {
+    fx.cv = $('#fx');
+    if (!fx.cv || !fx.cv.getContext) return;
+    fx.ctx = fx.cv.getContext('2d');
+    fxSize();
+    window.addEventListener('resize', fxSize);
   }
-
-  function petalBurst(cx, cy, n, glyphs) {
-    var burst = $('#burst');
-    glyphs = glyphs || PETALS;
+  function fxSize() {
+    if (!fx.cv || !fx.ctx) return;
+    var d = Math.min(window.devicePixelRatio || 1, 2);
+    fx.w = window.innerWidth; fx.h = window.innerHeight;
+    fx.cv.width = Math.floor(fx.w * d); fx.cv.height = Math.floor(fx.h * d);
+    fx.cv.style.width = fx.w + 'px'; fx.cv.style.height = fx.h + 'px';
+    fx.ctx.setTransform(d, 0, 0, d, 0, 0);
+  }
+  var CONFETTI = ['#E03A6D', '#FF8FB1', '#FFC93C', '#7ED0B0', '#9B8CFF', '#FFFFFF'];
+  var EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",serif';
+  function fxBurst(x, y, opts) {
+    if (reduced || !fx.ctx) return;
+    opts = opts || {};
+    var n = opts.n || 26, glyphs = opts.glyphs || PETALS;
+    var spread = opts.spread || Math.PI * 2, power = opts.power || 9;
     for (var i = 0; i < n; i++) {
-      var bit = el('span', 'bit', glyphs[Math.floor(Math.random() * glyphs.length)]);
-      var ang = (-Math.PI / 2) + (Math.random() - 0.5) * 2.4;
-      var dist = 80 + Math.random() * 160;
-      bit.style.left = cx + 'px';
-      bit.style.top = cy + 'px';
-      bit.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
-      bit.style.setProperty('--dy', (Math.sin(ang) * dist + 70) + 'px');
-      bit.style.setProperty('--r1', (Math.random() * 60 - 30) + 'deg');
-      bit.style.setProperty('--r2', (Math.random() * 520 - 260) + 'deg');
-      bit.style.setProperty('--dur', (900 + Math.random() * 500) + 'ms');
-      bit.style.fontSize = (14 + Math.random() * 12) + 'px';
-      burst.appendChild(bit);
-      bit.addEventListener('animationend', function () { this.remove(); });
+      var ang = (opts.dir != null ? opts.dir : -Math.PI / 2) + (Math.random() - 0.5) * spread;
+      var sp = power * (0.45 + Math.random() * 0.9);
+      var isGlyph = Math.random() < (opts.glyphRatio == null ? 0.55 : opts.glyphRatio);
+      fx.parts.push({
+        x: x, y: y,
+        vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - (opts.lift || 2.5),
+        g: 0.26 + Math.random() * 0.12, drag: 0.988,
+        rot: Math.random() * Math.PI * 2, spin: (Math.random() - 0.5) * 0.32,
+        size: isGlyph ? 13 + Math.random() * 14 : 5 + Math.random() * 6,
+        glyph: isGlyph ? glyphs[Math.floor(Math.random() * glyphs.length)] : null,
+        color: CONFETTI[Math.floor(Math.random() * CONFETTI.length)],
+        life: 0, max: 90 + Math.random() * 60, type: 'bit'
+      });
     }
+    fxStart();
+  }
+  function fxRing(x, y) {
+    if (reduced || !fx.ctx) return;
+    fx.parts.push({ x: x, y: y, r: 10, type: 'ring', life: 0, max: 34 });
+    fxStart();
+  }
+  function fxRain(ms, glyphs) {
+    if (reduced || !fx.ctx) return;
+    var until = Date.now() + ms;
+    (function drop() {
+      if (Date.now() > until) return;
+      for (var i = 0; i < 3; i++) {
+        fx.parts.push({
+          x: Math.random() * fx.w, y: -20,
+          vx: (Math.random() - 0.5) * 1.4, vy: 1 + Math.random() * 1.6,
+          g: 0.035, drag: 0.999,
+          rot: Math.random() * 6, spin: (Math.random() - 0.5) * 0.12,
+          size: 14 + Math.random() * 12,
+          glyph: glyphs[Math.floor(Math.random() * glyphs.length)],
+          color: null, life: 0, max: 400, type: 'bit', sway: Math.random() * 6
+        });
+      }
+      fxStart();
+      setTimeout(drop, 90);
+    })();
+  }
+  function fxStart() {
+    if (fx.on || !fx.ctx) return;
+    fx.on = true;
+    requestAnimationFrame(fxTick);
+  }
+  function fxTick() {
+    var c = fx.ctx;
+    c.clearRect(0, 0, fx.w, fx.h);
+    for (var i = fx.parts.length - 1; i >= 0; i--) {
+      var p = fx.parts[i];
+      p.life++;
+      if (p.type === 'ring') {
+        var k = p.life / p.max;
+        c.save();
+        c.globalAlpha = Math.max(0, 0.5 * (1 - k));
+        c.strokeStyle = '#E03A6D';
+        c.lineWidth = 5 * (1 - k) + 1;
+        c.beginPath();
+        c.arc(p.x, p.y, p.r + k * 95, 0, Math.PI * 2);
+        c.stroke();
+        c.restore();
+        if (p.life >= p.max) fx.parts.splice(i, 1);
+        continue;
+      }
+      p.vy += p.g;
+      p.vx *= p.drag; p.vy *= p.drag;
+      p.x += p.vx + (p.sway ? Math.sin((p.life + p.sway) / 14) * 0.8 : 0);
+      p.y += p.vy;
+      p.rot += p.spin;
+      var fade = p.life > p.max - 30 ? Math.max(0, (p.max - p.life) / 30) : 1;
+      c.save();
+      c.globalAlpha = fade;
+      c.translate(p.x, p.y);
+      c.rotate(p.rot);
+      if (p.glyph) {
+        c.font = p.size + 'px ' + EMOJI_FONT;
+        c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillText(p.glyph, 0, 0);
+      } else {
+        c.fillStyle = p.color;
+        c.beginPath();
+        c.ellipse(0, 0, p.size, p.size * 0.62, 0, 0, Math.PI * 2);
+        c.fill();
+      }
+      c.restore();
+      if (p.life >= p.max || p.y > fx.h + 60) fx.parts.splice(i, 1);
+    }
+    if (fx.parts.length) requestAnimationFrame(fxTick);
+    else { fx.on = false; c.clearRect(0, 0, fx.w, fx.h); }
+  }
+  function petalBurst(x, y, n, glyphs) { fxBurst(x, y, { n: n, glyphs: glyphs }); }
+
+  /* the number climbs up to itself instead of just appearing */
+  function countUp(node, to, prefix) {
+    if (reduced) { node.textContent = prefix + moneyExact(to); return; }
+    var t0 = performance.now(), dur = 560;
+    (function step(now) {
+      var k = Math.min(1, (now - t0) / dur);
+      node.textContent = prefix + moneyExact(to * (1 - Math.pow(1 - k, 3)));
+      if (k < 1) requestAnimationFrame(step);
+      else node.textContent = prefix + moneyExact(to);
+    })(t0);
   }
 
-  function celebrate(text, catKey, found) {
+  /* ── the moment ───────────────────────────────────────────────────────
+     The coin falls, the piggy takes the hit and wobbles, a ring goes out,
+     confetti goes up, the number climbs, then everything floats away. */
+  function celebrate(text, catKey, found, amount) {
     var pig = $('#pig'), btn = $('#addbtn'), card = $('#addcard'), burst = $('#burst');
     var c = cat(catKey);
-    if (navigator.vibrate) { try { navigator.vibrate([14, 40, 22]); } catch (e) {} }
-    chime();
+    if (navigator.vibrate) { try { navigator.vibrate(found ? [12, 50, 16, 50, 26] : [8, 90, 26]); } catch (e) {} }
+    play(found ? 'magic' : 'save');
 
     card.classList.remove('glow'); void card.offsetWidth; card.classList.add('glow');
     btn.classList.add('popped');
     var label = btn.textContent;
     btn.textContent = '🌸 In the piggy!';
-    setTimeout(function () { btn.classList.remove('popped'); btn.textContent = label; }, 1300);
-    pig.classList.remove('hop'); void pig.offsetWidth; pig.classList.add('hop');
+    setTimeout(function () { btn.classList.remove('popped'); btn.textContent = label; }, 1500);
 
-    /* the whole thing plays in the middle of the screen, so it is the same
-       show whether you are at the top of the page or down in the list */
     var scrim = el('div', 'cheerscrim');
-    var cheer = el('div', 'cheer');
+    var cheer = el('div', 'cheer' + (found ? ' found' : ''));
+    var stage = el('div', 'cheerstage');
     var coin = el('span', 'cheercoin', '🪙');
-    coin.setAttribute('aria-hidden', 'true');
     var face = el('span', 'cheerpig', '🐷');
+    coin.setAttribute('aria-hidden', 'true');
     face.setAttribute('aria-hidden', 'true');
-    var amt = el('div', 'cheeramt', text);
+    stage.appendChild(coin); stage.appendChild(face);
+    var amt = el('div', 'cheeramt', typeof amount === 'number' ? (data.cur || '$') + '0.00' : text);
     var line = el('div', 'cheercat');
     var dot = el('i');
     dot.style.setProperty('--k-c', c.c);
     line.appendChild(dot);
     line.appendChild(document.createTextNode(c.icon + ' ' + c.label));
-    cheer.appendChild(coin);
-    cheer.appendChild(face);
+    cheer.appendChild(stage);
     cheer.appendChild(amt);
     cheer.appendChild(line);
-    if (found) {
-      cheer.classList.add('found');
-      cheer.appendChild(el('div', 'cheernote', found));
-    }
+    if (found) cheer.appendChild(el('div', 'cheernote', found));
     burst.appendChild(scrim);
     burst.appendChild(cheer);
-    var done = function () { cheer.remove(); scrim.remove(); };
-    if (reduced) { setTimeout(done, 1200); return; }
-    cheer.addEventListener('animationend', done);
-    setTimeout(done, 2200);
 
-    var cx = window.innerWidth / 2, cy = window.innerHeight * 0.42;
-    petalBurst(cx, cy, found ? 22 : 18, found ? HEARTS : PETALS);
-    setTimeout(function () { petalBurst(cx, cy, found ? 16 : 10, found ? HEARTS : PETALS); }, 260);
-    if (found) setTimeout(function () { petalBurst(cx, cy, 14, HEARTS); }, 560);
+    var done = function () { cheer.remove(); scrim.remove(); };
+    if (reduced) {
+      if (typeof amount === 'number') amt.textContent = text;
+      setTimeout(done, 1500);
+      return;
+    }
+    cheer.addEventListener('animationend', function (e) { if (e.animationName === 'cheerpop') done(); });
+    setTimeout(done, 2800);
+
+    /* impact, a beat after the coin sets off */
+    setTimeout(function () {
+      var r = stage.getBoundingClientRect();
+      var ix = r.left + r.width / 2, iy = r.top + r.height * 0.66;
+      face.classList.add('whump');
+      cheer.classList.add('shake');
+      fxRing(ix, iy);
+      fxBurst(ix, iy, { n: found ? 34 : 26, glyphs: found ? HEARTS : PETALS, power: 11, lift: 3.5 });
+      setTimeout(function () {
+        fxBurst(ix, iy, { n: found ? 20 : 14, glyphs: found ? HEARTS : PETALS, power: 7, lift: 2 });
+      }, 190);
+      if (typeof amount === 'number') countUp(amt, amount, '+');
+      var pigFace = pig.querySelector('.pigface');
+      if (pigFace && typeof pigFace.animate === 'function') {
+        pigFace.animate([
+          { transform: 'scale(1) rotate(0deg)' },
+          { transform: 'scale(1.26, .82) rotate(0deg)', offset: 0.25 },
+          { transform: 'scale(.92, 1.16) rotate(-8deg)', offset: 0.5 },
+          { transform: 'scale(1.04, .98) rotate(5deg)', offset: 0.75 },
+          { transform: 'scale(1) rotate(0deg)' }
+        ], { duration: 720, easing: 'cubic-bezier(.3,1.2,.5,1)' });
+      }
+    }, 400);
   }
 
   /* ── filters wiring ───────────────────────────────────────────────────── */
@@ -2604,6 +2961,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
         if (x && x.id && !have[x.id]) { data.spends.push(x); added++; }
       });
       migrate();
+      expandSeries();          /* a restored repeat should fill itself in at once */
       save(); listLimit = 40; render();
       toast(added ? 'Restored ' + added + (added === 1 ? ' spend.' : ' spends.') : 'Everything in that backup was already here.');
     };
@@ -2619,38 +2977,67 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     toast('All gone. Fresh start!');
   });
 
-  $('#sample').addEventListener('click', function () {
-    var before = data.spends.length, beforeSeries = data.series.length;
-    [[0, 'eating', 'Flat white', 4.6], [0, 'groceries', 'Corner shop', 12.4],
-     [1, 'transport', 'Bus pass top-up', 22], [2, 'groceries', 'Big shop', 78.3],
-     [3, 'fun', 'Cinema', 16], [4, 'eating', 'Ramen with Sam', 31.5],
-     [5, 'beauty', 'Haircut', 42], [6, 'health', 'Pharmacy', 9.99],
-     [8, 'clothes', 'Linen shirt', 48], [9, 'sport', 'Climbing day pass', 18],
-     [11, 'family', 'Flowers for mum', 26], [12, 'groceries', 'Weekly shop', 66.2],
-     [14, 'transport', 'Petrol', 54.1], [16, 'eating', 'Pizza night', 24],
-     [18, 'home', 'Lightbulbs + bin bags', 18.75], [21, 'travel', 'Train tickets to the coast', 74],
-     [24, 'groceries', 'Weekly shop', 71.05], [26, 'beauty', 'Skincare refill', 31.4],
-     [29, 'other', 'Kettle', 39], [33, 'groceries', 'Weekly shop', 69.4],
-     [36, 'eating', 'Birthday dinner', 88], [40, 'travel', 'Hotel, two nights', 168],
-     [44, 'clothes', 'Winter coat', 120], [47, 'health', 'Dentist', 65],
-     [52, 'groceries', 'Weekly shop', 74.8], [56, 'sport', 'New running shoes', 82],
-     [63, 'gifts', 'Birthday gift for Alex', 35], [67, 'eating', 'Brunch', 19.5],
-     [72, 'fun', 'Gig ticket', 42], [78, 'groceries', 'Weekly shop', 63.15]
-    ].forEach(function (r) {
-      addSpend({ date: daysBack(r[0]), category: r[1], note: r[2], amount: r[3] });
+  /* The sample set, kept here so it can be taken back out again: anything
+     matching one of these, note and amount both, is one of ours. */
+  var SAMPLE_SPENDS = [
+    [0, 'eating', 'Flat white', 4.6], [0, 'groceries', 'Corner shop', 12.4],
+    [1, 'transport', 'Bus pass top-up', 22], [2, 'groceries', 'Big shop', 78.3],
+    [3, 'fun', 'Cinema', 16], [4, 'eating', 'Ramen with Sam', 31.5],
+    [5, 'beauty', 'Haircut', 42], [6, 'health', 'Pharmacy', 9.99],
+    [8, 'clothes', 'Linen shirt', 48], [9, 'sport', 'Climbing day pass', 18],
+    [11, 'family', 'Flowers for mum', 26], [12, 'groceries', 'Weekly shop', 66.2],
+    [14, 'transport', 'Petrol', 54.1], [16, 'eating', 'Pizza night', 24],
+    [18, 'home', 'Lightbulbs + bin bags', 18.75], [21, 'travel', 'Train tickets to the coast', 74],
+    [24, 'groceries', 'Weekly shop', 71.05], [26, 'beauty', 'Skincare refill', 31.4],
+    [29, 'other', 'Kettle', 39], [33, 'groceries', 'Weekly shop', 69.4],
+    [36, 'eating', 'Birthday dinner', 88], [40, 'travel', 'Hotel, two nights', 168],
+    [44, 'clothes', 'Winter coat', 120], [47, 'health', 'Dentist', 65],
+    [52, 'groceries', 'Weekly shop', 74.8], [56, 'sport', 'New running shoes', 82],
+    [63, 'gifts', 'Birthday gift for Alex', 35], [67, 'eating', 'Brunch', 19.5],
+    [72, 'fun', 'Gig ticket', 42], [78, 'groceries', 'Weekly shop', 63.15]
+  ];
+  var SAMPLE_SERIES = [
+    ['Rent', 950, 'monthly'], ['Broadband', 35, 'monthly'], ['Saturday coffee + paper', 11.5, 'weekly']
+  ];
+  function sampleKeys() {
+    var k = {};
+    SAMPLE_SPENDS.forEach(function (r) { k[r[2] + '|' + r[3].toFixed(2)] = true; });
+    SAMPLE_SERIES.forEach(function (r) { k[r[0] + '|' + r[1].toFixed(2)] = true; });
+    return k;
+  }
+  function countSamples() {
+    var k = sampleKeys(), ours = {}, n = 0;
+    data.series.forEach(function (x) { if (k[x.note + '|' + x.amount.toFixed(2)]) ours[x.id] = true; });
+    data.spends.forEach(function (x) {
+      if (k[x.note + '|' + x.amount.toFixed(2)] || (x.sid && ours[x.sid])) n++;
     });
-    [{ repeat: 'monthly', amount: 950, category: 'home', note: 'Rent', start: daysBack(95) },
-     { repeat: 'monthly', amount: 35, category: 'bills', note: 'Broadband', start: daysBack(88) },
-     { repeat: 'weekly', amount: 11.5, category: 'fun', note: 'Saturday coffee + paper', start: daysBack(56) }
-    ].forEach(function (s) {
-      s.id = uid(); s.skips = [];
-      data.series.push(s);
+    return n;
+  }
+  function refreshSampleButton() {
+    var btn = $('#unsample');
+    var n = countSamples();
+    btn.hidden = !n;
+    btn.textContent = 'remove the ' + n + ' sample spends';
+  }
+  $('#unsample').addEventListener('click', function () {
+    var k = sampleKeys();
+    var keptSpends = [], goneSpends = [], keptSeries = [], goneSeries = [];
+    data.series.forEach(function (x) {
+      (k[x.note + '|' + x.amount.toFixed(2)] ? goneSeries : keptSeries).push(x);
     });
-    expandSeries();
-    save(); render();
-    toast('Added sample spends, repeats and all.', 'Undo', function () {
-      data.spends = data.spends.slice(0, before);
-      data.series = data.series.slice(0, beforeSeries);
+    var goneIds = {};
+    goneSeries.forEach(function (x) { goneIds[x.id] = true; });
+    data.spends.forEach(function (x) {
+      var isSample = k[x.note + '|' + x.amount.toFixed(2)] || (x.sid && goneIds[x.sid]);
+      (isSample ? goneSpends : keptSpends).push(x);
+    });
+    if (!goneSpends.length && !goneSeries.length) { toast('No sample spends left to remove.'); return; }
+    if (!confirm('Remove ' + goneSpends.length + ' sample spends? Your own stay exactly where they are.')) return;
+    var beforeSpends = data.spends, beforeSeries = data.series;
+    data.spends = keptSpends; data.series = keptSeries;
+    save(); listLimit = 40; render();
+    toast('Removed ' + goneSpends.length + ' sample spends.', 'Undo', function () {
+      data.spends = beforeSpends; data.series = beforeSeries;
       save(); render();
     });
   });
@@ -2658,6 +3045,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   /* ── go ───────────────────────────────────────────────────────────────── */
   function render() {
     renderFilterOptions();
+    refreshSampleButton();
     var list = rows();
     renderStats(list);
     renderDonut(list);
@@ -2668,6 +3056,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   function boot() {
     applyTheme(theme());
     applySound(soundOn);
+    fxInit();
     if (!window.crypto || !crypto.subtle) {
       document.body.innerHTML = '';
       var p = el('p', 'empty', 'This browser cannot lock the piggy safely (no Web Crypto). Try a newer one.');
