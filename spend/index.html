@@ -214,7 +214,19 @@ button, .chip, .tabs button, .seg button, summary { touch-action: manipulation; 
   width: 46px; height: 46px; display: grid; place-items: center; font-size: 26px;
   background: var(--surface); border: 2px solid var(--line-2); border-radius: 16px;
   box-shadow: var(--shadow-sm); transform: rotate(-4deg);
+  cursor: pointer; user-select: none; -webkit-user-select: none;
+  animation: breathe 7s ease-in-out infinite;
 }
+/* mostly still — it only stirs for a moment at the end of each loop */
+@keyframes breathe {
+  0%, 62% { transform: rotate(-4deg) scale(1); }
+  70% { transform: rotate(-4deg) scale(1.05); }
+  78% { transform: rotate(2deg) scale(1.03); }
+  84% { transform: rotate(-7deg) scale(1.04); }
+  90% { transform: rotate(-1deg) scale(1.01); }
+  100% { transform: rotate(-4deg) scale(1); }
+}
+.brand-mark:hover { animation: none; transform: rotate(3deg) scale(1.08); transition: transform .18s ease; }
 .brand-mark.hop { animation: hop .6s cubic-bezier(.3,1.5,.5,1); }
 @keyframes hop {
   0% { transform: rotate(-4deg) scale(1); }
@@ -523,6 +535,59 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
 }
 .coin { position: fixed; z-index: 97; pointer-events: none; font-size: 30px; line-height: 1;
   filter: drop-shadow(0 4px 6px rgba(120,40,80,.25)); }
+
+/* the centre-of-screen moment */
+.cheerscrim {
+  position: fixed; inset: 0; z-index: 97; pointer-events: none;
+  background: radial-gradient(circle at 50% 42%, rgba(224,58,109,.16), rgba(224,58,109,0) 58%);
+  animation: scrimfade 1.3s ease forwards;
+}
+@keyframes scrimfade { 0% { opacity: 0; } 20% { opacity: 1; } 100% { opacity: 0; } }
+.cheer {
+  position: fixed; left: 50%; top: 42%; z-index: 98; pointer-events: none; text-align: center;
+  min-width: 210px; padding: 20px 28px 18px;
+  background: var(--surface); border: 3px solid var(--accent); border-radius: 28px;
+  box-shadow: 0 22px 50px -18px rgba(120,40,80,.55), 0 0 0 8px var(--accent-soft);
+  animation: cheerpop 1.45s cubic-bezier(.22,1.15,.34,1) forwards;
+}
+@keyframes cheerpop {
+  0%   { transform: translate(-50%, -50%) scale(.35) rotate(-8deg); opacity: 0; }
+  16%  { transform: translate(-50%, -50%) scale(1.1) rotate(3deg); opacity: 1; }
+  28%  { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  76%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -74%) scale(.9); opacity: 0; }
+}
+.cheerpig { display: block; font-size: 54px; line-height: 1.1; animation: cheerwiggle .9s ease .18s both; }
+@keyframes cheerwiggle {
+  0% { transform: scale(.8) rotate(0deg); }
+  30% { transform: scale(1.14) rotate(-7deg); }
+  55% { transform: scale(.98) rotate(6deg); }
+  75% { transform: scale(1.04) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.cheercoin {
+  display: block; font-size: 26px; line-height: 1; height: 26px;
+  animation: cheerdrop .55s cubic-bezier(.5,.05,.7,1) both;
+}
+@keyframes cheerdrop {
+  0% { transform: translateY(-54px) scale(.7) rotate(0deg); opacity: 0; }
+  30% { opacity: 1; }
+  80% { transform: translateY(4px) scale(1) rotate(320deg); opacity: 1; }
+  100% { transform: translateY(10px) scale(.55) rotate(360deg); opacity: 0; }
+}
+.cheeramt { font-family: Fredoka, sans-serif; font-size: 34px; color: var(--accent); margin-top: 2px; }
+.cheer.found { border-color: var(--accent); box-shadow: 0 22px 50px -18px rgba(120,40,80,.55), 0 0 0 10px var(--accent-soft); }
+.cheer.wide { max-width: min(340px, calc(100vw - 40px)); animation-duration: 3.2s; }
+.cheernote { margin-top: 8px; font-size: 14.5px; font-weight: 700; color: var(--ink);
+  line-height: 1.45; max-width: 260px; }
+.cheernote.big { font-family: Fredoka, sans-serif; font-weight: 500; font-size: 17px; max-width: none; }
+.cheer.wide .cheerpig { animation-delay: .1s; }
+.cheercat { display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;
+  font-size: 13.5px; font-weight: 700; color: var(--ink-2); margin-top: 4px; }
+.cheercat i { width: 9px; height: 9px; border-radius: 50%; background: var(--k-c, var(--accent)); flex: none; }
+@media (prefers-reduced-motion: reduce) { .cheer { opacity: 1; transform: translate(-50%, -50%); } }
+@media (max-width: 420px) { .cheer { min-width: 180px; padding: 18px 22px 16px; }
+  .cheerpig { font-size: 46px; } .cheeramt { font-size: 30px; } }
 .btn.popped { animation: popped .5s cubic-bezier(.3,1.4,.5,1); }
 @keyframes popped {
   0% { transform: scale(1); } 40% { transform: scale(1.06) translateY(-2px); } 100% { transform: scale(1); }
@@ -553,8 +618,9 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
 @media (max-width: 560px) {
   .wrap { padding: 10px calc(14px + env(safe-area-inset-right, 0px))
           calc(84px + env(safe-area-inset-bottom, 0px)) calc(14px + env(safe-area-inset-left, 0px)); }
-  .top { margin: 2px 2px 12px; gap: 8px; }
-  .who { gap: 8px; }
+  .top { margin: 2px 2px 12px; gap: 8px; justify-content: center; text-align: center; }
+  .brand { justify-content: center; }
+  .who { gap: 8px; margin: 0 auto; justify-content: center; }
   .card { padding: 15px; border-radius: 20px; margin-bottom: 13px; }
   h2 { font-size: 18px; }
   .brand h1 { font-size: 21px; }
@@ -1064,6 +1130,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     if (moved || grown || data.v !== SCHEMA) save();
     render();
     armIdleLock();
+    dayGreeting();
   }
   function lock(byIdle) {
     key = null;
@@ -1160,6 +1227,63 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
 
   $('#lock').addEventListener('click', function () { lock(false); });
   $('#themebtn').addEventListener('click', function () { applyTheme(theme() === 'dark' ? 'light' : 'dark'); });
+
+  /* the hop is a one-off; once it lands the piggy goes back to breathing */
+  $('#pig').addEventListener('animationend', function (e) {
+    if (e.animationName === 'hop') $('#pig').classList.remove('hop');
+  });
+
+  /* five taps on the piggy and it lets something slip */
+  var taps = 0, tapTimer = null, noteTurn = 0;
+  $('#pig').addEventListener('click', function () {
+    taps++;
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(function () { taps = 0; }, 1600);
+    var pig = $('#pig');
+    pig.classList.remove('hop'); void pig.offsetWidth; pig.classList.add('hop');
+    if (taps < SECRETS.taps) return;
+    taps = 0;
+    var list = SECRETS.notes || [];
+    if (!list.length) return;
+    var msg = secret(list[noteTurn % list.length]);
+    noteTurn++;
+    surprise('🐷', msg);
+  });
+
+  /* a card in the middle of the screen, same as the saving one but wordier */
+  function surprise(face, msg) {
+    var burst = $('#burst');
+    var scrim = el('div', 'cheerscrim');
+    var cheer = el('div', 'cheer found wide');
+    var f = el('span', 'cheerpig', face);
+    f.setAttribute('aria-hidden', 'true');
+    cheer.appendChild(f);
+    cheer.appendChild(el('div', 'cheernote big', msg));
+    burst.appendChild(scrim);
+    burst.appendChild(cheer);
+    chime();
+    if (navigator.vibrate) { try { navigator.vibrate([10, 60, 14, 60, 20]); } catch (e) {} }
+    var cx = window.innerWidth / 2, cy = window.innerHeight * 0.42;
+    if (!reduced) {
+      petalBurst(cx, cy, 20, HEARTS);
+      setTimeout(function () { petalBurst(cx, cy, 14, HEARTS); }, 300);
+    }
+    var done = function () { cheer.remove(); scrim.remove(); };
+    cheer.addEventListener('animationend', done);
+    setTimeout(done, 3200);
+  }
+
+  /* certain days say hello on their own, once each */
+  function dayGreeting() {
+    var key = todayISO().slice(5);
+    var msg = SECRETS.dates && SECRETS.dates[key] ? secret(SECRETS.dates[key]) : '';
+    if (!msg) return;
+    var seen = '';
+    try { seen = localStorage.getItem('piggy.greeted') || ''; } catch (e) {}
+    if (seen === todayISO()) return;
+    try { localStorage.setItem('piggy.greeted', todayISO()); } catch (e) {}
+    setTimeout(function () { surprise('🌸', msg); }, 900);
+  }
   $('#soundbtn').addEventListener('click', function () { applySound(!soundOn); if (soundOn) chime(); });
 
   function normalise(obj) {
@@ -1512,9 +1636,14 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
       : 'Saved ' + moneyExact(amount) + ' · ' + cat(picked).icon + ' ' + cat(picked).label
         + (pickedRepeat === 'once' ? '' : ' · repeats ' + repeatLabel(pickedRepeat));
     freshId = data.spends.length ? data.spends[data.spends.length - 1].id : null;
-    celebrate($('#addbtn'), '+' + moneyExact(amount));
-    $('#amt').focus();
+    celebrate('+' + moneyExact(amount), picked,
+      milestoneFor(data.spends.length) || secretFor(note));
     render();
+    /* the cursor goes back to the amount box only once the cheering is done,
+       and without dragging the page anywhere */
+    setTimeout(function () {
+      try { $('#amt').focus({ preventScroll: true }); } catch (e) {}
+    }, reduced ? 0 : 1400);
   });
 
   /* ── the happy bit ────────────────────────────────────────────────────
@@ -1522,30 +1651,101 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
      petals come out the top. Sound is three soft notes, made on the spot —
      no files to load, and it can be switched off. */
   var PETALS = ['🌸', '🌼', '💮', '🌷', '🪙', '💖', '✨'];
+  var HEARTS = ['💗', '💕', '💖', '🌹', '✨', '🫶'];
+
+  /* ── Secrets ──────────────────────────────────────────────────────────
+     Little things to be found. Four ways in:
+
+       notes      tap the piggy in the corner five times
+       words      write one of these words in "what for" and save
+       milestones the 10th, 25th, 50th … spend
+       dates      a month-day, greeted the first time the app opens that day
+
+     To add one, write the message, run it through any "text to base64"
+     box, and drop the result in. The scrambling is only so a curious
+     reader doesn't spoil the surprise by skimming — anyone determined can
+     still decode it, so keep real secrets out of here. */
+  var SECRETS = {
+    taps: 5,
+    notes: [
+      'WW91IGZvdW5kIHRoZSBwaWdneSdzIHNlY3JldCDwn5C3IEhlIHNheXMgaGVsbG8gYmFjay4=',
+      'V2hhdGV2ZXIgeW91IHNwZW50IGl0IG9uLCBpdCB3YXMgd29ydGggaXQg8J+SlQ==',
+      'U29tZWJvZHkgaXMgdmVyeSBwcm91ZCBvZiBob3cgb3JnYW5pc2VkIHlvdSBhcmUg8J+MuA==',
+      'UHNzdCDigJQgeW91J3JlIG15IGZhdm91cml0ZSB0aGluZyB0byBzYXZlIHVwIGZvci4=',
+      'VGFwIHRhcCB0YXAuIE9rYXkgb2theSwgdGhlIHBpZ2d5IGlzIGF3YWtlIPCfkL0='
+    ],
+    words: {
+      flower: 'Rmxvd2VycyBhZ2Fpbj8gR29vZC4gWW91IGRlc2VydmUgdGhlbSDwn4y3',
+      coffee: 'T25lIGRheSB0aGlzIGNvZmZlZSBpcyBvbiBtZSDimJU=',
+      date: 'QmVzdCBtb25leSBlaXRoZXIgb2YgdXMgZXZlciBzcGVuZHMg8J+SmA==',
+      gift: 'SG9wZSB0aGlzIG9uZSBpcyBmb3IgeW91LCBmb3Igb25jZSDwn46B',
+      love: 'Tm90ZWQuIEZpbGVkIHVuZGVyOiBvYnZpb3VzIPCfkpc=',
+      book: 'QW5vdGhlciBib29rLiBOZXZlciBhIHdhc3RlZCBwb3VuZCDwn5Oa'
+    },
+    milestones: {
+      10: 'VGVuIHNwZW5kcyBpbiDigJQgbG9vayBhdCB5b3Uga2VlcGluZyB0cmFjayDwn4yf',
+      25: 'VHdlbnR5LWZpdmUhIFRoZSBwaWdneSBpcyBvZmZpY2lhbGx5IGltcHJlc3NlZC4=',
+      50: 'RmlmdGlldGggc3BlbmQg8J+OiSB0aGlzIGlzIGEgaGFiaXQgbm93Lg==',
+      100: 'T25lIGh1bmRyZWQgc3BlbmRzIPCfkpYgeW91IG1hZ25pZmljZW50IHNwcmVhZHNoZWV0Lg==',
+      250: 'MjUwLiBUaGUgcGlnZ3kgYm93cyB0byB5b3Ug8J+Qt/CfkZE=',
+      500: 'Rml2ZSBodW5kcmVkIHNwZW5kcy4gU29tZW9uZSBmcmFtZSB0aGlzIHBpZ2d5IPCfj4Y='
+    },
+    dates: {
+      '02-14': 'SGFwcHkgVmFsZW50aW5lJ3Mg8J+SmCBzcGVuZCBzb21ldGhpbmcgc2lsbHkgdG9kYXku',
+      '01-01': 'TmV3IHllYXIsIHNhbWUgcGlnZ3kg8J+OiiBoZXJlIHdlIGdvIGFnYWluLg=='
+    }
+  };
+  function secret(b) {
+    try { return decodeURIComponent(escape(atob(b))); } catch (e) { return ''; }
+  }
+  function secretFor(note) {
+    var hay = String(note || '').toLowerCase(), keys = Object.keys(SECRETS.words);
+    for (var i = 0; i < keys.length; i++) if (hay.indexOf(keys[i]) !== -1) return secret(SECRETS.words[keys[i]]);
+    return '';
+  }
+  function milestoneFor(n) {
+    return SECRETS.milestones[n] ? secret(SECRETS.milestones[n]) : '';
+  }
+
+  /* Audio has to be woken by a real tap, and iOS otherwise silences pages
+     whenever the ringer switch is off — asking for the "playback" session
+     is what gets a sound out of a phone on silent. */
   var actx = null;
-  function chime() {
-    if (!soundOn) return;
+  function audio() {
     try {
       var AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-      actx = actx || new AC();
-      if (actx.state === 'suspended') actx.resume();
-      var now = actx.currentTime;
-      var master = actx.createGain();
-      master.gain.value = 0.14;
-      master.connect(actx.destination);
-      [[784, 0], [1046, 0.075], [1318, 0.15]].forEach(function (n) {   /* G5 · C6 · E6 */
-        var osc = actx.createOscillator(), g = actx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(n[0], now + n[1]);
-        g.gain.setValueAtTime(0.0001, now + n[1]);
-        g.gain.exponentialRampToValueAtTime(0.9, now + n[1] + 0.012);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + n[1] + 0.32);
-        osc.connect(g); g.connect(master);
-        osc.start(now + n[1]);
-        osc.stop(now + n[1] + 0.36);
-      });
-    } catch (e) { /* a browser that won't make noise is not a problem */ }
+      if (!AC) return null;
+      if (!actx) {
+        actx = new AC();
+        if (navigator.audioSession) { try { navigator.audioSession.type = 'playback'; } catch (e) {} }
+      }
+      if (actx.state !== 'running' && actx.resume) actx.resume();
+      return actx;
+    } catch (e) { return null; }
+  }
+  document.addEventListener('pointerdown', function () { audio(); }, { passive: true });
+  document.addEventListener('keydown', function () { audio(); }, { passive: true });
+
+  function note(ctx, freq, at, dur, gain, type) {
+    var osc = ctx.createOscillator(), g = ctx.createGain();
+    osc.type = type || 'triangle';
+    osc.frequency.setValueAtTime(freq, at);
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.exponentialRampToValueAtTime(gain, at + 0.014);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(at);
+    osc.stop(at + dur + 0.02);
+  }
+  function chime() {
+    if (!soundOn) return;
+    var ctx = audio();
+    if (!ctx) return;
+    var t = ctx.currentTime + 0.01;
+    note(ctx, 523.25, t, 0.26, 0.30, 'sine');          /* C5, the coin landing */
+    note(ctx, 783.99, t + 0.085, 0.28, 0.26);          /* G5 */
+    note(ctx, 1046.5, t + 0.17, 0.42, 0.24);           /* C6 */
+    note(ctx, 1568.0, t + 0.25, 0.5, 0.12, 'sine');    /* G6, the sparkle on top */
   }
 
   function flyCoin(from, to) {
@@ -1565,10 +1765,11 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     return anim.finished.then(function () { coin.remove(); }, function () { coin.remove(); });
   }
 
-  function petalBurst(cx, cy, n) {
+  function petalBurst(cx, cy, n, glyphs) {
     var burst = $('#burst');
+    glyphs = glyphs || PETALS;
     for (var i = 0; i < n; i++) {
-      var bit = el('span', 'bit', PETALS[Math.floor(Math.random() * PETALS.length)]);
+      var bit = el('span', 'bit', glyphs[Math.floor(Math.random() * glyphs.length)]);
       var ang = (-Math.PI / 2) + (Math.random() - 0.5) * 2.4;
       var dist = 80 + Math.random() * 160;
       bit.style.left = cx + 'px';
@@ -1584,8 +1785,9 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     }
   }
 
-  function celebrate(origin, text) {
-    var pig = $('#pig'), btn = $('#addbtn'), card = $('#addcard');
+  function celebrate(text, catKey, found) {
+    var pig = $('#pig'), btn = $('#addbtn'), card = $('#addcard'), burst = $('#burst');
+    var c = cat(catKey);
     if (navigator.vibrate) { try { navigator.vibrate([14, 40, 22]); } catch (e) {} }
     chime();
 
@@ -1593,25 +1795,42 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     btn.classList.add('popped');
     var label = btn.textContent;
     btn.textContent = '🌸 In the piggy!';
-    setTimeout(function () { btn.classList.remove('popped'); btn.textContent = label; }, 1100);
+    setTimeout(function () { btn.classList.remove('popped'); btn.textContent = label; }, 1300);
+    pig.classList.remove('hop'); void pig.offsetWidth; pig.classList.add('hop');
 
-    if (reduced) {
-      pig.classList.remove('hop'); void pig.offsetWidth; pig.classList.add('hop');
-      return;
+    /* the whole thing plays in the middle of the screen, so it is the same
+       show whether you are at the top of the page or down in the list */
+    var scrim = el('div', 'cheerscrim');
+    var cheer = el('div', 'cheer');
+    var coin = el('span', 'cheercoin', '🪙');
+    coin.setAttribute('aria-hidden', 'true');
+    var face = el('span', 'cheerpig', '🐷');
+    face.setAttribute('aria-hidden', 'true');
+    var amt = el('div', 'cheeramt', text);
+    var line = el('div', 'cheercat');
+    var dot = el('i');
+    dot.style.setProperty('--k-c', c.c);
+    line.appendChild(dot);
+    line.appendChild(document.createTextNode(c.icon + ' ' + c.label));
+    cheer.appendChild(coin);
+    cheer.appendChild(face);
+    cheer.appendChild(amt);
+    cheer.appendChild(line);
+    if (found) {
+      cheer.classList.add('found');
+      cheer.appendChild(el('div', 'cheernote', found));
     }
+    burst.appendChild(scrim);
+    burst.appendChild(cheer);
+    var done = function () { cheer.remove(); scrim.remove(); };
+    if (reduced) { setTimeout(done, 1200); return; }
+    cheer.addEventListener('animationend', done);
+    setTimeout(done, 2200);
 
-    var r = origin.getBoundingClientRect();
-    var pop = el('div', 'pop', text);
-    pop.style.left = (r.left + r.width / 2) + 'px';
-    pop.style.top = (r.top + r.height / 2) + 'px';
-    $('#burst').appendChild(pop);
-    pop.addEventListener('animationend', function () { pop.remove(); });
-
-    flyCoin(origin, pig).then(function () {
-      pig.classList.remove('hop'); void pig.offsetWidth; pig.classList.add('hop');
-      var p = pig.getBoundingClientRect();
-      petalBurst(p.left + p.width / 2, p.top + p.height / 2, 14);
-    });
+    var cx = window.innerWidth / 2, cy = window.innerHeight * 0.42;
+    petalBurst(cx, cy, found ? 22 : 18, found ? HEARTS : PETALS);
+    setTimeout(function () { petalBurst(cx, cy, found ? 16 : 10, found ? HEARTS : PETALS); }, 260);
+    if (found) setTimeout(function () { petalBurst(cx, cy, 14, HEARTS); }, 560);
   }
 
   /* ── filters wiring ───────────────────────────────────────────────────── */
