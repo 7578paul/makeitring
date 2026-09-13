@@ -1,12 +1,27 @@
-# Cloudflare Workers static-assets config.
+# Cloudflare Workers config.
 #
 # The site is plain HTML at the repo root, so there is no build step: Cloudflare
 # just uploads the files and serves them. Files listed in .assetsignore are kept
 # out of the upload.
+#
+# worker.js sits in front of the assets for one path only — /spend/api/*, the
+# postbox that carries letters between the two phones. Every other request goes
+# straight to the static files, exactly as it did before.
 
 name = "makeitring"
+main = "worker.js"
 compatibility_date = "2026-08-06"
 
 [assets]
 directory = "./"
+binding = "ASSETS"
 not_found_handling = "404-page"
+run_worker_first = ["/spend/api/*"]
+
+[[durable_objects.bindings]]
+name = "POSTBOX"
+class_name = "Postbox"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Postbox"]
