@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Piggy Pocket — what is still here</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FFEFF5">
+<link rel="icon" href="../piggy-192.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* A plain page that answers one question: is anything left, and can it be
+   got out? It reads storage, it never writes to it. */
+:root { color-scheme: light; --bg:#FFEFF5; --surface:#FFFCFD; --surface-2:#FFF2F7; --ink:#2A1B23;
+  --ink-2:#6E5460; --muted:#A08A95; --line:#F2D3E0; --accent:#E03A6D; --good:#0C7A46; --bad:#C1121F; }
+@media (prefers-color-scheme: dark) { :root { --bg:#1A1217; --surface:#231A20; --surface-2:#2E222A;
+  --ink:#FCF4F8; --ink-2:#D8C6D0; --muted:#AB96A1; --line:#463540; --accent:#FF6E96; --good:#4ED08B; --bad:#FF8A8A; } }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:Nunito,system-ui,sans-serif;
+  font-size:16px; line-height:1.5; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-family:Fredoka,sans-serif; font-weight:600; font-size:27px; margin:0 0 6px; }
+h2 { font-size:13px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin:26px 0 10px; }
+p { margin: 0 0 12px; }
+.sub { color:var(--ink-2); }
+.card { background:var(--surface); border:2px solid var(--line); border-radius:18px; padding:16px; margin-bottom:14px; }
+.verdict { font-family:Fredoka,sans-serif; font-size:19px; }
+.good { color:var(--good); } .bad { color:var(--bad); }
+table { width:100%; border-collapse:collapse; font-size:14px; }
+td, th { text-align:left; padding:7px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+th { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+td.n { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; overflow-wrap:anywhere; }
+label { display:block; margin-bottom:10px; }
+label span { display:block; font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:5px; }
+input { width:100%; min-height:46px; padding:10px 12px; font:inherit; color:var(--ink);
+  background:var(--surface-2); border:2px solid var(--line); border-radius:12px; }
+input:focus { outline:none; border-color:var(--accent); }
+button { min-height:46px; padding:11px 16px; font:inherit; font-weight:800; cursor:pointer;
+  background:var(--accent); color:#fff; border:none; border-radius:12px; }
+button.ghost { background:var(--surface-2); color:var(--ink); border:2px solid var(--line); }
+.row { display:flex; gap:10px; flex-wrap:wrap; }
+.msg { font-size:14px; font-weight:700; margin-top:10px; }
+.note { font-size:13.5px; color:var(--ink-2); }
+a { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔎 What is still here</h1>
+  <p class="sub">This page only looks. It reads what this browser has stored for this site and tells you
+    whether a piggy is in there — and if one is, it can get a copy out.</p>
+
+  <div class="card">
+    <div class="verdict" id="verdict">Looking…</div>
+    <div id="detail" class="note" style="margin-top:8px"></div>
+  </div>
+
+  <h2>In this browser</h2>
+  <div class="card">
+    <table id="keys"><tbody></tbody></table>
+    <p class="note" id="where" style="margin:12px 0 0"></p>
+  </div>
+
+  <div id="local" hidden>
+    <h2>Open what is here</h2>
+    <div class="card">
+      <p class="note">The passphrase for the piggy stored in this browser. Nothing is sent anywhere —
+        it is opened on this device and handed straight back to you as a file.</p>
+      <label><span>Passphrase</span><input id="pass" type="password" spellcheck="false" autocomplete="current-password"></label>
+      <div class="row">
+        <button type="button" id="open">Open it and save a backup</button>
+      </div>
+      <div class="msg" id="openmsg"></div>
+    </div>
+  </div>
+
+  <h2>Or look in the locker</h2>
+  <div class="card">
+    <p class="note">If “sign in elsewhere” had ever been switched on for an account, a sealed copy is
+      kept on the server. Name and passphrase together find it; the passphrase alone opens it.</p>
+    <label><span>Name</span><input id="rname" type="text" autocomplete="username"></label>
+    <label><span>Passphrase</span><input id="rpass" type="password" spellcheck="false" autocomplete="current-password"></label>
+    <div class="row">
+      <button type="button" id="fetch">Look for it and save a backup</button>
+    </div>
+    <div class="msg" id="fetchmsg"></div>
+  </div>
+
+  <p class="note" style="margin-top:20px">A saved backup goes back in through the app:
+    <a href="../">open Piggy Pocket</a>, make a piggy (or sign in), then
+    <em>restore from a backup</em> at the bottom.</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  var enc = new TextEncoder(), dec = new TextDecoder();
+  var VKEY = 'piggy.vault.v2', RKEY = 'piggy.device.v2', ITER = 310000;
+
+  function b64u(str) {
+    var raw = atob(str), a = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) a[i] = raw.charCodeAt(i);
+    return a;
+  }
+  function hex(buf) {
+    var b = new Uint8Array(buf), out = '';
+    for (var i = 0; i < b.length; i++) out += b[i].toString(16).padStart(2, '0');
+    return out;
+  }
+  function sha(text) { return crypto.subtle.digest('SHA-256', enc.encode(text)).then(hex); }
+  function deriveKey(pass, salt, iter) {
+    return crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey'])
+      .then(function (base) {
+        return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salt, iterations: iter || ITER, hash: 'SHA-256' },
+          base, { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+      });
+  }
+  function openVault(m, key) {
+    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64u(m.iv) }, key, b64u(m.ct))
+      .then(function (buf) { return JSON.parse(dec.decode(buf)); });
+  }
+  function when(ts) {
+    if (!ts) return 'unknown';
+    var d = new Date(ts);
+    return d.toISOString().slice(0, 10) + ' at ' + d.toTimeString().slice(0, 5);
+  }
+  function saveFile(obj, name) {
+    var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+  }
+  function summary(data) {
+    var s = (data.spends || []).length, l = (data.letters || []).length, r = (data.series || []).length;
+    return s + (s === 1 ? ' spend' : ' spends') + ', ' + r + ' repeating, ' + l + ' letters';
+  }
+
+  /* ── what is in this browser ─────────────────────────────────────────── */
+  var meta = null, rows = [];
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k.indexOf('piggy') !== 0) continue;
+      rows.push([k, (localStorage.getItem(k) || '').length]);
+    }
+    meta = JSON.parse(localStorage.getItem(VKEY) || 'null');
+  } catch (e) {}
+
+  var body = $('#keys').querySelector('tbody');
+  if (!rows.length) {
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.colSpan = 2;
+    td.textContent = 'Nothing at all is stored for this site in this browser.';
+    tr.appendChild(td); body.appendChild(tr);
+  } else {
+    rows.sort().forEach(function (r) {
+      var tr = document.createElement('tr');
+      var a = document.createElement('td'); a.innerHTML = '';
+      var code = document.createElement('code'); code.textContent = r[0];
+      a.appendChild(code);
+      var b = document.createElement('td'); b.className = 'n';
+      b.textContent = r[1] > 1024 ? Math.round(r[1] / 1024) + ' KB' : r[1] + ' bytes';
+      tr.appendChild(a); tr.appendChild(b); body.appendChild(tr);
+    });
+  }
+
+  var standalone = (window.navigator.standalone === true) ||
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  $('#where').textContent = standalone
+    ? 'You are in the home-screen app, which on iPhone keeps its own storage, separate from Safari.'
+    : 'You are in the browser itself. On iPhone the home-screen version keeps its own separate storage, '
+      + 'so a piggy made there will not show up here — and removing that icon takes its storage with it.';
+
+  if (meta && meta.ct) {
+    $('#verdict').className = 'verdict good';
+    $('#verdict').textContent = '✅ A piggy is stored here.';
+    $('#detail').textContent = 'Name on it: ' + (meta.user || 'unknown')
+      + ' · made ' + when(meta.created) + ' · last saved ' + when(meta.saved)
+      + ' · sealed size ' + Math.round((meta.ct || '').length / 1024) + ' KB'
+      + ' · copy on the server: ' + (meta.sync ? 'yes' : 'no')
+      + (localStorage.getItem(RKEY) ? ' · this device is trusted, so it opens without the passphrase' : '');
+    $('#local').hidden = false;
+    $('#rname').value = meta.user || '';
+  } else {
+    $('#verdict').className = 'verdict bad';
+    $('#verdict').textContent = '❌ No piggy is stored in this browser.';
+    $('#detail').textContent = standalone
+      ? 'This home-screen app has nothing in it yet.'
+      : 'Nothing here. If the piggy lived in a home-screen icon that has been removed, its storage went '
+        + 'with it — the locker below is the only other place it could be.';
+  }
+
+  /* ── open the local one ──────────────────────────────────────────────── */
+  $('#open').addEventListener('click', function () {
+    var pass = $('#pass').value;
+    var msg = $('#openmsg');
+    if (!pass) { msg.className = 'msg bad'; msg.textContent = 'Passphrase first.'; return; }
+    msg.className = 'msg';
+    msg.textContent = 'Opening…';
+    deriveKey(pass, b64u(meta.salt), meta.iter)
+      .then(function (k) { return openVault(meta, k); })
+      .then(function (data) {
+        saveFile({ piggy: 'backup', v: data.v || 3, user: meta.user, saved: new Date().toISOString(), data: data },
+          'piggy-pocket-rescue-' + new Date().toISOString().slice(0, 10) + '.json');
+        msg.className = 'msg good';
+        msg.textContent = 'Opened: ' + summary(data) + '. The backup file is in your downloads.';
+      })
+      .catch(function () {
+        msg.className = 'msg bad';
+        msg.textContent = 'That passphrase does not open this one.';
+      });
+  });
+
+  /* ── or the one on the server ────────────────────────────────────────── */
+  $('#fetch').addEventListener('click', function () {
+    var name = $('#rname').value.trim(), pass = $('#rpass').value;
+    var msg = $('#fetchmsg');
+    if (!name || !pass) { msg.className = 'msg bad'; msg.textContent = 'Both, please.'; return; }
+    msg.className = 'msg';
+    msg.textContent = 'Looking…';
+    var who = name.trim().toLowerCase().replace(/\s+/g, ' ');
+    Promise.all([sha('piggy-account:' + who + '\n' + pass), sha('piggy-accounttoken:' + who + '\n' + pass)])
+      .then(function (p) {
+        return fetch('/spend/api/vault/' + p[0].slice(0, 32) + '?t=' + p[1], { cache: 'no-store' });
+      })
+      .then(function (r) {
+        if (!r.ok) throw new Error('none');
+        return r.json();
+      })
+      .then(function (out) {
+        if (!out.blob) throw new Error('none');
+        var far = JSON.parse(out.blob);
+        return deriveKey(pass, b64u(far.salt), far.iter).then(function (k) {
+          return openVault(far, k).then(function (data) {
+            saveFile({ piggy: 'backup', v: data.v || 3, user: far.user, saved: new Date().toISOString(), data: data },
+              'piggy-pocket-locker-' + new Date().toISOString().slice(0, 10) + '.json');
+            msg.className = 'msg good';
+            msg.textContent = 'Found it — ' + summary(data) + ', last saved ' + when(far.saved)
+              + '. The backup file is in your downloads.';
+          });
+        });
+      })
+      .catch(function (e) {
+        msg.className = 'msg bad';
+        msg.textContent = e && e.message === 'none'
+          ? 'Nothing in the locker for that name and passphrase. If the account never had "sign in elsewhere" '
+            + 'switched on, there is nothing there to find.'
+          : 'Found something, but that passphrase does not open it.';
+      });
+  });
+})();
+</script>
+</body>
+</html>
