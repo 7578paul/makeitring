@@ -11,10 +11,12 @@
  * is stored is a blob this Worker cannot read.
  */
 
-const MAX_BODY = 96 * 1024;      // one delivery
+const MAX_BODY = 1024 * 1024;    // one request
 const MAX_ITEMS = 25;            // letters per delivery
 const MAX_BLOB = 24 * 1024;      // one letter
 const KEEP = 200;                // letters kept per postbox
+const CHUNK = 90 * 1024;         // a stored vault is split into pieces this size
+const MAX_VAULT = 900 * 1024;    // and cannot be bigger than this in total
 
 function json(data, status) {
   return new Response(JSON.stringify(data), {
@@ -44,8 +46,45 @@ export class Postbox {
     return same === 0;
   }
 
+  /* ── the vault slot ────────────────────────────────────────────────
+     One encrypted blob per account, replaced whole. It is the same
+     ciphertext the phone keeps locally: only her passphrase opens it, so
+     this is a locker, not a database. */
+  async vault(request) {
+    const url = new URL(request.url);
+
+    if (request.method === 'GET') {
+      if (!await this.allowed(url.searchParams.get('t') || '')) return json({ error: 'no' }, 403);
+      const head = await this.store.get('vault');
+      if (!head) return json({ savedAt: 0, blob: '' });   /* claimed, but nothing in it yet */
+      const parts = await this.store.list({ prefix: 'v:', limit: 100 });
+      const keys = [...parts.keys()].sort((a, b) => Number(a.slice(2)) - Number(b.slice(2)));
+      let blob = '';
+      for (const k of keys) blob += parts.get(k);
+      return json({ savedAt: head.savedAt, blob });
+    }
+
+    if (request.method === 'PUT') {
+      const body = await request.json().catch(() => null);
+      if (!body || typeof body.blob !== 'string') return json({ error: 'bad body' }, 400);
+      if (!await this.allowed(body.token)) return json({ error: 'no' }, 403);
+      if (body.blob.length > MAX_VAULT) return json({ error: 'too big' }, 413);
+
+      const old = await this.store.list({ prefix: 'v:', limit: 100 });
+      if (old.size) await this.store.delete([...old.keys()]);
+      const writes = { vault: { savedAt: Number(body.savedAt) || Date.now(), size: body.blob.length } };
+      let n = 0;
+      for (let i = 0; i < body.blob.length; i += CHUNK) writes['v:' + (n++)] = body.blob.slice(i, i + CHUNK);
+      await this.store.put(writes);
+      return json({ ok: true, savedAt: writes.vault.savedAt, pieces: n });
+    }
+
+    return json({ error: 'method' }, 405);
+  }
+
   async fetch(request) {
     const url = new URL(request.url);
+    if (url.pathname.indexOf('/vault/') > -1) return this.vault(request);
 
     if (request.method === 'GET') {
       const token = url.searchParams.get('t') || '';
@@ -109,13 +148,13 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname.startsWith('/spend/api/')) {
-      const m = url.pathname.match(/^\/spend\/api\/box\/([a-f0-9]{16,64})$/);
+      const m = url.pathname.match(/^\/spend\/api\/(box|vault)\/([a-f0-9]{16,64})$/);
       if (!m) return json({ error: 'not a postbox' }, 404);
-      if (request.method === 'POST') {
+      if (request.method === 'POST' || request.method === 'PUT') {
         const len = Number(request.headers.get('content-length') || 0);
         if (len > MAX_BODY) return json({ error: 'too big' }, 413);
       }
-      const id = env.POSTBOX.idFromName(m[1]);
+      const id = env.POSTBOX.idFromName(m[1] + ':' + m[2]);
       return env.POSTBOX.get(id).fetch(request);
     }
 
