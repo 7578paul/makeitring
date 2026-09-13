@@ -709,6 +709,12 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   100% { box-shadow: var(--shadow); }
 }
 
+.warnbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: var(--accent-soft); border: 2px solid var(--accent); border-radius: 18px;
+  padding: 12px 14px; margin-bottom: 14px; font-size: 14px; font-weight: 700; color: var(--ink); }
+.warnbar span { flex: 1 1 240px; }
+.warnbar[hidden] { display: none; }
+
 .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 22px; }
 .foot .btn.link { color: var(--muted); }
 .sig { margin-top: 14px; font-family: Fredoka, sans-serif; font-size: 15px; color: var(--ink-2);
@@ -889,6 +895,12 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
       <button class="btn ghost small" type="button" id="lock" aria-label="Lock the piggy">🔒<span class="lockword"> Lock</span></button>
     </div>
   </header>
+
+  <div class="warnbar" id="onlyhere" hidden>
+    <span>⚠️ This piggy lives only on this device. If the browser goes, so does it.</span>
+    <button class="btn small" type="button" id="onlyherefix">Keep a copy</button>
+    <button class="btn link small" type="button" id="onlyhereno">Later</button>
+  </div>
 
   <!-- add a spend -->
   <section class="card" id="addcard" aria-labelledby="addh">
@@ -3302,7 +3314,37 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     return { body: body, idx: idx, headerish: headerish };
   }
 
+  /* a file this app wrote: take it at its word rather than guessing */
+  function ourOwnExport(table) {
+    if (!table.length) return null;
+    var head = table[0].map(function (c) { return String(c).trim().toLowerCase(); });
+    var idx = { date: head.indexOf('date'), category: head.indexOf('category'),
+      note: head.indexOf('note'), amount: head.indexOf('amount'), repeats: head.indexOf('repeats') };
+    if (idx.date < 0 || idx.category < 0 || idx.note < 0 || idx.amount < 0) return null;
+    return idx;
+  }
+  var CAT_BY_LABEL = {};
+  CATS.forEach(function (c) { CAT_BY_LABEL[c.label.toLowerCase()] = c.key; });
+
   function buildItems(table, dayFirst) {
+    var mine = ourOwnExport(table);
+    if (mine) {
+      var rows = [], skipped = 0;
+      table.slice(1).forEach(function (r) {
+        var date = parseDate(r[mine.date], dayFirst);
+        var amount = parseAmount(r[mine.amount]);
+        if (!date || amount === null || amount === 0) { skipped++; return; }
+        var label = String(r[mine.category] == null ? '' : r[mine.category]).trim().toLowerCase();
+        rows.push({
+          date: date, amount: Math.abs(Math.round(amount * 100) / 100),
+          note: String(r[mine.note] == null ? '' : r[mine.note]).trim().slice(0, 80) || 'Imported spend',
+          category: CAT_BY_LABEL[label] || guessCat(r[mine.note]),
+          keep: true, mine: true
+        });
+      });
+      rows.sort(function (x, y) { return x.date < y.date ? 1 : -1; });
+      return { items: rows, skipped: skipped, income: 0, bad: !rows.length, ours: true };
+    }
     var a = analyse(table, dayFirst), idx = a.idx;
     if (idx.date < 0 || (idx.amount < 0 && idx.debit < 0)) return { items: [], skipped: 0, income: 0, bad: true };
     var raw = [], income = 0, skipped = 0;
@@ -3375,6 +3417,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     head.style.marginTop = '18px';
     head.appendChild(el('h2', null, '👀 Check these ' + items.length + (items.length === 1 ? ' spend' : ' spends')));
     var note = [];
+    if (out.ours) note.push('a file this app wrote — categories kept as they were');
     if (out.income) note.push(out.income + ' money-in rows skipped');
     if (out.skipped) note.push(out.skipped + ' unreadable rows skipped');
     head.appendChild(el('p', null, note.join(' · ') || 'nothing is saved until you press the button'));
@@ -3494,8 +3537,10 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   }
   $('#export').addEventListener('click', function () {
-    var list = rows();
-    if (!list.length) { toast('Nothing to export in this slice.'); return; }
+    /* a file people lean on as a backup has to hold everything, whatever the
+       filters happen to be showing */
+    var list = data.spends.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+    if (!list.length) { toast('Nothing to export yet.'); return; }
     var lines = ['date,category,note,amount,repeats'];
     list.forEach(function (s) {
       var ser = seriesOf(s);
@@ -3508,11 +3553,29 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     a.download = 'piggy-pocket-' + todayISO() + '.csv';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+    toast('Saved all ' + list.length + ' spends — filters do not trim the file.');
   });
 
   function syncLabel() {
     $('#syncbtn').textContent = 'sign in elsewhere: ' + (meta && meta.sync ? 'on' : 'off');
+    warnIfOnlyHere();
   }
+  /* Losing a browser should never lose a piggy. If nothing is syncing and
+     there is something to lose, say so — quietly, and not every day. */
+  var SNOOZE = 'piggy.onlyhere.snoozed';
+  function warnIfOnlyHere() {
+    var bar = $('#onlyhere');
+    if (!bar) return;
+    var exposed = meta && !meta.sync && (data.spends || []).length >= 5;
+    var snoozed = 0;
+    try { snoozed = Number(localStorage.getItem(SNOOZE) || 0); } catch (e) {}
+    bar.hidden = !exposed || Date.now() < snoozed;
+  }
+  $('#onlyhereno').addEventListener('click', function () {
+    try { localStorage.setItem(SNOOZE, String(Date.now() + 7 * 864e5)); } catch (e) {}
+    warnIfOnlyHere();
+  });
+  $('#onlyherefix').addEventListener('click', function () { $('#syncbtn').click(); });
   $('#syncbtn').addEventListener('click', function () {
     if (meta && meta.sync) {
       if (!confirm('Turn it off? The copy stops being updated, and signing in on a new device '
@@ -3658,6 +3721,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     renderFilterOptions();
     refreshSampleButton();
     refreshLetterBadge();
+    warnIfOnlyHere();
     var list = rows();
     renderStats(list);
     renderDonut(list);
