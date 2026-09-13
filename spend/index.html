@@ -721,7 +721,13 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   .wrap { padding: 10px calc(14px + env(safe-area-inset-right, 0px))
           calc(84px + env(safe-area-inset-bottom, 0px)) calc(14px + env(safe-area-inset-left, 0px)); }
   .top { margin: 2px 2px 12px; gap: 8px; }
-  .who { gap: 8px; }
+  /* five controls and a name do not fit one phone-width row, so let them wrap
+     and let the lock speak for itself */
+  .who { gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
+  .who .name { max-width: 28vw; }
+  .lockword { display: none; }
+  #cur { width: 74px !important; }
+  .who .btn.small { padding: 8px 10px; }
   .card { padding: 15px; border-radius: 20px; margin-bottom: 13px; }
   h2 { font-size: 18px; }
   .brand h1 { font-size: 21px; }
@@ -794,8 +800,42 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
         <input type="checkbox" id="su-remember" checked>
         <span>Keep this device unlocked, so I only type it when I sign out.</span>
       </label>
+      <label class="checkline">
+        <input type="checkbox" id="su-sync" checked>
+        <span>Let me sign in on my other phones and laptops. A copy of the piggy is kept —
+          still locked, still only openable with this passphrase.</span>
+      </label>
       <button class="btn" type="button" id="su-go" style="width:100%">🌸 Create my piggy</button>
       <p class="hint err" id="su-msg" role="status" aria-live="polite"></p>
+      <p class="gatefoot">Already made one somewhere else?
+        <button class="btn link" type="button" id="to-signin">Sign in instead</button>
+      </p>
+    </section>
+
+    <section id="signin" hidden>
+      <h1>🐷 Sign in</h1>
+      <p class="sub">Your name and passphrase, exactly as you set them. The piggy comes down
+        locked and is opened here, on this device.</p>
+      <form id="si-form">
+        <label class="field">
+          <span>Name</span>
+          <input class="input" id="si-user" type="text" autocomplete="username" placeholder="the name you chose">
+        </label>
+        <label class="field">
+          <span>Passphrase</span>
+          <input class="input" id="si-pass" type="password" autocomplete="current-password"
+            placeholder="the words you saved" spellcheck="false">
+        </label>
+        <label class="checkline">
+          <input type="checkbox" id="si-remember" checked>
+          <span>Keep this device unlocked.</span>
+        </label>
+        <button class="btn" type="submit" style="width:100%">🔓 Bring my piggy here</button>
+        <p class="hint err" id="si-msg" role="status" aria-live="polite"></p>
+      </form>
+      <p class="gatefoot">
+        <button class="btn link" type="button" id="to-setup">Make a new one instead</button>
+      </p>
     </section>
 
     <section id="unlock" hidden>
@@ -846,7 +886,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
       <button class="btn ghost small letterbtn" type="button" id="lettersbtn" aria-label="Letters" title="Letters">✉️<i class="dot" hidden></i></button>
       <button class="btn ghost small" type="button" id="soundbtn" aria-label="Turn the little sound off" title="Turn the little sound off">🔊</button>
       <button class="btn ghost small" type="button" id="themebtn" aria-label="Switch to the dark theme" title="Switch to the dark theme">🌙</button>
-      <button class="btn ghost small" type="button" id="lock">🔒 Lock</button>
+      <button class="btn ghost small" type="button" id="lock" aria-label="Lock the piggy">🔒<span class="lockword"> Lock</span></button>
     </div>
   </header>
 
@@ -986,7 +1026,8 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
 
   <p class="foot">
     Everything stays in this browser, encrypted with your passphrase — nothing is uploaded anywhere.
-    <br><button class="btn link" type="button" id="backup">save a backup file</button>
+    <br><button class="btn link" type="button" id="syncbtn">sign in elsewhere: off</button>
+    · <button class="btn link" type="button" id="backup">save a backup file</button>
     · <button class="btn link" type="button" id="restore">restore from a backup</button>
     · <button class="btn link" type="button" id="unsample" hidden>remove the sample spends</button>
     · <button class="btn link" type="button" id="clear">delete everything</button>
@@ -1196,12 +1237,67 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
       .then(function (buf) { return JSON.parse(dec.decode(buf)); });
   }
 
+  /* ── signing in from another device ───────────────────────────────────
+     The locker holds exactly what this browser holds: the same ciphertext,
+     openable only by the passphrase. The name and passphrase together say
+     which locker, and grant the right to read and replace it. */
+  function accountHashes(name, pass) {
+    var who = String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    return Promise.all([
+      sha('piggy-account:' + who + '\n' + pass),
+      sha('piggy-accounttoken:' + who + '\n' + pass)
+    ]).then(function (p) { return { id: p[0].slice(0, 32), token: p[1] }; });
+  }
+  var pushTimer = null, pushing = false;
+  function schedulePush() {
+    if (!meta || !meta.sync) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(pushVault, 1500);
+  }
+  function pushVault() {
+    if (!meta || !meta.sync || pushing || !meta.ct) return Promise.resolve(false);
+    pushing = true;
+    var copy = {
+      v: meta.v, user: meta.user, salt: meta.salt, iter: meta.iter,
+      iv: meta.iv, ct: meta.ct, created: meta.created, saved: meta.saved
+    };
+    return fetch('/spend/api/vault/' + meta.sync.id, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token: meta.sync.token, savedAt: meta.saved || Date.now(),
+        blob: JSON.stringify(copy) })
+    }).then(function (r) { return r.ok; })
+      .catch(function () { return false; })
+      .then(function (ok) { pushing = false; return ok; });
+  }
+  function pullVault() {
+    if (!meta || !meta.sync) return Promise.resolve(false);
+    return fetch('/spend/api/vault/' + meta.sync.id + '?t=' + meta.sync.token, { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (out) {
+        if (!out || !out.blob) return false;
+        if ((out.savedAt || 0) <= (meta.saved || 0)) return false;   /* ours is the newer one */
+        var far;
+        try { far = JSON.parse(out.blob); } catch (e) { return false; }
+        if (!far || !far.ct || far.salt !== meta.salt) return false;  /* a different piggy entirely */
+        return decryptBlob(far, key).then(function (obj) {
+          data = normalise(obj);
+          meta.iv = far.iv; meta.ct = far.ct; meta.saved = far.saved || out.savedAt;
+          if (far.user) meta.user = far.user;
+          try { localStorage.setItem(VKEY, JSON.stringify(meta)); } catch (e) {}
+          return true;
+        }).catch(function () { return false; });
+      })
+      .catch(function () { return false; });
+  }
+
   var saveQueue = Promise.resolve();
   function save() {
     if (!key) return;
     saveQueue = saveQueue.then(encryptData).then(function (blob) {
       meta.iv = blob.iv; meta.ct = blob.ct; meta.saved = Date.now();
       localStorage.setItem(VKEY, JSON.stringify(meta));
+      schedulePush();
     }).catch(function () { toast('Could not save — this browser is blocking storage.'); });
     return saveQueue;
   }
@@ -1244,9 +1340,54 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     $('#gate').hidden = false;
     $('#setup').hidden = which !== 'setup';
     $('#unlock').hidden = which !== 'unlock';
+    $('#signin').hidden = which !== 'signin';
     if (which === 'setup') { newPass(); $('#su-user').focus(); }
+    else if (which === 'signin') { $('#si-user').focus(); }
     else { $('#un-user').value = (meta && meta.user) || ''; $('#un-pass').focus(); }
   }
+  $('#to-signin').addEventListener('click', function () { showGate('signin'); });
+  $('#to-setup').addEventListener('click', function () { showGate('setup'); });
+
+  /* bringing an existing piggy onto a new device */
+  $('#si-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var msg = $('#si-msg');
+    var name = $('#si-user').value.trim(), pass = $('#si-pass').value;
+    if (!name || !pass) { msg.className = 'hint err'; msg.textContent = 'Both, please.'; return; }
+    msg.className = 'hint';
+    msg.textContent = 'Looking for it…';
+    accountHashes(name, pass).then(function (acc) {
+      return fetch('/spend/api/vault/' + acc.id + '?t=' + acc.token, { cache: 'no-store' })
+        .then(function (r) {
+          if (!r.ok) throw new Error('none');
+          return r.json();
+        })
+        .then(function (out) {
+          if (!out.blob) throw new Error('none');
+          var far = JSON.parse(out.blob);
+          return deriveKey(pass, unb64(far.salt), far.iter || ITER).then(function (k) {
+            return decryptBlob(far, k).then(function (obj) {
+              key = k;
+              meta = { v: far.v || 2, user: far.user || name, salt: far.salt, iter: far.iter || ITER,
+                iv: far.iv, ct: far.ct, created: far.created || Date.now(),
+                saved: far.saved || out.savedAt || Date.now(), sync: acc };
+              data = normalise(obj);
+              try { localStorage.setItem(VKEY, JSON.stringify(meta)); } catch (e) {}
+              msg.textContent = '';
+              return rememberDevice($('#si-remember').checked).then(function () {
+                openApp();
+                toast('Welcome back — everything came with you.');
+              });
+            });
+          });
+        });
+    }).catch(function (err) {
+      msg.className = 'hint err';
+      msg.textContent = err && err.message === 'none'
+        ? 'No piggy answers to that pair. Check the name and the passphrase — both have to match exactly.'
+        : 'That passphrase does not open it.';
+    });
+  });
   function openApp() {
     $('#gate').hidden = true;
     $('#app').hidden = false;
@@ -1264,7 +1405,11 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     var arrived = takeDelivery();
     if (arrived) refreshLetterBadge();
     setTimeout(function () { if (!openDue()) dayGreeting(); }, arrived ? 700 : 500);
-    collectPost(false).then(function (n) {
+    syncLabel();
+    pullVault().then(function (changed) {
+      if (changed) { render(); toast('Brought in the newest from your other device.'); }
+      return collectPost(false);
+    }).then(function (n) {
       if (n && $('#reader').hidden && $('#shelf').hidden) setTimeout(openDue, 400);
     });
   }
@@ -1298,7 +1443,12 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
       meta = { v: 2, user: user, salt: b64(salt), iter: ITER, iv: '', ct: '', created: Date.now() };
       data = { v: SCHEMA, cur: '$', spends: [], series: [], letters: [] };
       var carried = carryOldData();
-      return save().then(function () {
+      return ($('#su-sync').checked
+        ? accountHashes(user, pass).then(function (acc) { meta.sync = acc; })
+        : Promise.resolve()
+      ).then(function () {
+        return save();
+      }).then(function () {
         return rememberDevice($('#su-remember').checked);
       }).then(function () {
         msg.textContent = '';
@@ -1342,6 +1492,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
         key = k;
         data = normalise(obj);
         if (user && user !== meta.user) { meta.user = user; save(); }
+        if (meta.sync) pushVault();
         msg.className = 'hint';
         msg.textContent = '';
         return rememberDevice($('#un-remember').checked).then(openApp);
@@ -1639,8 +1790,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   function refreshLetterBadge() {
     var btn = $('#lettersbtn');
     if (!btn) return;
-    var any = (data.letters || []).length || (data.postbox && data.postbox.phrase);
-    btn.hidden = !any;
+    btn.hidden = false;
     btn.querySelector('.dot').hidden = dueLetters().length === 0;
   }
 
@@ -1804,7 +1954,8 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
       ? all.length + (all.length === 1 ? ' letter' : ' letters')
         + (waiting ? ' · ' + waiting + ' still sealed' : '')
       : '';
-    if (!all.length) list.appendChild(emptyNote('✉️', 'Nothing yet. Letters arrive by link.'));
+    if (!all.length) list.appendChild(emptyNote('✉️',
+      'No letters yet. Connect the postbox below and they will turn up here on their own.'));
     all.forEach(function (l) {
       var sealed = !l.read && !letterDue(l);
       var row = el('button', 'shelfrow');
@@ -3357,6 +3508,36 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     a.download = 'piggy-pocket-' + todayISO() + '.csv';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+  });
+
+  function syncLabel() {
+    $('#syncbtn').textContent = 'sign in elsewhere: ' + (meta && meta.sync ? 'on' : 'off');
+  }
+  $('#syncbtn').addEventListener('click', function () {
+    if (meta && meta.sync) {
+      if (!confirm('Turn it off? The copy stops being updated, and signing in on a new device '
+        + 'would bring back whatever it last held.')) return;
+      delete meta.sync;
+      save(); syncLabel();
+      toast('Off. This piggy stays on this device only.');
+      return;
+    }
+    var pass = prompt('Your passphrase, to set the copy up:');
+    if (!pass) return;
+    deriveKey(pass, unb64(meta.salt), meta.iter || ITER)
+      .then(function (k) { return decryptBlob(meta, k); })
+      .then(function () { return accountHashes(meta.user, pass); })
+      .then(function (acc) {
+        meta.sync = acc;
+        save();
+        syncLabel();
+        return pushVault();
+      })
+      .then(function (ok) {
+        toast(ok ? 'On. Sign in anywhere with your name and passphrase.'
+                 : 'Saved here, but the copy could not be sent — it will try again.');
+      })
+      .catch(function () { toast('That passphrase does not open this piggy.'); });
   });
 
   $('#backup').addEventListener('click', function () {
