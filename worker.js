@@ -89,6 +89,11 @@ export class Postbox {
     if (request.method === 'GET') {
       const token = url.searchParams.get('t') || '';
       if (!await this.allowed(token)) return json({ error: 'no' }, 403);
+      /* a peek is the sender looking in; anything else is her app collecting,
+         which is worth recording so the sender can see it arrived */
+      const peeking = url.searchParams.get('peek') === '1';
+      const lastGet = (await this.store.get('lastGet')) || 0;
+      if (!peeking) await this.store.put('lastGet', Date.now());
       const since = Math.max(0, parseInt(url.searchParams.get('since') || '0', 10) || 0);
       const rows = await this.store.list({ prefix: 'l:', limit: 1000 });
       const items = [];
@@ -99,7 +104,7 @@ export class Postbox {
         if (n > since) items.push({ seq: n, id: v.id, blob: v.blob });
       }
       items.sort((a, b) => a.seq - b.seq);
-      return json({ seq, items });
+      return json({ seq, items, lastGet });
     }
 
     if (request.method === 'POST') {

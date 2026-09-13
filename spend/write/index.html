@@ -468,6 +468,13 @@ a { color: var(--accent-2); }
       .then(function (buf) { return JSON.parse(dec.decode(buf)); });
   }
 
+  function ago(ts) {
+    var s = Math.max(0, Math.round((Date.now() - ts) / 1000));
+    if (s < 90) return s + ' seconds ago';
+    if (s < 5400) return Math.round(s / 60) + ' minutes ago';
+    if (s < 172800) return Math.round(s / 3600) + ' hours ago';
+    return Math.round(s / 86400) + ' days ago';
+  }
   function say(text, bad) {
     var m = $('#sendmsg');
     m.className = bad ? 'hint err' : 'hint';
@@ -526,13 +533,14 @@ a { color: var(--accent-2); }
     if (normalise(phrase).length < 6) { say('Put the shared phrase in first.', true); return; }
     say('Looking…');
     postbox(phrase).then(function (box) {
-      return fetch('/spend/api/box/' + box.id + '?t=' + box.token + '&since=0').then(function (res) {
+      return fetch('/spend/api/box/' + box.id + '?t=' + box.token + '&since=0&peek=1').then(function (res) {
         if (!res.ok) { say(res.status === 403 ? 'Wrong phrase for that postbox.' : 'The postbox said no.', true); return; }
         return res.json().then(function (j) {
-          if (!j.items.length) { say('The postbox is empty — she has had everything, or nothing has been sent yet.'); return; }
+          var seen = j.lastGet ? 'Her app last collected ' + ago(j.lastGet) + '.' : 'Her app has never collected from this postbox yet.';
+          if (!j.items.length) { say('Nothing in the postbox. ' + seen); return; }
           return unseal(box.key, j.items[j.items.length - 1].blob).then(function (last) {
-            say(j.items.length + ' waiting in the postbox. The newest reads: “'
-              + (last.title || (last.body || '').split('\n')[0]).slice(0, 60) + '”');
+            say(j.items.length + ' in the postbox — the newest reads “'
+              + (last.title || (last.body || '').split('\n')[0]).slice(0, 60) + '”. ' + seen);
           });
         });
       });
