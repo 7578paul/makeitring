@@ -1013,9 +1013,11 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
       </div>
       <div id="shelflist"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <button class="btn ghost small" type="button" id="postboxbtn">Connect the postbox</button>
         <button class="btn ghost small" type="button" id="pasteletter">Paste a letter</button>
         <button class="btn ghost small" type="button" id="shelfclose">Close</button>
       </div>
+      <p class="hint" id="postboxnote" style="margin-top:10px"></p>
     </div>
   </div>
 </div>
@@ -1262,6 +1264,9 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     var arrived = takeDelivery();
     if (arrived) refreshLetterBadge();
     setTimeout(function () { if (!openDue()) dayGreeting(); }, arrived ? 700 : 500);
+    collectPost(false).then(function (n) {
+      if (n && $('#reader').hidden && $('#shelf').hidden) setTimeout(openDue, 400);
+    });
   }
   function lock(byIdle) {
     key = null;
@@ -1609,7 +1614,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
         style: ['ink', 'type', 'marker', 'press'].indexOf(l.style) > -1 ? l.style : 'ink',
         when: ['now', 'open', 'date'].indexOf(l.when) > -1 ? l.when : 'now',
         at: /^\d{4}-\d{2}-\d{2}$/.test(l.at || '') ? l.at : '',
-        got: Date.now(), read: 0
+        got: Date.now(), read: 0, via: 'link'
       });
       added++;
     });
@@ -1623,14 +1628,18 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   function letterDue(l) {
     if (l.read) return false;
     if (l.when === 'date') return l.at && todayISO() >= l.at;
-    if (l.when === 'open') return (l.got || 0) < bootAt;   /* not this visit — the next one */
+    if (l.when === 'open') {
+      /* by postbox it has already waited for her to open the app; by link it
+         waits for the visit after the one that carried it */
+      return l.via === 'post' || (l.got || 0) < bootAt;
+    }
     return true;
   }
   function dueLetters() { return (data.letters || []).filter(letterDue); }
   function refreshLetterBadge() {
     var btn = $('#lettersbtn');
     if (!btn) return;
-    var any = (data.letters || []).length;
+    var any = (data.letters || []).length || (data.postbox && data.postbox.phrase);
     btn.hidden = !any;
     btn.querySelector('.dot').hidden = dueLetters().length === 0;
   }
@@ -1678,6 +1687,113 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     if (e.target === $('#reader')) { readerQueue = []; $('#reader').hidden = true; refreshLetterBadge(); }
   });
 
+  /* ── the postbox ──────────────────────────────────────────────────────
+     One shared phrase names the postbox, proves she may read it, and is the
+     key the letters were sealed with. The server holds nothing it can read,
+     and the phrase itself lives in her vault like everything else. */
+  function hex(buf) {
+    var b = new Uint8Array(buf), out = '';
+    for (var i = 0; i < b.length; i++) out += b[i].toString(16).padStart(2, '0');
+    return out;
+  }
+  function sha(text) { return crypto.subtle.digest('SHA-256', enc.encode(text)).then(hex); }
+  function tidyPhrase(p) { return String(p || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+  function postboxFor(phrase) {
+    var norm = tidyPhrase(phrase);
+    if (norm.length < 6) return Promise.reject(new Error('short'));
+    return Promise.all([
+      sha('piggy-postbox:' + norm),
+      sha('piggy-token:' + norm),
+      crypto.subtle.importKey('raw', enc.encode(norm), 'PBKDF2', false, ['deriveKey'])
+        .then(function (base) {
+          return crypto.subtle.deriveKey(
+            { name: 'PBKDF2', salt: enc.encode('piggy-letters-v1'), iterations: 250000, hash: 'SHA-256' },
+            base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+        })
+    ]).then(function (p) { return { id: p[0].slice(0, 32), token: p[1], key: p[2] }; });
+  }
+  function unseal(key, blob) {
+    var raw = atob(blob), all = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) all[i] = raw.charCodeAt(i);
+    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: all.slice(0, 12) }, key, all.slice(12))
+      .then(function (buf) { return JSON.parse(dec.decode(buf)); });
+  }
+
+  var collecting = false;
+  function collectPost(loud) {
+    var pb = data.postbox;
+    if (!pb || !pb.phrase || collecting) return Promise.resolve(0);
+    collecting = true;
+    return postboxFor(pb.phrase).then(function (box) {
+      return fetch('/spend/api/box/' + box.id + '?t=' + box.token + '&since=' + (pb.seq || 0), { cache: 'no-store' })
+        .then(function (res) {
+          if (!res.ok) { if (loud) toast(res.status === 403 ? 'That phrase does not open this postbox.' : 'The postbox is not answering.'); return 0; }
+          return res.json().then(function (out) {
+            if (!out.items || !out.items.length) { if (loud) toast('Nothing new in the postbox.'); return 0; }
+            var have = {};
+            (data.letters || []).forEach(function (l) { have[l.id] = true; });
+            return Promise.all(out.items.map(function (item) {
+              return unseal(box.key, item.blob).then(function (l) { return { item: item, letter: l }; })
+                .catch(function () { return null; });
+            })).then(function (opened) {
+              var added = 0;
+              data.letters = data.letters || [];
+              opened.forEach(function (o) {
+                if (!o || !o.letter || !o.letter.body || have[o.letter.id]) return;
+                var l = o.letter;
+                data.letters.push({
+                  id: l.id || uid(), title: String(l.title || '').slice(0, 80),
+                  body: String(l.body).slice(0, 4000), sign: String(l.sign || '').slice(0, 60),
+                  style: ['ink', 'type', 'marker', 'press'].indexOf(l.style) > -1 ? l.style : 'ink',
+                  when: ['now', 'open', 'date'].indexOf(l.when) > -1 ? l.when : 'now',
+                  at: /^\d{4}-\d{2}-\d{2}$/.test(l.at || '') ? l.at : '',
+                  got: Date.now(), read: 0, via: 'post'
+                });
+                added++;
+              });
+              data.postbox.seq = out.seq || pb.seq || 0;
+              save();
+              if (added) { play('magic'); toast(added === 1 ? 'A letter arrived 💌' : added + ' letters arrived 💌'); }
+              else if (loud) toast('Nothing new in the postbox.');
+              refreshLetterBadge();
+              return added;
+            });
+          });
+        });
+    }).catch(function () {
+      if (loud) toast('Could not reach the postbox — try again in a bit.');
+      return 0;
+    }).then(function (n) { collecting = false; return n; });
+  }
+
+  function postboxNote() {
+    var note = $('#postboxnote'), btn = $('#postboxbtn');
+    if (!note) return;
+    if (data.postbox && data.postbox.phrase) {
+      note.textContent = 'The postbox is connected — letters turn up on their own.';
+      btn.textContent = 'Check the postbox';
+      postboxFor(data.postbox.phrase).then(function (box) {
+        note.textContent = 'Connected to postbox ' + box.id.slice(0, 6) + ' — letters turn up on their own.';
+      }).catch(function () {});
+    } else {
+      note.textContent = 'Not connected yet. With the shared phrase, letters arrive by themselves.';
+      btn.textContent = 'Connect the postbox';
+    }
+  }
+  $('#postboxbtn').addEventListener('click', function () {
+    if (data.postbox && data.postbox.phrase) {
+      collectPost(true).then(function (n) { if (n) { $('#shelf').hidden = true; setTimeout(openDue, 500); } });
+      return;
+    }
+    var phrase = prompt('The shared phrase (the same one he set):');
+    if (phrase === null) return;
+    if (tidyPhrase(phrase).length < 6) { toast('That phrase is too short.'); return; }
+    data.postbox = { phrase: tidyPhrase(phrase), seq: 0 };
+    save();
+    postboxNote();
+    collectPost(true).then(function (n) { if (n) { $('#shelf').hidden = true; setTimeout(openDue, 500); } });
+  });
+
   /* the shelf of everything she has been sent */
   function openShelf() {
     var list = $('#shelflist');
@@ -1706,10 +1822,12 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
       else row.addEventListener('click', function () { toast('Not yet — that one has a date on it.'); });
       list.appendChild(row);
     });
+    postboxNote();
     $('#shelf').hidden = false;
   }
   $('#lettersbtn').addEventListener('click', function () {
     if (!openDue()) openShelf();
+    collectPost(false).then(function (n) { if (n && $('#reader').hidden) { $('#shelf').hidden = true; openDue(); } });
   });
   $('#shelfclose').addEventListener('click', function () { $('#shelf').hidden = true; });
   $('#shelf').addEventListener('click', function (e) { if (e.target === $('#shelf')) $('#shelf').hidden = true; });
@@ -1744,6 +1862,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     }
     if (Array.isArray(obj.series)) d.series = obj.series;
     if (Array.isArray(obj.letters)) d.letters = obj.letters;
+    if (obj.postbox && typeof obj.postbox.phrase === 'string') d.postbox = obj.postbox;
     return d;
   }
 

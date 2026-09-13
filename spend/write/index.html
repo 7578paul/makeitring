@@ -184,11 +184,33 @@ a { color: var(--accent-2); }
   </div>
 
   <section class="panel" style="margin-top:22px">
+    <h2>Her postbox</h2>
+    <p class="hint" style="margin:-4px 0 14px;max-width:70ch">Set the same phrase here and once in her
+      app — envelope button, then “connect the postbox”. After that the letters go by themselves: she
+      gets them next time she opens the app, at whatever moment you chose. The phrase is the address
+      <em>and</em> the key: letters are sealed here and only opened on her phone, so what sits on the
+      server is unreadable.</p>
+    <div class="row" style="align-items:flex-end">
+      <label class="f" style="flex:1 1 280px;margin:0">
+        <span>Shared phrase</span>
+        <input class="in" id="phrase" type="text" autocomplete="off" spellcheck="false"
+          placeholder="four words you will both remember">
+      </label>
+      <button class="btn ghost" type="button" id="savephrase">Remember it</button>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn" type="button" id="send">Send the stack to her postbox</button>
+      <button class="btn ghost" type="button" id="checkbox">Check the postbox</button>
+    </div>
+    <p class="hint" id="sendmsg" role="status" aria-live="polite" style="margin-top:10px"></p>
+  </section>
+
+  <section class="panel" style="margin-top:22px">
     <h2>The stack <span id="count" class="hint"></span></h2>
     <div class="stack" id="stack"></div>
     <p class="hint" id="empty">Nothing in the stack yet.</p>
     <div class="row" style="margin-top:16px">
-      <button class="btn" type="button" id="make">Make the link</button>
+      <button class="btn ghost" type="button" id="make">Make a link instead</button>
       <button class="btn ghost" type="button" id="wipe">Empty the stack</button>
     </div>
     <div id="linkout" hidden style="margin-top:16px">
@@ -222,7 +244,7 @@ a { color: var(--accent-2); }
     { key: 'press', label: 'Press' }
   ];
   var WHENS = [
-    { key: 'now', label: 'The moment she opens the link' },
+    { key: 'now', label: 'Straight away' },
     { key: 'open', label: 'Next time she opens the app' },
     { key: 'date', label: 'On a date' }
   ];
@@ -261,7 +283,7 @@ a { color: var(--accent-2); }
     };
   }
   function whenText(l) {
-    if (l.when === 'now') return 'as soon as she opens the link';
+    if (l.when === 'now') return 'straight away';
     if (l.when === 'open') return 'next time she opens the app';
     if (l.when === 'date' && l.at) return 'on ' + l.at;
     return 'on a date';
@@ -386,6 +408,136 @@ a { color: var(--accent-2); }
   $('#copy').addEventListener('click', function () { copy($('#link').textContent, 'Link copied.'); });
   $('#copycode').addEventListener('click', function () { copy($('#linkout').dataset.code || '', 'Code copied.'); });
   $('#open').addEventListener('click', function () { window.open($('#link').textContent, '_blank'); });
+
+  /* ── the postbox ──────────────────────────────────────────────────────
+     One phrase does three jobs: it names the postbox, it proves who may
+     write to it, and it is the key the letters are sealed with. The server
+     only ever holds sealed blobs. */
+  var PKEY = 'piggy.letters.phrase.v1';
+  var enc = new TextEncoder(), dec = new TextDecoder();
+  try { $('#phrase').value = localStorage.getItem(PKEY) || ''; } catch (e) {}
+
+  function hex(buf) {
+    var b = new Uint8Array(buf), out = '';
+    for (var i = 0; i < b.length; i++) out += b[i].toString(16).padStart(2, '0');
+    return out;
+  }
+  function sha(text) {
+    return crypto.subtle.digest('SHA-256', enc.encode(text)).then(hex);
+  }
+  function b64(buf) {
+    var b = new Uint8Array(buf), s = '';
+    for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+    return btoa(s);
+  }
+  function unb64(str) {
+    var raw = atob(str), a = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) a[i] = raw.charCodeAt(i);
+    return a;
+  }
+  function normalise(phrase) { return String(phrase || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+
+  function postbox(phrase) {
+    var norm = normalise(phrase);
+    if (norm.length < 6) return Promise.reject(new Error('short'));
+    return Promise.all([
+      sha('piggy-postbox:' + norm),
+      sha('piggy-token:' + norm),
+      crypto.subtle.importKey('raw', enc.encode(norm), 'PBKDF2', false, ['deriveKey'])
+        .then(function (base) {
+          return crypto.subtle.deriveKey(
+            { name: 'PBKDF2', salt: enc.encode('piggy-letters-v1'), iterations: 250000, hash: 'SHA-256' },
+            base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+        })
+    ]).then(function (parts) {
+      return { id: parts[0].slice(0, 32), token: parts[1], key: parts[2] };
+    });
+  }
+  function seal(key, letter) {
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, enc.encode(JSON.stringify(letter)))
+      .then(function (ct) {
+        var all = new Uint8Array(iv.length + ct.byteLength);
+        all.set(iv, 0); all.set(new Uint8Array(ct), iv.length);
+        return b64(all);
+      });
+  }
+  function unseal(key, blob) {
+    var all = unb64(blob);
+    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: all.slice(0, 12) }, key, all.slice(12))
+      .then(function (buf) { return JSON.parse(dec.decode(buf)); });
+  }
+
+  function say(text, bad) {
+    var m = $('#sendmsg');
+    m.className = bad ? 'hint err' : 'hint';
+    m.textContent = text;
+  }
+  $('#savephrase').addEventListener('click', function () {
+    var v = normalise($('#phrase').value);
+    if (v.length < 6) { say('Make it at least six characters — it is the key as well as the address.', true); return; }
+    try { localStorage.setItem(PKEY, $('#phrase').value.trim()); } catch (e) {}
+    postbox($('#phrase').value).then(function (box) {
+      say('Kept in this browser · postbox ' + box.id.slice(0, 6) + '. Set the same phrase once in her '
+        + 'app — the same six letters should show there.');
+    });
+  });
+
+  $('#send').addEventListener('click', function () {
+    if (!stack.length) { say('Add a letter to the stack first.', true); return; }
+    var phrase = $('#phrase').value;
+    if (normalise(phrase).length < 6) { say('Put the shared phrase in first.', true); return; }
+    say('Sealing…');
+    postbox(phrase).then(function (box) {
+      return Promise.all(stack.map(function (l) { return seal(box.key, l); }))
+        .then(function (blobs) {
+          return fetch('/spend/api/box/' + box.id, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              token: box.token,
+              items: blobs.map(function (blob, i) { return { id: stack[i].id, blob: blob }; })
+            })
+          });
+        })
+        .then(function (res) { return res.json().then(function (j) { return { res: res, j: j }; }); })
+        .then(function (out) {
+          if (!out.res.ok) {
+            say(out.res.status === 403
+              ? 'That postbox belongs to a different phrase. Check the spelling, or pick a new phrase on both sides.'
+              : 'The postbox said no (' + out.res.status + ').', true);
+            return;
+          }
+          var byWhen = { now: 0, open: 0, date: 0 };
+          stack.forEach(function (l) { byWhen[l.when] = (byWhen[l.when] || 0) + 1; });
+          var bits = [];
+          if (byWhen.now) bits.push(byWhen.now + ' waiting for her next open');
+          if (byWhen.open) bits.push(byWhen.open + ' for the visit after that');
+          if (byWhen.date) bits.push(byWhen.date + ' sealed until their date');
+          say('In the postbox · ' + bits.join(' · ') + '.');
+          stack = []; saveDrafts(); renderStack();
+          $('#linkout').hidden = true;
+        });
+    }).catch(function () { say('Could not reach the postbox — check the connection and try again.', true); });
+  });
+
+  $('#checkbox').addEventListener('click', function () {
+    var phrase = $('#phrase').value;
+    if (normalise(phrase).length < 6) { say('Put the shared phrase in first.', true); return; }
+    say('Looking…');
+    postbox(phrase).then(function (box) {
+      return fetch('/spend/api/box/' + box.id + '?t=' + box.token + '&since=0').then(function (res) {
+        if (!res.ok) { say(res.status === 403 ? 'Wrong phrase for that postbox.' : 'The postbox said no.', true); return; }
+        return res.json().then(function (j) {
+          if (!j.items.length) { say('The postbox is empty — she has had everything, or nothing has been sent yet.'); return; }
+          return unseal(box.key, j.items[j.items.length - 1].blob).then(function (last) {
+            say(j.items.length + ' waiting in the postbox. The newest reads: “'
+              + (last.title || (last.body || '').split('\n')[0]).slice(0, 60) + '”');
+          });
+        });
+      });
+    }).catch(function () { say('Could not reach the postbox.', true); });
+  });
 
   renderChips(); renderStack(); preview();
 })();

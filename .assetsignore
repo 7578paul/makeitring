@@ -1,5 +1,10 @@
 # Kept out of the published site — repo housekeeping, not web content.
+.git/
+node_modules/
+.wrangler/
+.gitignore
 wrangler.toml
+worker.js
 .assetsignore
 .nojekyll
 CNAME
