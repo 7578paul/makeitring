@@ -243,7 +243,7 @@ button, .chip, .tabs button, .seg button, summary { touch-action: manipulation; 
 .brand h1 { font-size: 24px; margin: 0; line-height: 1.1; }
 .brand p { margin: 1px 0 0; font-size: 13px; color: var(--ink-2); }
 .top-spacer { flex: 1 1 auto; }
-.who { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.who { display: flex; align-items: center; gap: 8px; }
 .who .name { font-size: 13px; font-weight: 800; color: var(--ink-2); max-width: 40vw;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   background: none; border: none; padding: 6px 4px; cursor: pointer; border-radius: 10px; }
@@ -734,7 +734,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   .top { margin: 2px 2px 12px; gap: 8px; }
   /* five controls and a name do not fit one phone-width row, so let them wrap
      and let the lock speak for itself */
-  .who { gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
+  .who { gap: 7px; flex-wrap: wrap; justify-content: flex-start; }
   .who .name { max-width: 28vw; }
   .lockword { display: none; }
   #cur { width: 74px !important; }
@@ -1295,7 +1295,9 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
         try { far = JSON.parse(out.blob); } catch (e) { return false; }
         if (!far || !far.ct || far.salt !== meta.salt) return false;  /* a different piggy entirely */
         return decryptBlob(far, key).then(function (obj) {
+          var hadPostbox = data.postbox;
           data = normalise(obj);
+          if (hadPostbox && !data.postbox) data.postbox = hadPostbox;   /* keep the connection */
           meta.iv = far.iv; meta.ct = far.ct; meta.saved = far.saved || out.savedAt;
           if (far.user) meta.user = far.user;
           try { localStorage.setItem(VKEY, JSON.stringify(meta)); } catch (e) {}
@@ -1769,7 +1771,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
     if (handed && tidyPhrase(handed).length >= 6) {
       data.postbox = { phrase: tidyPhrase(handed), seq: (data.postbox && data.postbox.seq) || 0 };
       save();
-      collectPost(false).then(function (n) { if (n) dropLetterSometime(); });
+      collectPost(false).then(function (n) { if (n) dropLetterSometime(true); });
     }
     if (takeDelivery()) dropLetterSometime();
   });
@@ -1859,20 +1861,24 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   /* Not the instant she opens the app — some unpredictable moment while she
      is in it. The longer one has been waiting, the less it is willing to. */
   var dropTimer = null;
-  function dropLetterSometime() {
+  function dropLetterSometime(justLanded) {
     var due = dueLetters();
     if (!due.length) return;
     var waited = Date.now() - due.reduce(function (a, l) { return Math.min(a, l.got || Date.now()); }, Date.now());
     var day = 864e5, wait;
-    if (waited > 3 * day) wait = 2000 + Math.random() * 6000;        /* three days is long enough */
-    else if (waited > day) wait = 5000 + Math.random() * 20000;
-    else wait = 25000 + Math.random() * 150000;                      /* somewhere in the next few minutes */
+    /* Unpredictable, but never so long that the session ends first. One that
+       has just landed gets a short fuse; one already waiting gets a longer,
+       vaguer one; one that has been waiting days stops being coy. */
+    if (justLanded) wait = 6000 + Math.random() * 19000;
+    else if (waited > 3 * day) wait = 2000 + Math.random() * 6000;
+    else if (waited > day) wait = 5000 + Math.random() * 15000;
+    else wait = 18000 + Math.random() * 50000;
     clearTimeout(dropTimer);
     dropTimer = setTimeout(function () {
       if (!$('#reader').hidden || !$('#shelf').hidden) return;        /* not over something else */
-      if (document.querySelector('.cheer')) { dropTimer = setTimeout(openDue, 5000); return; }
+      if (document.querySelector('.cheer')) { dropTimer = setTimeout(openDue, 4000); return; }
       openDue();
-    }, Math.max(wait, 5200));
+    }, Math.max(wait, 4200));
   }
   $('#readernext').addEventListener('click', readQueue);
   $('#readerclose').addEventListener('click', function () {
@@ -1952,7 +1958,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
               save();
               if (added && loud) toast(added === 1 ? 'A letter arrived 💌' : added + ' letters arrived 💌');
               else if (!added && loud) toast('Nothing new in the postbox.');
-              if (added) dropLetterSometime();
+              if (added) dropLetterSometime(true);
               return added;
             });
           });
