@@ -897,7 +897,7 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   </header>
 
   <div class="warnbar" id="onlyhere" hidden>
-    <span>⚠️ This piggy lives only on this device. If the browser goes, so does it.</span>
+    <span id="onlyheretext">⚠️ This piggy lives only on this device. If the browser goes, so does it.</span>
     <button class="btn small" type="button" id="onlyherefix">Keep a copy</button>
     <button class="btn link small" type="button" id="onlyhereno">Later</button>
   </div>
@@ -3563,9 +3563,16 @@ table.prev input[type="checkbox"] { width: 18px; height: 18px; accent-color: var
   /* Losing a browser should never lose a piggy. If nothing is syncing and
      there is something to lose, say so — quietly, and not every day. */
   var SNOOZE = 'piggy.onlyhere.snoozed';
+  /* a home-screen icon on iPhone keeps its own storage: delete the icon and
+     the storage goes with it, which deserves saying out loud */
+  var onHomeScreen = (window.navigator.standalone === true) ||
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
   function warnIfOnlyHere() {
     var bar = $('#onlyhere');
     if (!bar) return;
+    $('#onlyheretext').textContent = onHomeScreen
+      ? '⚠️ This piggy lives only inside this home-screen app. Delete the icon and it goes with it.'
+      : '⚠️ This piggy lives only on this device. If the browser goes, so does it.';
     var exposed = meta && !meta.sync && (data.spends || []).length >= 5;
     var snoozed = 0;
     try { snoozed = Number(localStorage.getItem(SNOOZE) || 0); } catch (e) {}
