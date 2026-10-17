@@ -307,7 +307,12 @@
 
         var data = {};
         new FormData(form).forEach(function (v, k) { data[k] = v; });
-        data._subject = "New enquiry from the Make It Ring website";
+        // Which page sent them was only ever told to the relay, so the
+        // notification itself could not say where a lead came from. It goes in
+        // the subject as well as the body, so it is readable without opening.
+        var from_page = currentPlaybook();
+        data.source_page = from_page;
+        data._subject = "New enquiry (" + from_page + ") from the Make It Ring website";
         data._captcha = "false";
         if (!AUTOREPLY_ENDPOINT) data._autoresponse = AUTO_REPLY;
 
